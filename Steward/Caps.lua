@@ -76,3 +76,118 @@ S:On("PLAYER_ENTERING_WORLD", function()
         if not ok then S:LogError("caps", err) end
     end)
 end)
+
+---------------------------------------------------------------- what this client's game calls really answer (0.88.4)
+-- Forever's client answered GetTrainerServiceInfo in another order than classic (0.88.3: "Polearms | available | 135129"),
+-- and Steward never trained for a week without anyone seeing why. This notes, once a session each, the raw answers of
+-- the other game calls Steward reads by position, the first time they come up in ordinary play (login, a vendor, loot,
+-- a quest giver, a roll, a trainer), in StewardDB.apiProbe[call] = { when, version, "1=type:value 2=type:value ..." }.
+-- It only reads; nothing changes and nothing is shown (Nick 2026-11-22: "Yes", to looking for more of these).
+local probed = {}
+local function show(v)
+    local t = type(v)
+    if t == "string" then return "string:" .. v:sub(1, 40) end
+    if t == "number" or t == "boolean" then return t .. ":" .. tostring(v) end
+    if t == "table" then
+        local keys = {}
+        for k in pairs(v) do keys[#keys + 1] = tostring(k) if #keys >= 12 then break end end
+        table.sort(keys)
+        return "table{" .. table.concat(keys, ",") .. "}"
+    end
+    return t
+end
+local function probe(name, fn, ...)
+    if probed[name] or type(fn) ~= "function" then return end
+    local r = { pcall(fn, ...) }
+    if not r[1] then return end
+    local n = 0
+    for k = 2, 13 do if r[k] ~= nil then n = k - 1 end end
+    if n == 0 then return end                      -- nothing to see yet (no quest, empty slot): try again next time
+    local parts = {}
+    for k = 1, n do parts[#parts + 1] = k .. "=" .. show(r[k + 1]) end
+    probed[name] = true
+    StewardDB.apiProbe = StewardDB.apiProbe or {}
+    StewardDB.apiProbe[name] = { when = date("%m-%d %H:%M"), version = tostring(S.version), table.concat(parts, " ") }
+end
+local function safely(f) return function(...) if StewardDB then pcall(f, ...) end end end
+
+S:On("PLAYER_ENTERING_WORLD", safely(function()
+    C_Timer.After(6, safely(function()
+        local nq = GetNumQuestLogEntries and GetNumQuestLogEntries() or 0
+        for i = 1, nq do
+            if GetQuestLogTitle then
+                local _, _, _, header = GetQuestLogTitle(i)
+                if header == false or header == nil then probe("GetQuestLogTitle", GetQuestLogTitle, i) end
+            end
+            probe("GetQuestLogSpecialItemInfo", GetQuestLogSpecialItemInfo, i)
+            if GetNumQuestLeaderBoards and (GetNumQuestLeaderBoards(i) or 0) > 0 then probe("GetQuestLogLeaderBoard", GetQuestLogLeaderBoard, 1, i) end
+        end
+        probe("GetTalentInfo", GetTalentInfo, 1, 1)
+        probe("GetTalentTabInfo", GetTalentTabInfo, 1)
+        probe("GetSkillLineInfo", GetSkillLineInfo, 1)
+        probe("GetSpellTabInfo", GetSpellTabInfo, 1)
+        local book = BOOKTYPE_SPELL or "spell"
+        probe("GetSpellBookItemName", GetSpellBookItemName, 1, book)
+        probe("GetSpellBookItemInfo", GetSpellBookItemInfo, 1, book)
+        if GetNumShapeshiftForms and (GetNumShapeshiftForms() or 0) > 0 then probe("GetShapeshiftFormInfo", GetShapeshiftFormInfo, 1) end
+        if GetActionInfo then
+            for slot = 1, 120 do
+                if HasAction and HasAction(slot) then probe("GetActionInfo", GetActionInfo, slot) break end
+            end
+        end
+        probe("GetInstanceInfo", GetInstanceInfo)
+        probe("UnitPosition", UnitPosition, "player")
+        probe("GetProfessions", GetProfessions)
+        probe("GetInventoryItemLink", GetInventoryItemLink, "player", 16)
+        if GetInventoryItemID then
+            local id = GetInventoryItemID("player", 16)
+            if id then probe("GetItemInfo", (C_Item and C_Item.GetItemInfo) or GetItemInfo, id) end
+            if id then probe("GetItemInfoInstant", (C_Item and C_Item.GetItemInfoInstant) or GetItemInfoInstant, id) end
+        end
+        if C_Container and C_Container.GetContainerItemInfo then
+            for slot = 1, 16 do
+                if C_Container.GetContainerItemInfo(0, slot) then probe("C_Container.GetContainerItemInfo", C_Container.GetContainerItemInfo, 0, slot) break end
+            end
+        end
+        probe("C_Container.GetItemCooldown", C_Container and C_Container.GetItemCooldown, 6948)
+    end))
+end))
+S:On("MERCHANT_SHOW", safely(function()
+    C_Timer.After(0.5, safely(function()
+        probe("GetMerchantItemInfo", GetMerchantItemInfo, 1)
+        probe("GetRepairAllCost", GetRepairAllCost)
+        probe("GetMerchantItemLink", GetMerchantItemLink, 1)
+    end))
+end))
+S:On("LOOT_OPENED", safely(function()
+    for i = 1, (GetNumLootItems and GetNumLootItems() or 0) do
+        if GetLootSlotType and GetLootSlotType(i) == (LOOT_SLOT_ITEM or 1) then probe("GetLootSlotInfo", GetLootSlotInfo, i) break end
+    end
+end))
+S:On("START_LOOT_ROLL", safely(function(id) probe("GetLootRollItemInfo", GetLootRollItemInfo, id) end))
+S:On("QUEST_DETAIL", safely(function()
+    if GetNumQuestRewards and GetNumQuestRewards() > 0 then probe("GetQuestItemInfo reward", GetQuestItemInfo, "reward", 1) end
+    if GetNumQuestChoices and GetNumQuestChoices() > 0 then probe("GetQuestItemInfo choice", GetQuestItemInfo, "choice", 1) end
+end))
+S:On("QUEST_COMPLETE", safely(function()
+    if GetNumQuestChoices and GetNumQuestChoices() > 0 then probe("GetQuestItemInfo choice", GetQuestItemInfo, "choice", 1) end
+    if GetNumQuestRewards and GetNumQuestRewards() > 0 then probe("GetQuestItemInfo reward", GetQuestItemInfo, "reward", 1) end
+end))
+S:On("QUEST_GREETING", safely(function()
+    if GetNumAvailableQuests and GetNumAvailableQuests() > 0 then probe("GetAvailableQuestInfo", GetAvailableQuestInfo, 1) probe("GetAvailableTitle", GetAvailableTitle, 1) end
+    if GetNumActiveQuests and GetNumActiveQuests() > 0 then probe("GetActiveTitle", GetActiveTitle, 1) end
+end))
+S:On("GOSSIP_SHOW", safely(function()
+    if C_GossipInfo then
+        probe("C_GossipInfo.GetAvailableQuests", C_GossipInfo.GetAvailableQuests)
+        probe("C_GossipInfo.GetActiveQuests", C_GossipInfo.GetActiveQuests)
+        probe("C_GossipInfo.GetOptions", C_GossipInfo.GetOptions)
+    end
+end))
+S:On("TRAINER_SHOW", safely(function()
+    C_Timer.After(0.5, safely(function()
+        probe("GetTrainerServiceInfo", GetTrainerServiceInfo, 1)
+        probe("GetTrainerServiceCost", GetTrainerServiceCost, 1)
+        probe("GetTrainerServiceSkillLine", GetTrainerServiceSkillLine, 1)
+    end))
+end))

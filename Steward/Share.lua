@@ -87,6 +87,8 @@ local SECTIONS = {
     { "talentLog",         function() return StewardCharDB and StewardCharDB.talentLog end },
     { "rotationLog",       function() return StewardCharDB and StewardCharDB.rotationLog end },
     { "sellLog",           function() return StewardCharDB and StewardCharDB.sellLog end },
+    { "apiProbe",          function() return StewardDB and StewardDB.apiProbe end },           -- 0.88.4
+    { "junkLog",           function() return StewardCharDB and StewardCharDB.junkLog end },    -- 0.88.4
 }
 Share.SECTIONS = SECTIONS
 
