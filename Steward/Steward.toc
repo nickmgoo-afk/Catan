@@ -1,0 +1,80 @@
+## Interface: 16001
+## Title: Steward
+## Notes: Your leveling companion: equips upgrades, picks quest rewards, and more to come.
+## Author: nickmgoo
+## Version: 0.78.0
+## SavedVariables: StewardDB
+## SavedVariablesPerCharacter: StewardCharDB
+
+Core.lua
+Reload.lua
+Caps.lua
+Specs.lua
+Items.lua
+Gear.lua
+Rewards.lua
+Quests.lua
+Persona.lua
+PersonaItems.lua
+LevelUpArt.lua
+PersonaLevelUp.lua
+Vendor.lua
+Spells.lua
+Bars.lua
+Talents.lua
+Rotation.lua
+Dungeons.lua
+Hints.lua
+Tooltip.lua
+Options.lua
+Setup.lua
+QuestLogMode.lua
+Scan.lua
+GuideParse.lua
+Guide.lua
+Waypoint.lua
+GuideUI.lua
+GuideTracker.lua
+Arrow.lua
+TravelData.lua
+Travel.lua
+Training.lua
+QuestData.lua
+QuestDB.lua
+Filler.lua
+Handins.lua
+Route.lua
+FreeMode.lua
+PathData.lua
+PathTerrain.lua
+PathCaveNets.lua
+PathRoads.lua
+Path3DData_Kalimdor.lua
+Path3DData_EasternKingdoms.lua
+Path3DData_Zephras.lua
+Path3D.lua
+Path.lua
+Guides\Guide_Alliance_11-16.lua
+Guides\Guide_Alliance_16-21.lua
+Guides\Guide_Alliance_21-30.lua
+Guides\Guide_Alliance_30-35.lua
+Guides\Guide_Alliance_35-40.lua
+Guides\Guide_Alliance_40-45.lua
+Guides\Guide_Alliance_45-50.lua
+Guides\Guide_Alliance_50-55.lua
+Guides\Guide_Alliance_55-60.lua
+Guides\Guide_DwarfGnome_1-14.lua
+Guides\Guide_Horde_12-22.lua
+Guides\Guide_Horde_22-30.lua
+Guides\Guide_Horde_30-35.lua
+Guides\Guide_Horde_35-40.lua
+Guides\Guide_Horde_40-45.lua
+Guides\Guide_Horde_45-50.lua
+Guides\Guide_Horde_50-55.lua
+Guides\Guide_Horde_55-60.lua
+Guides\Guide_Human_Warrior_1-12.lua
+Guides\Guide_NightElf_1-11.lua
+Guides\Guide_OrcTroll_1-12.lua
+Guides\Guide_Skyborne_1-13.lua
+Guides\Guide_Tauren_1-12.lua
+Guides\Guide_Undead_1-14.lua

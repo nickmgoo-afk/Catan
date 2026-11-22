@@ -1,0 +1,3 @@
+*.tga binary
+*.ttf binary
+*.lua text eol=lf
