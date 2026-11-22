@@ -581,6 +581,55 @@ local SHIP_SPEED = 20     -- yards a second on a boat, zeppelin or skycutter (to
 local function swapped() return S:WorldOrder() == "unitswap" end
 local function NW(p) if swapped() then return p.world.y, p.world.x end return p.world.x, p.world.y end
 local function netVec(n, w) if swapped() then return Vec(w, n) end return Vec(n, w) end
+
+---------------------------------------------------------------- boat timetables (0.87.0)
+-- A boat runs the same loop over and over, so one departure seen on your own ride says when it leaves every dock for
+-- hours after (Nick 2026-11-22: "how does the routing algorithm not know what is faster?": it averaged half a loop of
+-- waiting and guessed the speed). Speed: the game's own leg yards / 25 yd a second matched all three legs Nick rode on
+-- 11-22 within 5 s (Auberdine-Menethil 70 s, Menethil-Southshore 134 s, Southshore-Auberdine 74 s; stops about 70 s).
+-- Zeppelins and skycutters keep the old guess (none ridden yet). Learned, per ship name, in StewardDB:
+--   shipDeps[name] = { { k = stop, at = server time }, ... } newest first (departures seen on your rides)
+--   shipLegs[name][k] = seconds from stop k to the next; shipStops[name][k] = seconds a stop lasts; shipCycle[name]
+local BOAT_SPEED = 25
+local DEP_FRESH = 3 * 3600   -- a departure older than this says nothing (a server restart sets the boats going anew)
+local function epoch() return (GetServerTime and GetServerTime()) or (time and time()) or 0 end
+local function shipSpeed(name) return (name:find("zeppelin") or name:find("skycutter")) and SHIP_SPEED or BOAT_SPEED end
+local function learned(tbl, name, k)
+    local t = StewardDB and StewardDB[tbl] and StewardDB[tbl][name]
+    return t and t[k]
+end
+-- seconds from leaving stop k to reaching the next stop
+local function legSecs(sh, k) return learned("shipLegs", sh[1], k) or sh[4][k] / shipSpeed(sh[1]) end
+-- seconds the boat stays at stop k
+local function stopSecs(sh, k) return learned("shipStops", sh[1], k) or (sh[3][k][5] + 10) end
+local function cycleSecs(sh)
+    local c = StewardDB and StewardDB.shipCycle and StewardDB.shipCycle[sh[1]]
+    if c then return c end
+    c = 0
+    for k = 1, #sh[3] do c = c + legSecs(sh, k) + stopSecs(sh, k) end
+    return c
+end
+-- seconds from leaving stop j to leaving stop k, going round
+local function depOffset(sh, j, k)
+    local n, t, i = #sh[3], 0, j
+    for _ = 1, n do
+        if i == k then break end
+        t = t + legSecs(sh, i)
+        i = i % n + 1
+        t = t + stopSecs(sh, i)
+    end
+    return t
+end
+-- seconds until the boat next leaves stop k when you're there at server time T; nil when no departure was seen lately
+local function nextLeaves(sh, k, T)
+    local deps = StewardDB and StewardDB.shipDeps and StewardDB.shipDeps[sh[1]]
+    local a = deps and deps[1]
+    if not (a and a.at and T - a.at < DEP_FRESH and T - a.at > -600) then return nil end
+    local C = cycleSecs(sh)
+    if C <= 0 then return nil end
+    return ((a.at + depOffset(sh, a.k, k)) - T) % C
+end
+S.ShipNextLeaves, S.ShipCycle = nextLeaves, cycleSecs
 local walkMats = {}
 local function walkMat(inst)
     local net = S.TravelNet
@@ -727,7 +776,18 @@ function S:Route(start, target, useHearth, waitForWalks)
     local function add(p) nodes[#nodes + 1] = p return p end
     local function edge(a, b, cost, kind, text)
         edges[a] = edges[a] or {}
-        table.insert(edges[a], { to = b, cost = cost, kind = kind, text = text })
+        local e = { to = b, cost = cost, kind = kind, text = text }
+        table.insert(edges[a], e)
+        return e
+    end
+    local T0 = epoch()
+    -- a boat's cost from the moment you'd be at its dock (seconds after now): the wait, then the ride
+    local function costOf(e, at)
+        if not e.ship then return e.cost end
+        local w = nextLeaves(e.ship, e.stop, T0 + at)
+        e.waits = e.waits or {}
+        e.waits[at] = w
+        return (w or e.loop / 2) + e.ride
     end
 
     local fps = flightNodes()
@@ -757,24 +817,25 @@ function S:Route(start, target, useHearth, waitForWalks)
             if not fac or fac == faction then
                 local kind = shipKind(name)
                 local P = {}
-                local loop = 0
-                for k = 1, #legs do loop = loop + legs[k] / SHIP_SPEED end
-                for k = 1, #stops do loop = loop + stops[k][5] end
+                local loop = cycleSecs(sh)
                 for k, st in ipairs(stops) do
                     local p = add(point(netVec(st[3], st[4]), st[2], ""))
                     p.name = nameOf(p, st[2], st[3], st[4])
                     p.pid = st[1]
                     P[k] = p
                 end
-                -- every stop to every later stop, staying on board through the ones between; the wait to board is half the loop
+                -- every stop to every later stop, staying on board through the ones between. The wait to board: until
+                -- it next leaves, when a departure was seen lately (worked out for the moment you get to the dock);
+                -- else half the loop
                 for i = 1, #stops do
-                    local secs = loop / 2
+                    local secs = 0
                     for d = 1, #stops - 1 do
                         local k = (i + d - 2) % #stops + 1
                         local j = k % #stops + 1
-                        secs = secs + legs[k] / SHIP_SPEED
-                        edge(P[i], P[j], secs, kind, "Take the " .. kind .. " to " .. P[j].name)
-                        secs = secs + stops[j][5]
+                        secs = secs + legSecs(sh, k)
+                        local e = edge(P[i], P[j], loop / 2 + secs, kind, "Take the " .. kind .. " to " .. P[j].name)
+                        e.ship, e.stop, e.ride, e.loop = sh, i, secs, loop
+                        secs = secs + stopSecs(sh, j)
                     end
                 end
             end
@@ -892,7 +953,7 @@ function S:Route(start, target, useHearth, waitForWalks)
         if not u or u == target then break end
         done[u] = true
         for _, e in ipairs(edges[u] or {}) do
-            local c = ud + e.cost
+            local c = ud + costOf(e, ud)
             if not best[e.to] or c < best[e.to] then best[e.to], prev[e.to] = c, { from = u, edge = e } end
         end
     end
@@ -928,7 +989,12 @@ function S:Route(start, target, useHearth, waitForWalks)
             end
             if text then legs[#legs + 1] = { kind = "run", text = text, target = step.to } end
         else
-            legs[#legs + 1] = { kind = e.kind, text = e.text, target = step.to, spell = step.to.spell }
+            local text = e.text
+            local w = e.ship and e.waits and e.waits[best[step.from]]
+            if w then
+                text = text .. (w < 45 and " (it's leaving now)" or string.format(" (leaves in about %d min)", math.floor(w / 60 + 0.5)))
+            end
+            legs[#legs + 1] = { kind = e.kind, text = text, target = step.to, spell = step.to.spell, waitSecs = w }
         end
     end
     -- merge consecutive flights into one line ("Fly to X") using the last stop
@@ -1095,6 +1161,121 @@ end
 S:On("ZONE_CHANGED_NEW_AREA", noteLanding)
 S:On("PLAYER_ENTERING_WORLD", noteLanding)
 
+---------------------------------------------------------------- boat timetables: learned from your rides (0.87.0)
+-- A ride that starts at a boat's stop and ends at its next stop (a crossing to the other continent comes as two pieces
+-- with the loading screen between) is a departure and a leg; staying on board through a stop gives how long it lasts;
+-- two departures from the same stop give the loop's length.
+do
+    local NEAR = 80 * 80        -- a ride starting this close to a stop left from it (Auberdine's docks are 100+ yd apart)
+    local ARRIVE = 120 * 120
+    local pending               -- { at, t, cands = { { sh, k } }, ended }
+    local lastArrive            -- { sh, k, at }
+    local function stopsNear(x, y, inst, r2)
+        local out, net = {}, S.TravelNet
+        if not (net and x) then return out end
+        for _, sh in ipairs(net.ships) do
+            for k, st in ipairs(sh[3]) do
+                if st[2] == inst then
+                    local v = netVec(st[3], st[4])
+                    if (v.x - x) ^ 2 + (v.y - y) ^ 2 < r2 then out[#out + 1] = { sh = sh, k = k } end
+                end
+            end
+        end
+        return out
+    end
+    local function put(tbl, name, k, v, lo, hi)
+        if not (v and v >= lo and v <= hi) then return end
+        StewardDB[tbl] = StewardDB[tbl] or {}
+        local t = StewardDB[tbl][name] or {}
+        StewardDB[tbl][name] = t
+        t[k] = t[k] and math.floor((t[k] + v) / 2 * 10 + 0.5) / 10 or math.floor(v * 10 + 0.5) / 10
+    end
+    local function noteDeparture(sh, k, at)
+        StewardDB.shipDeps = StewardDB.shipDeps or {}
+        local deps = StewardDB.shipDeps[sh[1]] or {}
+        StewardDB.shipDeps[sh[1]] = deps
+        for _, d in ipairs(deps) do if math.abs(d.at - at) < 30 and d.k == k then return end end
+        -- the loop's length: the oldest fresh departure from the same stop, a whole number of loops before
+        local C = cycleSecs(sh)
+        for i = #deps, 1, -1 do
+            local d = deps[i]
+            if d.k == k and at - d.at < DEP_FRESH and at - d.at > C * 0.5 then
+                local n = math.floor((at - d.at) / C + 0.5)
+                local c = n >= 1 and (at - d.at) / n
+                if c and math.abs(c - C) < C * 0.15 then
+                    StewardDB.shipCycle = StewardDB.shipCycle or {}
+                    StewardDB.shipCycle[sh[1]] = math.floor(c * 10 + 0.5) / 10
+                end
+                break
+            end
+        end
+        table.insert(deps, 1, { k = k, at = math.floor(at + 0.5) })
+        deps[9] = nil
+    end
+    -- one ride piece: x0/y0/i0 where it started, x1/y1/i1 where it ended (nil at a loading screen), at = server time it
+    -- started, secs; called in time order
+    function S:LearnBoatRide(x0, y0, i0, x1, y1, i1, at, secs)
+        if not (StewardDB and S.TravelNet and at and secs) then return end
+        local from = stopsNear(x0, y0, i0, NEAR)
+        if #from > 0 then
+            -- stayed on board through a stop: how long it lasted
+            if lastArrive and at - lastArrive.at < 300 then
+                for _, c in ipairs(from) do
+                    if c.sh == lastArrive.sh and c.k == lastArrive.k then put("shipStops", c.sh[1], c.k, at - lastArrive.at, 20, 300) end
+                end
+            end
+            pending = { at = at, cands = from }
+        elseif not (pending and pending.ended and at - pending.ended < 60) then
+            pending = nil                                   -- not a boat, and not the rest of one after a loading screen
+        end
+        lastArrive = nil
+        if not pending then return end
+        local endAt = at + secs
+        pending.ended = endAt
+        if not x1 then return end                           -- the loading screen: the rest comes as the next piece
+        for _, c in ipairs(pending.cands) do
+            local sh, n = c.sh, #c.sh[3]
+            local nk = c.k % n + 1
+            local st = sh[3][nk]
+            if st[2] == i1 then
+                local v = netVec(st[3], st[4])
+                if (v.x - x1) ^ 2 + (v.y - y1) ^ 2 < ARRIVE then
+                    noteDeparture(sh, c.k, pending.at)
+                    local est = sh[4][c.k] / shipSpeed(sh[1])
+                    put("shipLegs", sh[1], c.k, endAt - pending.at, est * 0.5, est * 2 + 30)
+                    lastArrive = { sh = sh, k = nk, at = endAt }
+                    break
+                end
+            end
+        end
+        pending = nil
+    end
+    -- the rides already in your saved data, once (0.87.0): their start times from "when" (this year)
+    S:On("PLAYER_ENTERING_WORLD", function()
+        if not (StewardDB and StewardDB.rides) or StewardDB.boatRidesRead then return end
+        StewardDB.boatRidesRead = true
+        local year = tonumber(date and date("%Y") or "") or 2026
+        local list = {}
+        for _, r in ipairs(StewardDB.rides) do
+            if r.kind == "carried" and r.x0 and r.secs then
+                local at = r.at
+                if not at and r.when and time then
+                    local mo, d, h, mi, se = r.when:match("^(%d+)-(%d+) (%d+):(%d+):(%d+)$")
+                    if mo then at = time({ year = year, month = tonumber(mo), day = tonumber(d), hour = tonumber(h), min = tonumber(mi), sec = tonumber(se) }) end
+                end
+                if at then list[#list + 1] = { r = r, at = at } end
+            end
+        end
+        table.sort(list, function(a, b) return a.at < b.at end)
+        pending, lastArrive = nil, nil
+        for _, e in ipairs(list) do
+            local r = e.r
+            pcall(S.LearnBoatRide, S, r.x0, r.y0, r.i0, r.x1, r.y1, r.i1, e.at, r.secs)
+        end
+        pending, lastArrive = nil, nil
+    end)
+end
+
 ---------------------------------------------------------------- ride log
 -- How long rides really take (Nick 2026-11-16: "is there a way to record it?"), to learn the speeds of flights,
 -- boats, zeppelins and the tram. Each ride: when, how long, where from and to, the way travelled. The last 30 in
@@ -1114,7 +1295,8 @@ do
     local function r1(v) return v and floor(v * 10 + 0.5) / 10 or nil end
     local function startRide(kind, t, x, y, inst)
         ride = { kind = kind, t0 = t, x0 = r1(x), y0 = r1(y), i0 = inst, m0 = mapNow(), zone0 = zoneNow(), dest = dest,
-                 path = 0, jumps = 0, when = date and date("%m-%d %H:%M:%S") or nil, lastCarried = t }
+                 path = 0, jumps = 0, when = date and date("%m-%d %H:%M:%S") or nil, lastCarried = t,
+                 at = math.floor(epoch() - (GetTime() - t) + 0.5) }
     end
     local function endRide(t, x, y, inst)
         local r = ride
@@ -1125,6 +1307,7 @@ do
         r.path, r.t0, r.lastCarried = floor(r.path), nil, nil
         if r.secs < 15 or (r.path < 100 and r.jumps == 0) then return end
         if not StewardDB then return end
+        if r.kind == "carried" then pcall(S.LearnBoatRide, S, r.x0, r.y0, r.i0, r.x1, r.y1, r.i1, r.at, r.secs) end
         StewardDB.rides = StewardDB.rides or {}
         table.insert(StewardDB.rides, 1, r)
         StewardDB.rides[31] = nil
