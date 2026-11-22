@@ -216,6 +216,36 @@ done:SetSize(36, 36)
 done:SetAtlas("ui-questtracker-tracker-check")
 done:Hide()
 
+-- the trip's next thing is your hearthstone (or a teleport), used where you stand: nothing to point at, so the
+-- arrow shows its icon and says it (Nick 11-22 18:46: "it wanted me to hearth and I can't tell")
+local hearthIcon = f:CreateTexture(nil, "ARTWORK")
+hearthIcon:SetPoint("CENTER")
+hearthIcon:SetSize(36, 36)
+hearthIcon:Hide()
+local HEARTH_ITEM = 6948
+local function hearthLeg()
+    local legs = S.FollowTravel and S:FollowTravel()                 -- "Travel to" a group member comes first
+    local leg = legs and legs[1]
+    if leg and (leg.kind == "hearth" or leg.kind == "teleport") then return leg end
+    if not G.activeGoto then                                          -- the guide's or your map pin's trip
+        leg = G.travel and G.travel[1]
+        if leg and (leg.kind == "hearth" or leg.kind == "teleport") then return leg end
+    end
+    return nil
+end
+S.ArrowHearthLeg = hearthLeg
+local function legIcon(leg)
+    local tex
+    if leg.kind == "teleport" and leg.spell then
+        if C_Spell and C_Spell.GetSpellTexture then tex = C_Spell.GetSpellTexture(leg.spell)
+        elseif GetSpellTexture then tex = GetSpellTexture(leg.spell) end
+    else
+        if C_Item and C_Item.GetItemIconByID then tex = C_Item.GetItemIconByID(HEARTH_ITEM)
+        elseif GetItemIcon then tex = GetItemIcon(HEARTH_ITEM) end
+    end
+    return tex or "Interface\\Icons\\INV_Misc_Rune_01"
+end
+
 local dist = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 dist:SetPoint("TOP", f, "BOTTOM", 0, 2)
 
@@ -265,6 +295,12 @@ f:SetScript("OnUpdate", function(_, e)
     elapsed = elapsed + e
     if elapsed < 0.05 then return end
     elapsed = 0
+    if hearthLeg() then
+        arrow:Hide() done:Hide() hearthIcon:Show()
+        dist:SetText("")
+        return
+    end
+    hearthIcon:Hide()
     local el = G.activeGoto
     if not el then return end
     if S.InInstance() then f:Hide() return end
@@ -315,6 +351,12 @@ local function shortText(t)
 end
 
 function S:ArrowLabel()
+    local hl = hearthLeg()
+    if hl then
+        local how = hl.kind == "teleport" and "cast it from the button beside the tracker, or your spellbook"
+            or "use the Hearthstone button beside the tracker"
+        return hl.text, hl.text .. " (" .. how .. ")"
+    end
     local liftShort, liftFull
     if S.Path and S.Path.LiftText then liftShort, liftFull = S.Path.LiftText() end
     if liftShort then return liftShort, liftFull end           -- at the lift: "Take the lift up", "Ride the lift down"
@@ -348,9 +390,11 @@ end
 
 function S:UpdateArrow()
     local pinTrip = G.stepGoto and G.stepGoto.pin
-    local show = (self:Get("guideShow") or pinTrip) and self:Get("guideArrow") and G.activeGoto ~= nil and not UnitOnTaxi("player")
-        and not S.InInstance()
+    local hl = hearthLeg()
+    local show = ((self:Get("guideShow") or pinTrip) and G.activeGoto ~= nil or hl ~= nil) and self:Get("guideArrow")
+        and not UnitOnTaxi("player") and not S.InInstance()
     if not show then f:Hide() return end
+    if hl then hearthIcon:SetTexture(legIcon(hl)) end
     place()
     local text, full = self:ArrowLabel()
     label:SetText(text or "")
@@ -359,6 +403,14 @@ function S:UpdateArrow()
 end
 
 S:On("PLAYER_CONTROL_LOST", function() C_Timer.After(1, function() S:UpdateArrow() end) end)
+local hearthKey
+C_Timer.NewTicker(0.5, function()
+    local hl = hearthLeg()
+    local key = hl and (hl.kind .. "|" .. tostring(hl.text)) or nil
+    if key == hearthKey then return end
+    hearthKey = key
+    pcall(S.UpdateArrow, S)
+end)
 S:On("PLAYER_CONTROL_GAINED", function() S:UpdateArrow() end)
 
 ---------------------------------------------------------------- the arrow picker (Options > Steward > Arrow)
