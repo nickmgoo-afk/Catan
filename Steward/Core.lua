@@ -13,6 +13,7 @@ S.defaults = {
     questAcceptWhich = "guide", -- "guide": the quests your guide uses; "all": every quest
     questTurnin = true,    -- hand in finished quests
     rewardsAuto = true,    -- pick the best quest reward
+    lootRolls = true,      -- group loot: Need on gear upgrades for your spec, Greed on other gear (Rolls.lua)
     vendorSell = true,     -- sell grey items at merchants
     vendorSellGear = true, -- sell white and green gear you won't wear
     vendorRepair = true,   -- repair at merchants that can

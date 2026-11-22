@@ -33,6 +33,7 @@ local PAGES = {
         { "check", "gearAuto", "Equip upgrades", "Better gear from your bags, after a fight (never during one)." },
         { "check", "gearBoE", "Include bind-on-equip items", "When off, they stay in your bags.", parent = "gearAuto" },
         { "check", "gearTest", "Test mode: work out upgrades but never equip them", nil, parent = "gearAuto" },
+        { "check", "lootRolls", "Roll Need or Greed on gear in groups", "Need on upgrades for your spec you can wear; Greed on other gear. Hold Shift to roll yourself." },
         { "check", "talentsAuto", "Spend talent points", "A leveling build for your spec. Hold Shift as you level to leave one." },
         { "check", "barsAuto", "Arrange my action bars", "Moves your buttons into a set layout. Options can put your old bars back." },
     } },

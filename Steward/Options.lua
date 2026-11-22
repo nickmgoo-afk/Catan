@@ -278,6 +278,10 @@ function S:InitOptions()
     if boeInit and boeInit.SetParentInitializer then
         boeInit:SetParentInitializer(autoInit, function() return autoSetting:GetValue() end)
     end
+    addCheckbox(gear, "lootRolls", "Roll Need or Greed on gear for me",
+        "In a group, when gear drops: Need if it's an upgrade for your spec that you can wear now (and, for armor, your " ..
+        "class's own armor type), Greed on any other gear. Anything that isn't gear is left to you. Hold Shift as the " ..
+        "roll starts to roll yourself.")
     addCheckbox(gear, "gearTest", "Test mode (don't equip anything)",
         "Steward still works out upgrades but never equips them.")
 

@@ -361,6 +361,8 @@ local function canUse(classID, subClassID)
     return false
 end
 
+S.CanUseType = canUse      -- for the loot rolls (Rolls.lua)
+
 local function why(id, reason)
     StewardCharDB.sellLog = StewardCharDB.sellLog or {}
     local log = StewardCharDB.sellLog
