@@ -200,6 +200,16 @@ function layout(self)
         block:AddObjective("d1", ag.sideLabel)
         if not self:LayoutBlock(block) then return end
     end
+    -- a lift on the line: say so (Path.lua P.LiftText; the ride itself is only a short piece of the line)
+    local liftLine
+    if S.Path and S.Path.LiftText then _, liftLine = S.Path.LiftText() end
+    if liftLine then
+        local block = self:GetBlock("lift")
+        block:SetHeader("Lift")
+        block.stewardCurrent = false
+        block:AddObjective("l1", liftLine)
+        if not self:LayoutBlock(block) then return end
+    end
     if not guideOn then return end                -- the guide's own steps only while it's shown
     if free then
         -- Free mode: your quest log, in the order the router plans

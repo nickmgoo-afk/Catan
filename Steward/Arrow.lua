@@ -315,6 +315,9 @@ local function shortText(t)
 end
 
 function S:ArrowLabel()
+    local liftShort, liftFull
+    if S.Path and S.Path.LiftText then liftShort, liftFull = S.Path.LiftText() end
+    if liftShort then return liftShort, liftFull end           -- at the lift: "Take the lift up", "Ride the lift down"
     if G.activeGoto and G.activeGoto.travel and G.travel and G.travel[1] then return G.travel[1].text, G.travel[1].text end
     if G.activeGoto and G.activeGoto.sideLabel then
         return shortText(G.activeGoto.sideLabel) or G.activeGoto.sideLabel, G.activeGoto.sideLabel

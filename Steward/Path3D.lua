@@ -1469,21 +1469,22 @@ end
 -- the hall above 55.3: 96.6 yd, the table's 96.5); Thunder Bluff's are where Wowhead's city guide puts them (the
 -- south-west edge of the central bluff's lower level, 61 yd between the deck at 68.8 and the bluff at 129.7, two empty
 -- car shafts beside them; the north-east edge, 71 yd between the ground at 79.6 and the platform at 150.9).
--- Not seen in the game yet.
+-- z: the floor's height at the landing (the 3D data, 2026-11-22): every lift's first landing is its top one; the tracker
+-- says "up" or "down" from these. Not seen in the game yet.
 P3.LIFTS = {
     [0] = {
-        { name = "Undercity lift (west)", secs = 11.9, { n = 1595.3, w = 197.0, floor = 1 }, { n = 1595.3, w = 177.0, floor = 2 } },
-        { name = "Undercity lift (east)", secs = 11.9, { n = 1596.2, w = 283.0, floor = 1 }, { n = 1596.2, w = 303.0, floor = 2 } },
-        { name = "Undercity lift (south)", secs = 11.9, { n = 1553.0, w = 240.8, floor = 1 }, { n = 1533.0, w = 240.8, floor = 2 } },
+        { name = "Undercity lift (west)", secs = 11.9, { n = 1595.3, w = 197.0, floor = 1, z = 55.3 }, { n = 1595.3, w = 177.0, floor = 2, z = -41.4 } },
+        { name = "Undercity lift (east)", secs = 11.9, { n = 1596.2, w = 283.0, floor = 1, z = 55.3 }, { n = 1596.2, w = 303.0, floor = 2, z = -41.3 } },
+        { name = "Undercity lift (south)", secs = 11.9, { n = 1553.0, w = 240.8, floor = 1, z = 55.3 }, { n = 1533.0, w = 240.8, floor = 2, z = -41.3 } },
     },
     [1] = {
-        { name = "Thunder Bluff lift (south-west)", secs = 16.3, { n = -1291.0, w = 156.0, floor = 1 }, { n = -1298.0, w = 172.0, floor = 2 } },
-        { name = "Thunder Bluff lift (north-east)", secs = 17.5, { n = -1077.0, w = -100.0, floor = 1 }, { n = -1081.0, w = -106.0, floor = 1 } },
+        { name = "Thunder Bluff lift (south-west)", secs = 16.3, { n = -1291.0, w = 156.0, floor = 1, z = 129.7 }, { n = -1298.0, w = 172.0, floor = 2, z = 68.8 } },
+        { name = "Thunder Bluff lift (north-east)", secs = 17.5, { n = -1077.0, w = -100.0, floor = 1, z = 150.9 }, { n = -1081.0, w = -106.0, floor = 1, z = 79.6 } },
         -- The Great Lift (0.85.0): the two towers of thousandneedleselevator.wmo placed on the Thousand Needles floor;
         -- 129.3 yd (TransportAnimation 11898/11899) between each tower's top platform (85.7, 89.3) and its base
         -- (-45.9, -39.9); one car each, 30 s round: half of it waiting plus the 8 s ride
-        { name = "The Great Lift (north tower)", secs = 23, { n = -4644.8, w = -1841.5, floor = 1 }, { n = -4674.0, w = -1842.0, floor = 2 } },
-        { name = "The Great Lift (south tower)", secs = 23, { n = -5409.3, w = -2481.3, floor = 1 }, { n = -5407.0, w = -2506.0, floor = 1 } },
+        { name = "The Great Lift (north tower)", secs = 23, { n = -4644.8, w = -1841.5, floor = 1, z = 85.7 }, { n = -4674.0, w = -1842.0, floor = 2, z = -45.9 } },
+        { name = "The Great Lift (south tower)", secs = 23, { n = -5409.3, w = -2481.3, floor = 1, z = 89.3 }, { n = -5407.0, w = -2506.0, floor = 1, z = -39.9 } },
     },
 }
 P3.RUN = 7                                          -- yards a second on foot: a ride's seconds as yards of walking
@@ -1534,7 +1535,7 @@ local function runLifts(job, tick, P)
                 j2.landS, j2.indoorsG, j2.bottomG, j2.landG = B.floor, job.indoorsG, job.bottomG, job.landG
                 if run(j2, tick, P) then
                     local c = j1.cost3d + ride + (j2.cost3d or huge)
-                    if c < best then best, pick = c, { j1, j2, L } end
+                    if c < best then best, pick = c, { j1, j2, L, A, B } end
                 end
             end
         end
@@ -1545,7 +1546,7 @@ local function runLifts(job, tick, P)
         job.lift = nil
         return ok
     end
-    local j1, j2, L = pick[1], pick[2], pick[3]
+    local j1, j2, L, A, B = pick[1], pick[2], pick[3], pick[4], pick[5]
     local X, Y, U = {}, {}, {}
     for k = 1, j1.n do X[k], Y[k], U[k] = j1.X[k], j1.Y[k], false end
     local n1 = j1.n
@@ -1557,6 +1558,7 @@ local function runLifts(job, tick, P)
     job.cost3d, job.pops3d = best, (job.pops3d or 0) + (j1.pops3d or 0) + (j2.pops3d or 0)
     job.long3d = j1.long3d or j2.long3d
     job.lift, job.liftAt = L.name, n1            -- the ride is between points n1 and n1 + 1
+    job.liftUp = (A.z and B.z and B.z > A.z) and true or false
     P3.why = nil
     return true
 end

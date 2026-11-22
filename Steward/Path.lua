@@ -2492,7 +2492,8 @@ local function setPath(L, j)
     if j.none or not j.X then L.path = nil return end
     local cum = { 0 }
     for k = 2, j.n do cum[k] = cum[k - 1] + sqrt((j.X[k] - j.X[k - 1]) ^ 2 + (j.Y[k] - j.Y[k - 1]) ^ 2) end
-    L.path = { X = j.X, Y = j.Y, U = j.U, Z = j.Z, n = j.n, inst = j.inst, gx = j.gx, gy = j.gy, cum = cum, len = j.len, route = j.route }
+    L.path = { X = j.X, Y = j.Y, U = j.U, Z = j.Z, n = j.n, inst = j.inst, gx = j.gx, gy = j.gy, cum = cum, len = j.len, route = j.route,
+        lift = j.lift, liftAt = j.liftAt, liftUp = j.liftUp }   -- a lift on the way (Path3D): the ride is points liftAt, liftAt + 1
     L.progress = 0
     local d = diag()
     if L ~= main then
@@ -3161,6 +3162,52 @@ function P.Update() guard("update", update) end
 function P.RunJob() guard("search", runJob) end
 function P.DrawMinimap() guard("minimap", drawMini) end
 function P.State() return main.path, main.shown, main.shownN, main.job, main.shownU end
+
+-- A lift on the guide's line (or your map pin's; Path3D's job.lift): where you are with it (Nick 11-22: "sure, do
+-- number 1", the "Take the lift" line). "ahead": not there yet; "near": within 40 yd of where you get on; "ride":
+-- at that landing or on the lift, until you've walked 25 yd off both landings. -> state, the lift's name, up (true)
+-- or down (false); nil when there's no lift still to ride
+P.LIFT_NEAR, P.LIFT_ON, P.LIFT_OFF = 40, 12, 25
+function P.LiftNote()
+    local p = main.path
+    if not (p and p.lift and p.liftAt and p.liftAt < p.n) or p.liftDone then return nil end
+    local px, py, pinst = S:PlayerWorld()
+    if not px or pinst ~= p.inst then return nil end
+    local k = p.liftAt
+    local db = sqrt((px - p.X[k]) ^ 2 + (py - p.Y[k]) ^ 2)
+    local de = sqrt((px - p.X[k + 1]) ^ 2 + (py - p.Y[k + 1]) ^ 2)
+    local state
+    if p.liftOn then
+        if db > P.LIFT_OFF and de > P.LIFT_OFF then p.liftDone = true return nil end
+        state = "ride"
+    elseif db <= P.LIFT_ON then
+        p.liftOn, state = true, "ride"
+    elseif db <= P.LIFT_NEAR then
+        state = "near"
+    else
+        state = "ahead"
+    end
+    return state, p.lift, p.liftUp
+end
+-- the words for it: the tracker's line and the arrow's
+function P.LiftText()
+    local state, name, up = P.LiftNote()
+    if not state then return nil end
+    local way = up and "up" or "down"
+    if state == "ride" then return "Ride the lift " .. way, "Ride the lift " .. way .. " (" .. name .. ")", state end
+    if state == "near" then return "Take the lift " .. way, "Take the lift " .. way .. ": it's just ahead (" .. name .. ")", state end
+    return nil, "Take the lift " .. way .. ": " .. name, state
+end
+-- the tracker and the arrow follow it as you go (looked at twice a second; redrawn only when it changes)
+local liftKey
+C_Timer.NewTicker(0.5, function()
+    local ok, short, full, state = pcall(P.LiftText)
+    local key = ok and full and (state .. "|" .. full) or nil
+    if key == liftKey then return end
+    liftKey = key
+    if S.RefreshGuideUI then pcall(S.RefreshGuideUI, S) end
+    if S.UpdateArrow then pcall(S.UpdateArrow, S) end
+end)
 -- the height of the guide's line where you are along it (set inside caves only), for tests and the saved notes
 -- -> height or nil, how far you are from the line
 function P.LineHeight()
