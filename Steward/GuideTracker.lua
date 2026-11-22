@@ -256,9 +256,9 @@ function Mixin_:OnBlockHeaderClick(block, mouseButton)
         S:SnoozeTraining()
     elseif mouseButton == "RightButton" and block.stewardCurrent then
         S:SkipCurrentStep()
-    elseif G.activeGoto and C_Map.OpenWorldMap then
+    elseif G.activeGoto then
         local r = S:ResolveGoto(G.activeGoto.go)
-        if r then pcall(C_Map.OpenWorldMap, r.mapID) end
+        if r then S.OpenMapAt(r.mapID) end
     end
 end
 
@@ -281,6 +281,7 @@ function Mixin_:OnBlockHeaderEnter(block)
     GameTooltip:SetOwner(block, "ANCHOR_LEFT")
     GameTooltip:SetText("Steward guide")
     GameTooltip:AddLine("Left-click to open the map, right-click to skip this step.", 1, 1, 1, true)
+    if InCombatLockdown() then GameTooltip:AddLine(S.MAP_IN_FIGHT, 1, 0.5, 0.5, true) end
     GameTooltip:Show()
 end
 

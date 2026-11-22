@@ -235,13 +235,14 @@ f:SetScript("OnEnter", function(self)
     if self.fullText and self.fullText ~= "" then GameTooltip:AddLine(self.fullText, 1, 0.82, 0, true) end
     GameTooltip:AddLine(S:Get("arrowLocked") and "Left-click to open the map. (Locked in place: Options > Steward > Guide.)"
         or "Drag to move. Left-click to open the map.", 1, 1, 1, true)
+    if InCombatLockdown() then GameTooltip:AddLine(S.MAP_IN_FIGHT, 1, 0.5, 0.5, true) end
     GameTooltip:Show()
 end)
 f:SetScript("OnLeave", function() GameTooltip:Hide() end)
 f:SetScript("OnClick", function()
-    if G.activeGoto and G.activeGoto.go and C_Map.OpenWorldMap then
+    if G.activeGoto and G.activeGoto.go then
         local r = S:ResolveGoto(G.activeGoto.go)
-        if r then pcall(C_Map.OpenWorldMap, r.mapID) end
+        if r then S.OpenMapAt(r.mapID) end
     end
 end)
 

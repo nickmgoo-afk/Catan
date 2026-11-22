@@ -220,6 +220,17 @@ function S:SettingsChanged()
     end
 end
 
+-- Opening the world map from Steward's own click during a fight makes every pin the map lays down a blocked
+-- action (Blizzard_MapCanvas AcquirePin -> CheckMouseButtonPassthrough -> SetPassThroughButtons, protected in
+-- combat): 20 "blocked: ADDON_ACTION_BLOCKED Button:SetPassThroughButtons()" at 11-22 15:57:16. So in a fight
+-- Steward leaves the map alone; the player's own map key still works.
+S.MAP_IN_FIGHT = "In a fight the game doesn't let add-ons open the map: use your map key."
+function S.OpenMapAt(mapID)
+    if InCombatLockdown and InCombatLockdown() then return false end
+    if not (C_Map and C_Map.OpenWorldMap) then return false end
+    return (pcall(C_Map.OpenWorldMap, mapID))
+end
+
 -- when the game blocks something Steward did ("Interface action failed because of an AddOn"), write down what
 -- (2026-11-20: Nick saw it on the bags-full prompt's DELETE & LOOT)
 for _, ev in ipairs({ "ADDON_ACTION_BLOCKED", "ADDON_ACTION_FORBIDDEN" }) do
