@@ -1332,6 +1332,13 @@ local function run(job, tick, P)
         end
     end
     if not any then P3.why = "the ends are on different lands" return false end
+    if job.bottomG then                     -- the lowest dry floor there that you can walk to (a square's parts go lowest first)
+        for k = 1, #ends do
+            local t, p = ends[k][1], ends[k][2]
+            local id = t.slot * 16384 + p
+            if goals[id] and t.flag[p] % 2 == 0 then goals = { [id] = true } break end
+        end
+    end
     local prices = P and P.ROUTES and P.ROUTES[job.route]
     local road = prices and prices.road or 0.97
     local water = P and P.WATER or 2.2

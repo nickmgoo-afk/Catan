@@ -2422,7 +2422,7 @@ local function pinTarget()
     local inst, world = C_Map.GetWorldPosFromMapPos(pt.uiMapID, pos)
     if not (inst and world) then return nil end
     if S.Secret(world.x, world.y, inst) then return nil end
-    return world.x, world.y, inst
+    return world.x, world.y, inst, pt.uiMapID
 end
 P.PinTarget = pinTarget
 
@@ -2436,12 +2436,23 @@ local function corpseIndoors(el)
 end
 
 local goalIndoors          -- the guide target's floor: true under cover, false open sky, nil either (set by guideTarget)
+local goalBottom          -- the guide target is on the lowest floor you can walk to at its spot (set by guideTarget)
+-- cities whose floors stack: a spot given on the city's own map means the city's floor, and a spot has no height.
+-- The Undercity lies under the Tirisfal ruins (a room of the ruins over the Trade Quarter is under cover too), so its
+-- spots take the lowest dry floor; Thunder Bluff's spots are mostly in tents and the Pools of Vision, under the open
+-- mesa top, so they take the floor under cover (2026-11-22)
+local MAP_FLOOR = { [1458] = "bottom", [1456] = "cover" }
+P.MAP_FLOOR = MAP_FLOOR
+local function mapHint(mapID)
+    local h = mapID and MAP_FLOOR[mapID]
+    if h == "cover" then goalIndoors = true elseif h == "bottom" then goalBottom = true end
+end
 local function guideTarget()
-    goalIndoors = nil
+    goalIndoors, goalBottom = nil, nil
     if not S:Get("pathShow") then return nil end
     if UnitOnTaxi("player") or S.InInstance() then return nil end
-    local px, py, pinst = pinTarget()                     -- DEV
-    if px then return px, py, pinst end                   -- DEV
+    local px, py, pinst, pmap = pinTarget()               -- DEV
+    if px then mapHint(pmap) return px, py, pinst end     -- DEV
     if not S:Get("guideShow") then return nil end          -- DEV (was part of the first line)
     local el = G.activeGoto
     local go = el and el.go
@@ -2450,6 +2461,7 @@ local function guideTarget()
     if not (r and r.world and r.instance) then return nil end
     if S.Secret(r.world.x, r.world.y, r.instance) then return nil end
     goalIndoors = corpseIndoors(el)
+    if goalIndoors == nil then mapHint(r.mapID) end
     return r.world.x, r.world.y, r.instance
 end
 
@@ -2510,7 +2522,7 @@ local function startJob(L, px, py, gx, gy, inst)
         floorS = P.FloorOf("player"), groundS = P.OnGround("player"),
         floorG = L ~= main and P.FloorOf("party") or nil, groundG = L ~= main and P.OnGround("party") or nil,
         indoorsG = nil }
-    if L == main then L.job.indoorsG = goalIndoors end   -- true, false (open sky) or nil
+    if L == main then L.job.indoorsG, L.job.bottomG = goalIndoors, goalBottom end   -- true, false (open sky) or nil; lowest floor
     L.jobCo = coroutine.create(solve)
     L.jobAt = GetTime()
 end
