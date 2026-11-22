@@ -786,15 +786,32 @@ function planFollow(force)
         ok, legs = pcall(S.PlanTravelToWorld, S, Vec(x, y), inst, follow.name, mapID)
     end
     if not ok then StewardCharDB.followTravelError = tostring(legs) legs = nil end
+    -- nothing planned although they're far away or over the sea: the walks aren't measured yet, most likely. Keep the
+    -- trip you had and try again in 2 s, not 15 (Nick 2026-11-22: "nope, still not fuckin routing": the trip to Narla
+    -- had been planned, then a fresh try came back empty and the tracker had nothing to show)
+    local wasPlanning = follow.planning
+    if not legs and not via then
+        local px, py, pi = S:PlayerWorld()
+        local far = not px or pi ~= inst or (x - px) ^ 2 + (y - py) ^ 2 > 600 * 600
+        if far then
+            follow.planned.at = GetTime() - 13
+            follow.planning = true
+            if follow.travel then legs = follow.travel end
+        end
+    else
+        follow.planning = nil
+    end
     local before = follow.travel and #follow.travel or 0
     follow.travel, follow.zone = legs, zoneName
-    if (legs and #legs or 0) ~= before or legs then
+    if (legs and #legs or 0) ~= before or legs or wasPlanning ~= follow.planning then
         if S.Path and S.Path.Update then pcall(S.Path.Update) end
         if S.RefreshGuideUI then pcall(S.RefreshGuideUI, S) end
     end
 end
 -- the legs of the trip (nil: just run to them)
 function S:FollowTravel() return follow and follow.travel end
+-- far away and no trip worked out yet: still working on it
+function S:FollowPlanning() return follow and follow.planning and not follow.travel end
 -- they're in the Deeprun Tram: the entrance the trip goes to
 function S:FollowVia() return follow and follow.via end
 -- the zone they're in when only that is known (the trip is planned to it), or "the Deeprun Tram"

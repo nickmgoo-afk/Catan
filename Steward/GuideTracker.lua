@@ -121,6 +121,8 @@ local function partyBlock(self)
         for i, leg in ipairs(legs) do block:AddObjective("pl" .. i, leg.text) end
     elseif S.FollowVia and S:FollowVia() then
         block:AddObjective("pl1", "Go to the Deeprun Tram")      -- they're in the tram, and its entrance is close
+    elseif S.FollowPlanning and S:FollowPlanning() then
+        block:AddObjective("pl1", "Working out the way there...")
     end
     if lost and not legs then
         block:AddObjective("p1", "The line comes back when " .. name .. " shows up again")

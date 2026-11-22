@@ -135,11 +135,26 @@ local function islandOfMap(mapID)
     end
     return "main"
 end
+local CONTINENT_IDS = { [1414] = true, [1415] = true }
 local function island(p)
     if p.island then return p.island end
     if p.instance == 2991 then return "zephras" end          -- Zephras Isle is a map of its own: all of it
     local r = p.go and p.go.resolved
-    return islandOfMap(r and r.mapID)
+    local mapID = r and r.mapID
+    -- the game named no zone for this spot (or only the continent): ask each island's own map whether the spot is
+    -- on it (Nick 2026-11-22: the trip to Narla on Teldrassil came back empty; Rut'theran and the Darnassus portal
+    -- counted as the mainland, so nothing could run on to her)
+    if (not mapID or CONTINENT_IDS[mapID]) and p.world and C_Map.GetMapPosFromWorldPos then
+        for id, name in pairs(ISLANDS) do
+            local ok, m, pos = pcall(C_Map.GetMapPosFromWorldPos, p.instance, p.world, id)
+            if ok and m == id and pos and pos.x and pos.x > 0 and pos.x < 1 and pos.y > 0 and pos.y < 1 then
+                p.island = name
+                return name
+            end
+        end
+    end
+    p.island = islandOfMap(mapID)
+    return p.island
 end
 
 local function runDist(p, q)
