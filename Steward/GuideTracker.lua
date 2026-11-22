@@ -129,7 +129,15 @@ local function partyBlock(self)
         if d then G.followDistLine = block:AddObjective("dist", string.format("%d yards", d), nil, nil, OBJECTIVE_DASH_STYLE_HIDE) end
     end
     block:AddObjective("p2", "Click here to stop", nil, nil, OBJECTIVE_DASH_STYLE_HIDE)
-    return self:LayoutBlock(block)
+    if not self:LayoutBlock(block) then return false end
+    -- the trip starts with your hearthstone or a teleport: its button goes beside this block, the same one the
+    -- guide's own trips get (Nick 2026-11-22: "I hit travel to on my friend, nothing is happening": the trip to
+    -- Narla started "Hearth to Darkshire", and with no line, no arrow and no button there was nothing to do)
+    local first = legs and legs[1]
+    if first and (first.kind == "hearth" or first.kind == "teleport") then
+        hearthBlock, hearthSpell = block, first.spell
+    end
+    return true
 end
 
 local layout
@@ -164,7 +172,7 @@ function layout(self)
         end
         if not self:LayoutBlock(block) then return end
         -- the way starts with your hearthstone: its button goes beside this block
-        if G.travel[1] and (G.travel[1].kind == "hearth" or G.travel[1].kind == "teleport") then
+        if not hearthBlock and G.travel[1] and (G.travel[1].kind == "hearth" or G.travel[1].kind == "teleport") then
             hearthBlock, hearthSpell = block, G.travel[1].spell       -- a teleport: the same button, cast that spell
         end
     end
@@ -495,7 +503,7 @@ function S:UpdateHearthButton()
     local top = block and block.GetTop and block:GetTop()
     local left = module and module:GetLeft()
     local show = block and top and left and module:IsVisible() and (not block.IsVisible or block:IsVisible())
-        and S:Get("guideShow") and G.guide and (hearthSpell or hearthCount() > 0)
+        and S:Get("guideShow") and (hearthSpell or hearthCount() > 0)
     if not show then
         if hearthBtn and hearthBtn:IsShown() then hearthBtn:Hide() end
         hearthAt = nil
