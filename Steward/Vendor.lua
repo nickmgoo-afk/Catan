@@ -296,7 +296,7 @@ end
 -- Wowhead: Teleport spells use a Rune of Teleportation (17031), Portal spells a Rune of Portals (17032).
 local RUNE_TARGET = 10
 local RUNES = {
-    { id = 17031, spells = { 3561, 3562, 3565, 3563, 3566, 3567 } },     -- Teleport: SW, IF, Darn, UC, TB, Org
+    { id = 17031, spells = { 3561, 3562, 3565, 3563, 3566, 3567, 1297659 } }, -- Teleport: SW, IF, Darn, UC, TB, Org; Forever's Dalaran
     { id = 17032, spells = { 10059, 11416, 11419, 11418, 11420, 11417 } }, -- Portal: the same six
 }
 local function knowsAny(list)

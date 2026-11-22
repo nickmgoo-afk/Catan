@@ -66,6 +66,9 @@ local TELEPORTS = {
     { spell = 3566, class = "MAGE", rune = true, name = "Thunder Bluff", inst = 1, n = -964.98, w = 283.43 },
     { spell = 3567, class = "MAGE", rune = true, name = "Orgrimmar", inst = 1, n = 1469.85, w = -4221.52 },
     { spell = 18960, class = "DRUID", name = "Moonglade", inst = 1, n = 7991.88, w = -2679.84 },
+    -- Forever's own (warcraft.wiki.gg, 2026-11-22: spell 1297659, level 50, a Rune of Teleportation, Alliance only).
+    -- Where it lands isn't published: first guess Dalaran's skycutter platform, noted for real the first time
+    { spell = 1297659, class = "MAGE", faction = "Alliance", rune = true, name = "Dalaran", inst = 0, n = 448.88, w = 438.93, learnR = 700 },
 }
 S.TELEPORTS = TELEPORTS
 local TELEPORT_SECS = 20
@@ -86,7 +89,7 @@ function S:TeleportsReady()
     local out = {}
     local runes
     for _, t in ipairs(TELEPORTS) do
-        if t.class == class and knowsSpell(t.spell) then
+        if t.class == class and (not t.faction or t.faction == UnitFactionGroup("player")) and knowsSpell(t.spell) then
             if t.rune and runes == nil then
                 runes = ((C_Item and C_Item.GetItemCount) or GetItemCount)(RUNE_OF_TELEPORTATION) or 0
                 if S.Secret(runes) then runes = 1 end
@@ -1215,7 +1218,8 @@ S:On("PLAYER_ENTERING_WORLD", function()
         if not x or inst ~= c.t.inst then return end
         local n, w = x, y
         if swapped() then n, w = y, x end
-        if (n - c.t.n) ^ 2 + (w - c.t.w) ^ 2 > 300 * 300 then return end     -- not where that teleport goes
+        local R = c.t.learnR or 300
+        if (n - c.t.n) ^ 2 + (w - c.t.w) ^ 2 > R * R then return end           -- not where that teleport goes
         StewardDB.teleportLanding = StewardDB.teleportLanding or {}
         StewardDB.teleportLanding[c.t.spell] = { n = n, w = w, inst = inst, when = date("%Y-%m-%d") }
         teleportCast = nil
