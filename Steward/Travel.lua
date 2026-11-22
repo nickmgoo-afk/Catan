@@ -687,11 +687,11 @@ local function sweepFrom(p, roads)
         return pts, doors
     end
     for _, q in ipairs(queue) do
-        if q.p.instance == p.instance and q.roads == roads and (q.p.world.x - p.world.x) ^ 2 + (q.p.world.y - p.world.y) ^ 2 < 250 * 250 then return nil end
+        if q.p.instance == p.instance and q.roads == roads and (q.p.world.x - p.world.x) ^ 2 + (q.p.world.y - p.world.y) ^ 2 < 250 * 250 then return nil, nil, true end
     end
     if #queue < 8 then queue[#queue + 1] = { p = { world = p.world, instance = p.instance }, roads = roads } end
     runQueue()
-    return nil
+    return nil, nil, true    -- being measured: the third value says "not yet" (no 3D data at all says nothing)
 end
 -- a name for a dock: the town of the flight master nearest it
 local function dockName(inst, n, w)
@@ -715,7 +715,10 @@ end
 ---------------------------------------------------------------- planner (Dijkstra)
 -- Fastest way from start to target. Returns legs { kind, text, target } (empty when
 -- just running is best) and the total time in seconds.
-function S:Route(start, target, useHearth)
+-- waitForWalks: when the walk from you or to the target is still being measured on the 3D world, plan nothing yet
+-- (returns nil, nil, "measuring") instead of guessing straight lines (Nick 2026-11-22: "it tried to have me run through
+-- the map and it guessed a route, even though the portal was there": Rut'theran straight up the tree to Narla)
+function S:Route(start, target, useHearth, waitForWalks)
 
     local speed = runSpeed()
     local faction = UnitFactionGroup("player")
@@ -826,8 +829,12 @@ function S:Route(start, target, useHearth)
     -- running between any two points on the same continent: on the 3D world where it is mapped (the walk measured from
     -- you and from where you are going, and between every two travel points), else the straight line and a fifth more
     local roads = S:Get("pathRoute") == "roads"
-    local fromStart, startDoors = sweepFrom(start, roads)
-    local toTarget, targetDoors = sweepFrom(target, roads)
+    local fromStart, startDoors, startPending = sweepFrom(start, roads)
+    local toTarget, targetDoors, targetPending = sweepFrom(target, roads)
+    if waitForWalks and (startPending or targetPending) then
+        debug.measuring = true
+        return nil, nil, "measuring"
+    end
     debug.walk3d = fromStart ~= nil and toTarget ~= nil
     local function walkCost(p, q)
         if p.instance ~= q.instance then return nil end
@@ -974,7 +981,8 @@ function S:PlanTravelToWorld(world, instance, name, mapID)
     if mapID then target.island = islandOfMap(mapID) end
     local direct = dist(start, target)
     if direct and direct < 600 and island(start) == island(target) then return nil end
-    local legs = self:Route(start, target, not self:HearthReserved(target))
+    local legs, _, why = self:Route(start, target, not self:HearthReserved(target), true)
+    if why then return nil, why end
     if not legs or #legs == 0 then return nil end
     return legs
 end
