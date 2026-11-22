@@ -151,7 +151,7 @@ function layout(self)
     if G.travel and #G.travel > 0 then
         local block = self:GetBlock("travel")
         local mins = G.travel.total and math.max(1, math.floor(G.travel.total / 60 + 0.5))
-        local title = G.travel.training and "Train new abilities" or "Travel"
+        local title = G.travel.training and "Train new abilities" or (G.stepGoto and G.stepGoto.pin and "Travel to your map pin") or "Travel"
         block:SetHeader(title .. (mins and (" (about " .. mins .. " min)") or ""))
         block.stewardCurrent = false
         for i, leg in ipairs(G.travel) do
@@ -170,7 +170,7 @@ function layout(self)
     local ag = G.activeGoto
     if ag and ag.sideLabel and not ag.travel and not ag.friend then
         local block = self:GetBlock("detour")
-        block:SetHeader(ag.escort and "Escort" or "On the way")
+        block:SetHeader(ag.escort and "Escort" or ag.pin and "Map pin" or "On the way")
         block.stewardCurrent = false
         block:AddObjective("d1", ag.sideLabel)
         if not self:LayoutBlock(block) then return end

@@ -891,6 +891,30 @@ C_Timer.NewTicker(0.5, function()
     end
 end)
 
+-- Go to anywhere (0.83.0, 2026-11-22): a pin you put on the world map yourself (the game's own map pin, not the one
+-- Steward puts on the guide's spot) is where you're going: the same trip planner as the guide's (flight paths you know,
+-- boats, zeppelins, the tram, portals, your hearthstone, running) plans the way there, the tracker lists the legs, and
+-- the arrow and the line go to the first stop. The guide waits; Steward takes the pin off when you get there (or take
+-- it off yourself) and goes back to the guide.
+local pinEl                 -- the destination of your pin, kept while the pin stays (so the trip isn't planned anew)
+function S:UserPin()
+    if not (C_Map and C_Map.HasUserWaypoint and C_Map.GetUserWaypoint) or not C_Map.HasUserWaypoint() then pinEl = nil return nil end
+    local pt = C_Map.GetUserWaypoint()
+    local pos = pt and pt.position
+    if not (pt and pt.uiMapID and pos and pos.x and pos.y) or S.Secret(pt.uiMapID, pos.x, pos.y) then pinEl = nil return nil end
+    local own = S.stewardPin or (StewardCharDB and StewardCharDB.stewardPin)   -- the last pin Steward put on the map itself
+    if own and own[1] == pt.uiMapID and math.abs(own[2] - pos.x) < 0.002 and math.abs(own[3] - pos.y) < 0.002 then
+        pinEl = nil
+        return nil
+    end
+    local x, y = pos.x * 100, pos.y * 100
+    if not (pinEl and pinEl.go.mapID == pt.uiMapID and math.abs(pinEl.go.x - x) < 0.05 and math.abs(pinEl.go.y - y) < 0.05) then
+        pinEl = { go = { mapID = pt.uiMapID, x = x, y = y }, pin = true, friendName = "your map pin", sideLabel = "Go to your map pin" }
+    end
+    return pinEl
+end
+S.PIN_ARRIVED = 15            -- yards: you're there, the pin comes off
+
 function S:UpdateWaypoint()
     local corpse = self:CorpseGoto()
     if corpse then
@@ -899,6 +923,28 @@ function S:UpdateWaypoint()
         sideChanged()
         if self.UpdateArrow then self:UpdateArrow() end
         if lastTarget and C_Map.ClearUserWaypoint then C_Map.ClearUserWaypoint() lastTarget = nil end
+        return
+    end
+    local pin = self:UserPin()
+    if pin then
+        local d = self:DistanceTo(pin.go)
+        if d and d < self.PIN_ARRIVED then
+            pcall(C_Map.ClearUserWaypoint)          -- you're there: back to the guide
+            pinEl, pin = nil, nil
+        end
+    end
+    if pin then
+        G.stepGoto = pin
+        lastTarget = nil                           -- Steward's own pin goes back on once yours is gone
+        if self.RefreshTravel then self:RefreshTravel() end
+        local el = pin
+        if G.travel and G.travel[1] then
+            local leg = G.travel[1]
+            el = leg.kind ~= "hearth" and { go = leg.target.go, travel = true } or nil
+        end
+        G.activeGoto = el
+        sideChanged()
+        if self.UpdateArrow then self:UpdateArrow() end
         return
     end
     if self:GuideMode() == "free" then
@@ -922,7 +968,7 @@ function S:UpdateWaypoint()
         local tkey = string.format("%d:%.3f:%.3f", r.mapID or 0, r.x or 0, r.y or 0)
         if lastTarget == tkey then return end
         if C_Map.CanSetUserWaypointOnMap and not C_Map.CanSetUserWaypointOnMap(r.mapID) then return end
-        if pcall(C_Map.SetUserWaypoint, UiMapPoint.CreateFromCoordinates(r.mapID, r.x, r.y)) then lastTarget = tkey S.stewardPin = { r.mapID, r.x, r.y } end
+        if pcall(C_Map.SetUserWaypoint, UiMapPoint.CreateFromCoordinates(r.mapID, r.x, r.y)) then lastTarget = tkey S.stewardPin = { r.mapID, r.x, r.y } StewardCharDB.stewardPin = S.stewardPin end
         return
     end
     local step = G.current
@@ -992,7 +1038,8 @@ function S:UpdateWaypoint()
     if C_Map.CanSetUserWaypointOnMap and not C_Map.CanSetUserWaypointOnMap(r.mapID) then return end
     local ok = pcall(function()
         C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(r.mapID, r.x, r.y))
-        S.stewardPin = { r.mapID, r.x, r.y }        -- Steward's own pin (Path.lua's DEV map-pin route ignores it)
+        S.stewardPin = { r.mapID, r.x, r.y }        -- Steward's own pin (never taken for yours)
+        StewardCharDB.stewardPin = S.stewardPin        -- remembered over a Reload
         if C_SuperTrack and C_SuperTrack.SetSuperTrackedUserWaypoint then
             C_SuperTrack.SetSuperTrackedUserWaypoint(true)
         end
@@ -1049,3 +1096,7 @@ end)
 for _, e in ipairs({ "PLAYER_DEAD", "PLAYER_ALIVE", "PLAYER_UNGHOST", "CORPSE_POSITION_UPDATE" }) do
     S:On(e, function() C_Timer.After(0.5, function() pcall(S.UpdateWaypoint, S) end) end)
 end
+-- you put a pin on the map, moved it or took it off: plan again at once
+S:On("USER_WAYPOINT_UPDATED", function()
+    if S.ReplanTravel then C_Timer.After(0.1, S.ReplanTravel) elseif S.UpdateWaypoint then S:UpdateWaypoint() end
+end)

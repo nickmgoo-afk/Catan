@@ -2403,10 +2403,9 @@ local main = newLayer("main")
 local party = newLayer("party")
 local LAYERS = { main, party }
 
--- DEV TESTING TOOL (Nick 2026-11-16: "this will be a Dev Testing tool that we can remove later"): a pin you put on
--- the world map yourself (the game's own map pin): the route goes there instead of to the guide's step, until you
--- take the pin off. The pin Steward itself puts on the guide's step does not count. To remove: this function, P.PinTarget
--- and the three lines in guideTarget marked DEV.
+-- a pin you put on the world map yourself (the game's own map pin; Nick 2026-11-16 started it as a dev tool): since
+-- 0.83.0 Waypoint.lua takes it up as a trip ("Go to anywhere") and the line follows the arrow; until it has, the line
+-- goes straight to the pin. The pin Steward itself puts on the guide's step does not count.
 local function pinTarget()
     if not (C_Map and C_Map.HasUserWaypoint and C_Map.GetUserWaypoint and C_Map.GetWorldPosFromMapPos) then return nil end
     if not C_Map.HasUserWaypoint() then return nil end
@@ -2414,7 +2413,7 @@ local function pinTarget()
     local pos = pt and pt.position
     if not (pt.uiMapID and pos and pos.x and pos.y) then return nil end
     local function same(m, x, y) return m == pt.uiMapID and abs(x - pos.x) < 0.002 and abs(y - pos.y) < 0.002 end
-    local own = S.stewardPin                              -- the last pin Steward put on the map itself
+    local own = S.stewardPin or (StewardCharDB and StewardCharDB.stewardPin)   -- the last pin Steward put on the map itself
     if own and same(own[1], own[2], own[3]) then return nil end
     local el = G.activeGoto
     local r = el and el.go and S:ResolveGoto(el.go)
@@ -2451,9 +2450,14 @@ local function guideTarget()
     goalIndoors, goalBottom = nil, nil
     if not S:Get("pathShow") then return nil end
     if UnitOnTaxi("player") or S.InInstance() then return nil end
-    local px, py, pinst, pmap = pinTarget()               -- DEV
-    if px then mapHint(pmap) return px, py, pinst end     -- DEV
-    if not S:Get("guideShow") then return nil end          -- DEV (was part of the first line)
+    -- your own map pin (Waypoint.lua, "Go to anywhere"): the arrow's spot, the first stop of the trip or the pin
+    -- itself, whether the guide is shown or not
+    local pinTrip = G.stepGoto and G.stepGoto.pin
+    if not pinTrip then
+        local px, py, pinst, pmap = pinTarget()           -- a pin Waypoint.lua hasn't taken up yet
+        if px then mapHint(pmap) return px, py, pinst end
+        if not S:Get("guideShow") then return nil end
+    end
     local el = G.activeGoto
     local go = el and el.go
     if not go then return nil end

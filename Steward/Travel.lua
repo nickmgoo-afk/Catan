@@ -955,7 +955,7 @@ function S:RefreshTravel(force)
     if self:Get("guideTravel") then ok, legs = pcall(self.PlanTravel, self, stepGoto.go, stepGoto.friendName) end
     G.travel = ok and legs or nil
     if not ok then StewardCharDB.travelError = tostring(legs) end
-    if self.TrainingDetour and not stepGoto.friend then -- going to a group member: no training detour on the way
+    if self.TrainingDetour and not stepGoto.friend and not stepGoto.pin then -- going to a group member or your pin: no training detour
         local ok2, detour = pcall(self.TrainingDetour, self, stepGoto.go)
         if ok2 and detour then G.travel = detour end
         if not ok2 then StewardCharDB.trainingError = tostring(detour) end
