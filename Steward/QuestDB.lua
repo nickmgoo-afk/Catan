@@ -5,6 +5,16 @@ local _, S = ...
 -- (level, race, class, earlier quests). Used to find quests near you the guide doesn't do, and
 -- where to hand in quests the guide doesn't know.
 
+-- Spots QuestieDB has wrong, checked by hand on Wowhead Forever (QuestData.lua is generated, so fixes live here)
+local SPOT_FIXES = {
+    [11957] = { { 1450, 54.5, 75.0 } },   -- Great Cat Spirit, Moonglade (2026-11-22; QuestieDB: 58.39, 73.52)
+    [257597] = { { 1426, 87.5, 43.6 } },  -- Bruegs Kindleborn, Dun Morogh (2026-11-22; QuestieDB: 87.94, 44.80)
+}
+for id, spots in pairs(SPOT_FIXES) do
+    local e = S.QDB_NPCS and S.QDB_NPCS[id]
+    if e then e[2] = spots end
+end
+
 local RACEBIT = { [1] = 1, [2] = 2, [3] = 4, [4] = 8, [5] = 16, [6] = 32, [7] = 64, [8] = 128, [9] = 256, [10] = 512,
     [11] = 1024, [95] = 4294967296, [96] = 8589934592 }
 local function hasBit(mask, bit) return bit and math.floor(mask / bit) % 2 == 1 end
