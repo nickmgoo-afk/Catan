@@ -358,8 +358,25 @@ end
 
 ---------------------------------------------------------------- visiting a trainer
 -- is the open trainer your class trainer (not a profession or weapon trainer)?
+-- weapon masters teach weapon skills, not your class's spells: not your class trainer (0.88.3; Woo Ping, Nick's
+-- trainDiag of 2026-11-22, counted as one and would have bought Polearms)
+local WEAPON_LINES = { ["Axes"] = true, ["Two-Handed Axes"] = true, ["Maces"] = true, ["Two-Handed Maces"] = true,
+    ["Swords"] = true, ["Two-Handed Swords"] = true, ["Polearms"] = true, ["Staves"] = true, ["Daggers"] = true,
+    ["Fist Weapons"] = true, ["Bows"] = true, ["Guns"] = true, ["Crossbows"] = true, ["Thrown"] = true, ["Wands"] = true }
+local function weaponMaster()
+    if not (GetTrainerServiceSkillLine and GetNumTrainerServices) then return false end
+    local n = GetNumTrainerServices() or 0
+    if n == 0 then return false end
+    for i = 1, n do
+        local line = GetTrainerServiceSkillLine(i)
+        if line and not WEAPON_LINES[line] then return false end
+    end
+    return true
+end
 local function isClassTrainer()
-    if IsTradeskillTrainer then return not IsTradeskillTrainer() end
+    if IsTradeskillTrainer and IsTradeskillTrainer() then return false end
+    if weaponMaster() then return false end
+    if IsTradeskillTrainer then return true end
     if GetTrainerServiceSkillLine and GetNumTrainerServices and GetNumTrainerServices() > 0 then
         local line = GetTrainerServiceSkillLine(1)
         if line then
@@ -400,7 +417,7 @@ S:On("TRAINER_SHOW", function()
         if not (GetNumTrainerServices and GetTrainerServiceInfo) then return end
         local levels, seen = {}, {}
         for i = 1, GetNumTrainerServices() do
-            local _, _, category = GetTrainerServiceInfo(i)
+            local _, _, category = S.TrainerService(i)
             local req = GetTrainerServiceLevelReq and GetTrainerServiceLevelReq(i)
             if category == "unavailable" and req and req > lvl and not seen[req] then
                 seen[req] = true
@@ -420,7 +437,7 @@ S:On("TRAINER_CLOSED", function()
     local skip = S.SkippedTraining and S:SkippedTraining() or {}
     local leftover = false
     for i = 1, GetNumTrainerServices() do
-        local name, _, category = GetTrainerServiceInfo(i)
+        local name, _, category = S.TrainerService(i)
         if category == "available" and not skip[name] then leftover = true end
     end
     cdb().leftover = leftover or nil

@@ -137,6 +137,29 @@ local SMART = { guideDynamic = true, fillerQuests = true, guideTraining = true }
 -- what waits for the first-time setup: nothing moves your buttons, spends your points or swaps your gear before you've said
 local HELD = { barsAuto = true, talentsAuto = true, gearAuto = true }
 
+-- one service of the open trainer window: name, rank (or ""), category ("available", "unavailable", "used").
+-- Forever's client answers GetTrainerServiceInfo as name, category, icon, ... (Nick's trainDiag of 2026-11-22: "Polearms |
+-- available | 135129"), where classic gives name, rank, category, icon: the category is taken wherever it is, so neither
+-- client makes Steward think nothing is on offer (0.88.3; Nick 2026-11-15: "isn't this supposed to train for me?")
+local SERVICE_KIND = { available = true, unavailable = true, used = true }
+function S.TrainerService(i)
+    if not GetTrainerServiceInfo then return nil end
+    local r = { GetTrainerServiceInfo(i) }
+    local name, rank, category = r[1], nil, nil
+    for k = 2, 4 do
+        local v = r[k]
+        if type(v) == "string" then
+            if SERVICE_KIND[v] then
+                category = v
+                break
+            elseif not rank then
+                rank = v
+            end
+        end
+    end
+    return name, rank or "", category
+end
+
 function S:Get(key)
     if SMART[key] and self:GuideMode() ~= "guide" then return false end
     if HELD[key] and _G.StewardDB and StewardDB.setupDone == false then return false end

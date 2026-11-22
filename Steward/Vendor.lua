@@ -456,7 +456,7 @@ local function diagStart(why)
     if GetNumTrainerServices and GetTrainerServiceInfo then
         diag.n = GetNumTrainerServices() or 0
         for i = 1, math.min(diag.n, 80) do
-            local name, rank, category = GetTrainerServiceInfo(i)
+            local name, rank, category = S.TrainerService(i)
             local cost = GetTrainerServiceCost and GetTrainerServiceCost(i) or nil
             local req = GetTrainerServiceLevelReq and GetTrainerServiceLevelReq(i) or nil
             diag.services[#diag.services + 1] = table.concat({ tostring(name), tostring(rank), tostring(category), tostring(cost), tostring(req) }, " | ")
@@ -485,7 +485,7 @@ local function learnNext()
     if first then
         local waiting = false
         for i = 1, GetNumTrainerServices() or 0 do
-            local name, _, category = GetTrainerServiceInfo(i)
+            local name, _, category = S.TrainerService(i)
             if category == "available" and isFirst(i, name) and not skip[name]
                 and (GetTrainerServiceCost(i) or 0) > GetMoney() then waiting = true end
         end
@@ -494,7 +494,7 @@ local function learnNext()
     end
     for _, which in ipairs(pass) do
     for i = 1, GetNumTrainerServices() or 0 do
-        local name, rank, category = GetTrainerServiceInfo(i)
+        local name, rank, category = S.TrainerService(i)
         local wanted = which == "all" or (which == "mandatory") == isFirst(i, name)
         if category == "available" and wanted and not skip[name] then
             local cost = GetTrainerServiceCost(i) or 0

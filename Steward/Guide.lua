@@ -1350,7 +1350,7 @@ local function noteTrainerCosts()
     if not (GetNumTrainerServices and GetTrainerServiceInfo and GetTrainerServiceCost) then return end
     S.trainCost = S.trainCost or {}
     for i = 1, GetNumTrainerServices() or 0 do
-        local name, _, category = GetTrainerServiceInfo(i)
+        local name, _, category = S.TrainerService(i)
         if name and category == "available" then
             local ok, cost = pcall(GetTrainerServiceCost, i)
             if ok and type(cost) == "number" then S.trainCost[name] = cost end
