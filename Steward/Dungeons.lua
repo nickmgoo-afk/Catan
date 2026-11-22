@@ -106,7 +106,7 @@ local D = {
         "You enter through the sewers.",
         "Bosses include Lyn the Ignored, Atrexis the Grave Knight and the Shade of the Archmage at the end." } },
     ["Drowned City"] = { name = "The Drowned City", lvl = "35-40", notes = {
-        "Underwater off Stranglethorn's coast, west of Grom'gol: watch your breath on the way in.",
+        "Underwater in the Sunken Hollow, west of the Vile Reef off Stranglethorn's coast (about 21.4, 27.8): watch your breath on the way in.",
         "Bosses include Zul'Alai, Captain Dreadrise and Min'loth the Serpent." } },
     ["Krol'dok Stronghold"] = { name = "Krol'dok Stronghold", lvl = "40-45", notes = {
         "In the Riverglades.",
