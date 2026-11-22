@@ -2446,8 +2446,9 @@ local function mapHint(mapID)
     local h = mapID and MAP_FLOOR[mapID]
     if h == "cover" then goalIndoors = true elseif h == "bottom" then goalBottom = true end
 end
+local goalLand              -- the goal's floor by its place among the floors there (an entrance under other floors)
 local function guideTarget()
-    goalIndoors, goalBottom = nil, nil
+    goalIndoors, goalBottom, goalLand = nil, nil, nil
     if not S:Get("pathShow") then return nil end
     if UnitOnTaxi("player") or S.InInstance() then return nil end
     -- your own map pin (Waypoint.lua, "Go to anywhere"): the arrow's spot, the first stop of the trip or the pin
@@ -2466,6 +2467,7 @@ local function guideTarget()
     if S.Secret(r.world.x, r.world.y, r.instance) then return nil end
     goalIndoors = corpseIndoors(el)
     if goalIndoors == nil then mapHint(r.mapID) end
+    if el.landG then goalLand = el.landG end            -- your pin by a buried entrance (Waypoint.lua S:UserPin)
     return r.world.x, r.world.y, r.instance
 end
 
@@ -2528,6 +2530,7 @@ local function startJob(L, px, py, gx, gy, inst)
         indoorsG = nil }
     if L == main then
         L.job.indoorsG, L.job.bottomG = goalIndoors, goalBottom     -- true, false (open sky) or nil; lowest floor
+        if goalLand then L.job.landG = goalLand end
         -- you in the Undercity (by the map you're on): you're on the city's floor, not in the ruins above it
         local m = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player")
         if m and MAP_FLOOR[m] == "bottom" then L.job.bottomS = true end

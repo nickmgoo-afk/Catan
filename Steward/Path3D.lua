@@ -1401,6 +1401,66 @@ local function run(job, tick, P)
     return true
 end
 
+
+---------------------------------------------------------------- entrances below other floors (0.88.2)
+-- A map pin has no height. Where an entrance lies under other floors (the Hall of Thanes, 103 yd under Ironforge's
+-- streets; Gnomeregan; Blackrock Mountain's two doors), a pin dropped within P3.ENTRANCE_NEAR yards of it means that
+-- entrance, not the floor over it (Nick 2026-11-22: "start", on pins over caves and dungeons). Made in the workshop from
+-- the game's own entrance table (AreaTrigger.csv, Nick's client) and the Hall of Thanes portal (Forever's own: not in that
+-- table; 399 yd high, from Nick's 11-20 trip): kept are those with floor 20 yd or more above them within 30 yd.
+-- { north, west, floor (its place among the floors there you can walk to, lowest first), name }
+P3.ENTRANCE_NEAR = 30
+P3.ENTRANCES = {
+    [0] = {
+        { -4776.2, -966.7, 1, "Hall of Thanes" },
+        { -9077.3, -552.9, 1 },
+        { -5660.3, 755.3, 1 },
+        { 2019.3, 1904.4, 1 },
+        { -5584.2, 759.8, 1 },
+        { -5586.5, 679.3, 1 },
+        { -4086.4, -2610.9, 1 },
+        { -5601.5, -530.7, 1 },
+        { -5390.2, -2953.9, 2 },
+        { -3752.8, -851.6, 1 },
+        { -14468.0, 457.5, 2 },
+        { 97.4, -176.3, 1 },
+        { 544.8, -1079.9, 1 },
+        { 2964.6, -2712.9, 1 },
+        { 2980.1, -2720.9, 1 },
+        { 18.9, -1448.2, 1 },
+        { -7510.9, -1035.9, 1 },
+        { -7514.8, -1033.1, 1 },
+        { -12432.8, 205.2, 1 },
+        { -1189.3, -2532.2, 1 },
+        { -811.4, -3505.8, 1 },
+        { 2051.4, 272.6, 1 },
+        { -3755.1, -775.7, 1 },
+        { 1782.2, 151.6, 1 },
+    },
+    [1] = {
+        { 9556.2, 1654.8, 1 },
+        { -3463.3, -4123.1, 1 },
+        { -4058.8, -2732.5, 1 },
+        { -3464.7, -4120.9, 1 },
+        { 2.0, 402.7, 1 },
+        { -7180.9, 441.1, 1 },
+        { 1253.8, -2227.5, 1 },
+        { 1332.3, -4607.7, 1 },
+    },
+}
+-- the entrance under other floors within r yards of north, west, or nil
+function P3.EntranceNear(inst, north, west, r)
+    local list = P3.ENTRANCES[inst]
+    if not (list and north and west) then return nil end
+    r = r or P3.ENTRANCE_NEAR
+    local best, bd
+    for _, e in ipairs(list) do
+        local d = (e[1] - north) ^ 2 + (e[2] - west) ^ 2
+        if d <= r * r and (not bd or d < bd) then best, bd = e, d end
+    end
+    return best
+end
+
 ---------------------------------------------------------------- lifts (2026-11-22)
 -- The lifts move, so the floors they carry you between aren't joined in the 3D data. Each lift is two landings
 -- (where you step on and off: north, west, and which floor there, lowest first) and the seconds a ride costs: half the
@@ -1471,7 +1531,7 @@ local function runLifts(job, tick, P)
             j1.indoorsS, j1.bottomS, j1.landG = job.indoorsS, job.bottomS, A.floor
             if run(j1, tick, P) and (j1.cost3d or huge) + ride < best then
                 local j2 = leg(B.n, B.w, gn, gw)
-                j2.landS, j2.indoorsG, j2.bottomG = B.floor, job.indoorsG, job.bottomG
+                j2.landS, j2.indoorsG, j2.bottomG, j2.landG = B.floor, job.indoorsG, job.bottomG, job.landG
                 if run(j2, tick, P) then
                     local c = j1.cost3d + ride + (j2.cost3d or huge)
                     if c < best then best, pick = c, { j1, j2, L } end

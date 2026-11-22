@@ -925,8 +925,32 @@ function S:UserPin()
         return nil
     end
     local x, y = pos.x * 100, pos.y * 100
-    if not (pinEl and pinEl.go.mapID == pt.uiMapID and math.abs(pinEl.go.x - x) < 0.05 and math.abs(pinEl.go.y - y) < 0.05) then
-        pinEl = { go = { mapID = pt.uiMapID, x = x, y = y }, pin = true, friendName = "your map pin", sideLabel = "Go to your map pin" }
+    if not (pinEl and pinEl.pinMap == pt.uiMapID and math.abs(pinEl.pinX - x) < 0.05 and math.abs(pinEl.pinY - y) < 0.05) then
+        pinEl = { go = { mapID = pt.uiMapID, x = x, y = y }, pin = true, friendName = "your map pin", sideLabel = "Go to your map pin",
+                  pinMap = pt.uiMapID, pinX = x, pinY = y }
+        -- a pin by an entrance that lies under other floors (the Hall of Thanes under Ironforge): that entrance and its
+        -- floor, not the street over it (0.88.2; Path3D.lua P3.ENTRANCES)
+        local P3 = S.Path3D
+        if P3 and P3.EntranceNear and C_Map.GetWorldPosFromMapPos and C_Map.GetMapPosFromWorldPos then
+            local ok, inst, world = pcall(C_Map.GetWorldPosFromMapPos, pt.uiMapID, pos)
+            if ok and inst and world and not S.Secret(inst, world.x, world.y) then
+                local swap = S:WorldOrder() == "unitswap"
+                local n, w = world.x, world.y
+                if swap then n, w = world.y, world.x end
+                local e = P3.EntranceNear(inst, n, w)
+                if e then
+                    local v = swap and CreateVector2D(e[2], e[1]) or CreateVector2D(e[1], e[2])
+                    local ok2, m, mp = pcall(C_Map.GetMapPosFromWorldPos, inst, v, pt.uiMapID)
+                    if ok2 and mp and mp.x then
+                        pinEl.go = { mapID = pt.uiMapID, x = mp.x * 100, y = mp.y * 100 }
+                        pinEl.landG = e[3]
+                        if e[4] then
+                            pinEl.friendName, pinEl.sideLabel = "the " .. e[4] .. " entrance", "Go to the " .. e[4] .. " entrance"
+                        end
+                    end
+                end
+            end
+        end
     end
     return pinEl
 end
