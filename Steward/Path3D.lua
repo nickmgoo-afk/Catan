@@ -1419,6 +1419,11 @@ P3.LIFTS = {
     [1] = {
         { name = "Thunder Bluff lift (south-west)", secs = 16.3, { n = -1291.0, w = 156.0, floor = 1 }, { n = -1298.0, w = 172.0, floor = 2 } },
         { name = "Thunder Bluff lift (north-east)", secs = 17.5, { n = -1077.0, w = -100.0, floor = 1 }, { n = -1081.0, w = -106.0, floor = 1 } },
+        -- The Great Lift (0.85.0): the two towers of thousandneedleselevator.wmo placed on the Thousand Needles floor;
+        -- 129.3 yd (TransportAnimation 11898/11899) between each tower's top platform (85.7, 89.3) and its base
+        -- (-45.9, -39.9); one car each, 30 s round: half of it waiting plus the 8 s ride
+        { name = "The Great Lift (north tower)", secs = 23, { n = -4644.8, w = -1841.5, floor = 1 }, { n = -4674.0, w = -1842.0, floor = 2 } },
+        { name = "The Great Lift (south tower)", secs = 23, { n = -5409.3, w = -2481.3, floor = 1 }, { n = -5407.0, w = -2506.0, floor = 1 } },
     },
 }
 P3.RUN = 7                                          -- yards a second on foot: a ride's seconds as yards of walking
@@ -1473,6 +1478,7 @@ local function runLifts(job, tick, P)
                 end
             end
         end
+        if pick then break end              -- the first lift that beats the walk: good enough, and saves the searches
     end
     if not pick then
         P3.why = why
