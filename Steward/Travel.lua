@@ -1029,7 +1029,9 @@ function S:PlanTravel(targetGoto, person)
     target.person = person ~= nil
     local direct = dist(start, target)
     if direct and direct < 600 then return nil end
-    local legs = self:Route(start, target, not self:HearthReserved(target))
+    -- the walks not measured yet: nil, "measuring" (no straight-line guess; 0.87.1, as friend trips since 0.86.3)
+    local legs, _, why = self:Route(start, target, not self:HearthReserved(target), true)
+    if why then return nil, why end
     if not legs or #legs == 0 then return nil end
     return legs
 end
@@ -1087,17 +1089,28 @@ function S:HearthReserved(target)
 end
 
 ---------------------------------------------------------------- keeping the route current
-local lastPlan, lastKey = 0, nil
+local lastPlan, lastKey, keptKey = 0, nil, nil
 function S:RefreshTravel(force)
     local stepGoto = G.stepGoto
-    if S.InInstance() then G.travel = nil return end
-    if not (stepGoto and (self:Get("guideTravel") or self:Get("guideTraining"))) then G.travel = nil return end
+    if S.InInstance() then G.travel, G.travelPending = nil, nil return end
+    if not (stepGoto and (self:Get("guideTravel") or self:Get("guideTraining"))) then G.travel, G.travelPending = nil, nil return end
     local key = tostring(stepGoto) .. (C_Map.GetBestMapForUnit("player") or 0)
     if not force and key == lastKey and GetTime() - lastPlan < 20 then return end
     lastKey, lastPlan = key, GetTime()
-    local ok, legs = true, nil
-    if self:Get("guideTravel") then ok, legs = pcall(self.PlanTravel, self, stepGoto.go, stepGoto.friendName) end
-    G.travel = ok and legs or nil
+    local ok, legs, why = true, nil, nil
+    if self:Get("guideTravel") then ok, legs, why = pcall(self.PlanTravel, self, stepGoto.go, stepGoto.friendName) end
+    if ok and why == "measuring" then
+        -- the walks from here or to there are still being measured: keep the trip you had for this same step from
+        -- this same zone, else say it's being worked out; planned again the moment they're ready (onSweepsDone), or
+        -- in 2 s at the latest (Nick 2026-11-22: "use, do it", after the friend trip's guess up the tree)
+        G.travelPending = true
+        if key ~= keptKey then G.travel = nil end
+        lastPlan = GetTime() - 18
+    else
+        G.travelPending = nil
+        G.travel = ok and legs or nil
+        keptKey = key
+    end
     if not ok then StewardCharDB.travelError = tostring(legs) end
     if self.TrainingDetour and not stepGoto.friend and not stepGoto.pin then -- going to a group member or your pin: no training detour
         local ok2, detour = pcall(self.TrainingDetour, self, stepGoto.go)

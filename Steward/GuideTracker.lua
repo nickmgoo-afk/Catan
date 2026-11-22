@@ -159,7 +159,14 @@ function layout(self)
     local cur = G.current
     S.trackerShownIndex = cur and cur.index or 0
     if not partyBlock(self) then return end
-    if G.travel and #G.travel > 0 then
+    if G.travelPending and not (G.travel and #G.travel > 0) then
+        -- the trip is being worked out (the walks are being measured): no guessed legs meanwhile
+        local block = self:GetBlock("travel")
+        block:SetHeader(G.stepGoto and G.stepGoto.pin and "Travel to your map pin" or "Travel")
+        block.stewardCurrent = false
+        block:AddObjective("leg1", "Working out the way there...")
+        if not self:LayoutBlock(block) then return end
+    elseif G.travel and #G.travel > 0 then
         local block = self:GetBlock("travel")
         local mins = G.travel.total and math.max(1, math.floor(G.travel.total / 60 + 0.5))
         local title = G.travel.training and "Train new abilities" or (G.stepGoto and G.stepGoto.pin and "Travel to your map pin") or "Travel"
@@ -181,7 +188,7 @@ function layout(self)
     -- the arrow is on a detour (a hand-in on the way, a nearer stop, your escort, your body):
     -- say so here too, so the arrow and the panel never disagree
     local ag = G.activeGoto
-    if ag and ag.sideLabel and not ag.travel and not ag.friend then
+    if ag and ag.sideLabel and not ag.travel and not ag.friend and not (ag.pin and G.travelPending) then
         local block = self:GetBlock("detour")
         block:SetHeader(ag.escort and "Escort" or ag.pin and "Map pin" or "On the way")
         block.stewardCurrent = false

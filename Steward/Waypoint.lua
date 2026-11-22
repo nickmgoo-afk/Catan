@@ -935,7 +935,7 @@ S.PIN_ARRIVED = 15            -- yards: you're there, the pin comes off
 function S:UpdateWaypoint()
     local corpse = self:CorpseGoto()
     if corpse then
-        G.stepGoto, G.travel = nil, nil
+        G.stepGoto, G.travel, G.travelPending = nil, nil, nil
         G.activeGoto = corpse
         sideChanged()
         if self.UpdateArrow then self:UpdateArrow() end
@@ -999,7 +999,7 @@ function S:UpdateWaypoint()
     end
     if escort then
         G.stepGoto = nil
-        G.travel = nil
+        G.travel, G.travelPending = nil, nil
         G.activeGoto = escort
         sideChanged()
         if self.UpdateArrow then self:UpdateArrow() end
