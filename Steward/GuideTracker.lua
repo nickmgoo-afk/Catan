@@ -8,6 +8,7 @@ local _, S = ...
 local G = S.G
 local module
 local hearthBlock -- the block that says to hearth now (set while the tracker lays the guide out)
+local hearthSpell -- the trip starts with a teleport: the spell the button casts instead of the hearthstone (0.84.0)
 local queueHearth -- defined with the Hearthstone button below
 
 local function available()
@@ -141,7 +142,7 @@ function layout(self)
     G.distLine = nil
     S.trackerLaidOut = GetTime()
     S.trackerShownIndex = nil
-    hearthBlock = nil
+    hearthBlock, hearthSpell = nil, nil
     queueHearth() -- the Hearthstone button follows this layout (next frame, once the blocks are placed)
     local free = S:GuideMode() == "free"
     if not (S:Get("guideShow") and (G.guide or free)) then return end
@@ -163,7 +164,9 @@ function layout(self)
         end
         if not self:LayoutBlock(block) then return end
         -- the way starts with your hearthstone: its button goes beside this block
-        if G.travel[1] and G.travel[1].kind == "hearth" then hearthBlock = block end
+        if G.travel[1] and (G.travel[1].kind == "hearth" or G.travel[1].kind == "teleport") then
+            hearthBlock, hearthSpell = block, G.travel[1].spell       -- a teleport: the same button, cast that spell
+        end
     end
     -- the arrow is on a detour (a hand-in on the way, a nearer stop, your escort, your body):
     -- say so here too, so the arrow and the panel never disagree
@@ -451,6 +454,7 @@ end
 
 local function hearthCooldown()
     if not hearthBtn then return end
+    if hearthBtn.stewardSpell then hearthBtn.cd:Clear() return end     -- teleports have no cooldown
     local getCD = (C_Container and C_Container.GetItemCooldown) or _G.GetItemCooldown
     if not getCD then return end
     local start, dur, enable = getCD(HEARTHSTONE)
@@ -474,7 +478,9 @@ local function makeHearthButton()
     b:SetAttribute("item", "item:" .. HEARTHSTONE)
     b:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-        if GameTooltip.SetItemByID then GameTooltip:SetItemByID(HEARTHSTONE) else GameTooltip:SetHyperlink("item:" .. HEARTHSTONE) end
+        if self.stewardSpell then
+            if GameTooltip.SetSpellByID then GameTooltip:SetSpellByID(self.stewardSpell) end
+        elseif GameTooltip.SetItemByID then GameTooltip:SetItemByID(HEARTHSTONE) else GameTooltip:SetHyperlink("item:" .. HEARTHSTONE) end
         GameTooltip:Show()
     end)
     b:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -489,13 +495,32 @@ function S:UpdateHearthButton()
     local top = block and block.GetTop and block:GetTop()
     local left = module and module:GetLeft()
     local show = block and top and left and module:IsVisible() and (not block.IsVisible or block:IsVisible())
-        and S:Get("guideShow") and G.guide and hearthCount() > 0
+        and S:Get("guideShow") and G.guide and (hearthSpell or hearthCount() > 0)
     if not show then
         if hearthBtn and hearthBtn:IsShown() then hearthBtn:Hide() end
         hearthAt = nil
         return
     end
     hearthBtn = hearthBtn or makeHearthButton()
+    -- the hearthstone, or the teleport the trip starts with (set out of combat only, like every secure button)
+    if hearthBtn.stewardSpell ~= hearthSpell then
+        hearthBtn.stewardSpell = hearthSpell
+        if hearthSpell then
+            hearthBtn:SetAttribute("type", "spell")
+            hearthBtn:SetAttribute("spell", hearthSpell)
+            hearthBtn:SetAttribute("item", nil)
+            local tex = (C_Spell and C_Spell.GetSpellTexture and C_Spell.GetSpellTexture(hearthSpell))
+                or (GetSpellTexture and GetSpellTexture(hearthSpell))
+            hearthBtn.icon:SetTexture(tex or 135757)
+        else
+            hearthBtn:SetAttribute("type", "item")
+            hearthBtn:SetAttribute("item", "item:" .. HEARTHSTONE)
+            hearthBtn:SetAttribute("spell", nil)
+            local icon = (C_Item and C_Item.GetItemIconByID and C_Item.GetItemIconByID(HEARTHSTONE))
+                or (GetItemIcon and GetItemIcon(HEARTHSTONE)) or 134414
+            hearthBtn.icon:SetTexture(icon)
+        end
+    end
     -- beside the block's first line, left of the tracker; left of the quest item button when both sit there
     local x = left - 6
     if itemBtn and itemBtn:IsShown() and itemBtn.stewardTop and math.abs(itemBtn.stewardTop - top) < 30 then x = x - 32 end

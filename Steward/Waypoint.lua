@@ -940,7 +940,7 @@ function S:UpdateWaypoint()
         local el = pin
         if G.travel and G.travel[1] then
             local leg = G.travel[1]
-            el = leg.kind ~= "hearth" and { go = leg.target.go, travel = true } or nil
+            el = (leg.kind ~= "hearth" and leg.kind ~= "teleport") and { go = leg.target.go, travel = true } or nil
         end
         G.activeGoto = el
         sideChanged()
@@ -953,7 +953,7 @@ function S:UpdateWaypoint()
         if self.RefreshTravel then self:RefreshTravel() end
         if G.travel and G.travel[1] then
             local leg = G.travel[1]
-            el = leg.kind ~= "hearth" and { go = leg.target.go, travel = true } or nil
+            el = (leg.kind ~= "hearth" and leg.kind ~= "teleport") and { go = leg.target.go, travel = true } or nil
         end
         G.activeGoto = el
         sideChanged()
@@ -1018,7 +1018,7 @@ function S:UpdateWaypoint()
     if self.RefreshTravel then self:RefreshTravel() end
     if G.travel and G.travel[1] then
         local leg = G.travel[1]
-        el = leg.kind ~= "hearth" and { go = leg.target.go, travel = true } or nil
+        el = (leg.kind ~= "hearth" and leg.kind ~= "teleport") and { go = leg.target.go, travel = true } or nil
     end
     G.activeGoto = el
     sideChanged()

@@ -52,6 +52,51 @@ local TRANSPORTS = {
 }
 S.TRANSPORTS = TRANSPORTS
 
+-- Teleports you can cast (0.84.0): a mage's six city teleports (each takes a Rune of Teleportation) and a druid's
+-- Teleport: Moonglade (no reagent). Where each lands (north, west, continent): the game's spell target positions as
+-- the classic servers have them; every one of them stands on a floor at that very height in Forever's own 3D data
+-- (checked 2026-11-22). Where a teleport really lands is noted the first time you use it (StewardDB.teleportLanding).
+-- secs: the 10 s cast and the loading screen.
+local RUNE_OF_TELEPORTATION = 17031
+local TELEPORTS = {
+    { spell = 3561, class = "MAGE", rune = true, name = "Stormwind", inst = 0, n = -9003.46, w = 870.03 },
+    { spell = 3562, class = "MAGE", rune = true, name = "Ironforge", inst = 0, n = -4613.62, w = -915.38 },
+    { spell = 3563, class = "MAGE", rune = true, name = "the Undercity", inst = 0, n = 1773.47, w = 61.12 },
+    { spell = 3565, class = "MAGE", rune = true, name = "Darnassus", inst = 1, n = 9660.81, w = 2513.64 },
+    { spell = 3566, class = "MAGE", rune = true, name = "Thunder Bluff", inst = 1, n = -964.98, w = 283.43 },
+    { spell = 3567, class = "MAGE", rune = true, name = "Orgrimmar", inst = 1, n = 1469.85, w = -4221.52 },
+    { spell = 18960, class = "DRUID", name = "Moonglade", inst = 1, n = 7991.88, w = -2679.84 },
+}
+S.TELEPORTS = TELEPORTS
+local TELEPORT_SECS = 20
+local function knowsSpell(id)
+    if IsPlayerSpell then
+        local ok, v = pcall(IsPlayerSpell, id)
+        if ok and v ~= nil and not S.Secret(v) then return v == true end
+    end
+    if IsSpellKnown then
+        local ok, v = pcall(IsSpellKnown, id)
+        if ok and not S.Secret(v) then return v == true end
+    end
+    return false
+end
+-- the teleports you can cast now: known, and the rune in your bags where one is needed
+function S:TeleportsReady()
+    local _, class = UnitClass("player")
+    local out = {}
+    local runes
+    for _, t in ipairs(TELEPORTS) do
+        if t.class == class and knowsSpell(t.spell) then
+            if t.rune and runes == nil then
+                runes = ((C_Item and C_Item.GetItemCount) or GetItemCount)(RUNE_OF_TELEPORTATION) or 0
+                if S.Secret(runes) then runes = 1 end
+            end
+            if not t.rune or runes > 0 then out[#out + 1] = t end
+        end
+    end
+    return out
+end
+
 -- where a one-way portal really lands you: noted the first time you go through it
 local portalNear, portalAt
 local function landing(t)
@@ -753,6 +798,13 @@ function S:Route(start, target, useHearth)
             edge(start, h, 30 + wait, "hearth", text)
         end
     end
+    -- your teleports (a mage's runes, a druid's Moonglade): cast where you stand
+    for _, t in ipairs(self:TeleportsReady()) do
+        local l = StewardDB and StewardDB.teleportLanding and StewardDB.teleportLanding[t.spell]
+        local p = add(point(netVec(l and l.n or t.n, l and l.w or t.w), l and l.inst or t.inst, t.name))
+        p.spell = t.spell
+        edge(start, p, TELEPORT_SECS, "teleport", "Teleport to " .. t.name)
+    end
     -- running between any two points on the same continent: on the 3D world where it is mapped (the walk measured from
     -- you and from where you are going, and between every two travel points), else the straight line and a fifth more
     local roads = S:Get("pathRoute") == "roads"
@@ -842,7 +894,7 @@ function S:Route(start, target, useHearth)
                 text = (target.person and ("Head to " .. target.name)) or "Head to the quest area"
             elseif nextEdge.kind == "fly" then
                 text = "Go to the " .. step.to.name .. " flight master"
-            elseif nextEdge.kind == "hearth" or nextEdge.kind == "run" then
+            elseif nextEdge.kind == "hearth" or nextEdge.kind == "teleport" or nextEdge.kind == "run" then
                 text = nil          -- a run on to the next stop: the next line says where
             else
                 text = "Go to the " .. nextEdge.kind .. " dock for " .. (nextEdge.text:match("to (.+)$") or "")
@@ -851,7 +903,7 @@ function S:Route(start, target, useHearth)
             end
             if text then legs[#legs + 1] = { kind = "run", text = text, target = step.to } end
         else
-            legs[#legs + 1] = { kind = e.kind, text = e.text, target = step.to }
+            legs[#legs + 1] = { kind = e.kind, text = e.text, target = step.to, spell = step.to.spell }
         end
     end
     -- merge consecutive flights into one line ("Fly to X") using the last stop
@@ -1146,3 +1198,27 @@ do
         end
     end)
 end
+
+-- note where a teleport really lands you: the spell goes off, the loading screen, then where you stand
+local teleportCast
+S:On("UNIT_SPELLCAST_SUCCEEDED", function(unit, _, id)
+    if unit ~= "player" or S.Secret(unit, id) then return end
+    for _, t in ipairs(TELEPORTS) do
+        if t.spell == id then teleportCast = { t = t, at = GetTime() } end
+    end
+end)
+S:On("PLAYER_ENTERING_WORLD", function()
+    local c = teleportCast
+    if not c or GetTime() - c.at > 60 then return end
+    C_Timer.After(1, function()
+        local x, y, inst = S:PlayerWorld()
+        if not x or inst ~= c.t.inst then return end
+        local n, w = x, y
+        if swapped() then n, w = y, x end
+        if (n - c.t.n) ^ 2 + (w - c.t.w) ^ 2 > 300 * 300 then return end     -- not where that teleport goes
+        StewardDB.teleportLanding = StewardDB.teleportLanding or {}
+        StewardDB.teleportLanding[c.t.spell] = { n = n, w = w, inst = inst, when = date("%Y-%m-%d") }
+        teleportCast = nil
+        if S.ReplanTravel then S.ReplanTravel() end
+    end)
+end)
