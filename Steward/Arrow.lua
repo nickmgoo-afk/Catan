@@ -344,7 +344,8 @@ function S:ArrowLabel()
 end
 
 function S:UpdateArrow()
-    local show = self:Get("guideShow") and self:Get("guideArrow") and G.activeGoto ~= nil and not UnitOnTaxi("player")
+    local pinTrip = G.stepGoto and G.stepGoto.pin
+    local show = (self:Get("guideShow") or pinTrip) and self:Get("guideArrow") and G.activeGoto ~= nil and not UnitOnTaxi("player")
         and not S.InInstance()
     if not show then f:Hide() return end
     place()

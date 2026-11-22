@@ -1033,7 +1033,15 @@ function S:UpdateGuide()
     end
     G.free = nil
     local guide = G.guide
-    if not guide then return end
+    if not guide then
+        -- no guide (switched off at login): your map pin's trip and the tracker still update
+        if self.UpdateWaypoint then
+            local ok, err = pcall(self.UpdateWaypoint, self)
+            if not ok then self:LogError("waypoint", err) end
+        end
+        if self.RefreshGuideUI then self:RefreshGuideUI() end
+        return
+    end
     local st = state()
     st.done = st.done or {}
     st.side = st.side or {}
@@ -1314,6 +1322,7 @@ end)
 
 -- tracker header: the zone you're working in plus overall progress
 function S:GuideHeader()
+    if not self:Get("guideShow") then return "Steward" end      -- the guide is off: only a trip shows (GuideTracker)
     if self:GuideMode() == "free" then return "Guide: Free" end
     local g = G.guide
     if not g then return "Guide" end

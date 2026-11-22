@@ -155,10 +155,15 @@ function layout(self)
     hearthBlock, hearthSpell = nil, nil
     queueHearth() -- the Hearthstone button follows this layout (next frame, once the blocks are placed)
     local free = S:GuideMode() == "free"
-    if not (S:Get("guideShow") and (G.guide or free)) then return end
-    local cur = G.current
+    -- With the guide switched off, a trip to a group member ("Travel to") or to your own map pin still shows:
+    -- only the guide's steps go (Nick 11-22: "They should work when the guide is off").
+    local guideOn = S:Get("guideShow") and (G.guide or free) and true or false
+    local pinTrip = G.stepGoto and G.stepGoto.pin and true or false
+    if not (guideOn or pinTrip or S:FollowName()) then return end
+    local cur = guideOn and G.current or nil
     S.trackerShownIndex = cur and cur.index or 0
     if not partyBlock(self) then return end
+    if not (guideOn or pinTrip) then return end
     if G.travelPending and not (G.travel and #G.travel > 0) then
         -- the trip is being worked out (the walks are being measured): no guessed legs meanwhile
         local block = self:GetBlock("travel")
@@ -195,6 +200,7 @@ function layout(self)
         block:AddObjective("d1", ag.sideLabel)
         if not self:LayoutBlock(block) then return end
     end
+    if not guideOn then return end                -- the guide's own steps only while it's shown
     if free then
         -- Free mode: your quest log, in the order the router plans
         local block = self:GetBlock("free")
@@ -513,7 +519,7 @@ function S:UpdateHearthButton()
     local top = block and block.GetTop and block:GetTop()
     local left = module and module:GetLeft()
     local show = block and top and left and module:IsVisible() and (not block.IsVisible or block:IsVisible())
-        and S:Get("guideShow") and (hearthSpell or hearthCount() > 0)
+        and (hearthSpell or hearthCount() > 0)
     if not show then
         if hearthBtn and hearthBtn:IsShown() then hearthBtn:Hide() end
         hearthAt = nil

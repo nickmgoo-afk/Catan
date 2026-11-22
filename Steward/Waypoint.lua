@@ -988,6 +988,14 @@ function S:UpdateWaypoint()
         if self.UpdateArrow then self:UpdateArrow() end
         return
     end
+    if not self:Get("guideShow") then
+        -- the guide is off: no step to go to, no travel planned for one, no pin of Steward's on the map
+        G.stepGoto, G.travel, G.travelPending, G.activeGoto = nil, nil, nil, nil
+        sideChanged()
+        if self.UpdateArrow then self:UpdateArrow() end
+        if lastTarget and C_Map.ClearUserWaypoint then C_Map.ClearUserWaypoint() lastTarget = nil end
+        return
+    end
     if self:GuideMode() == "free" then
         local el = self.FreeGoto and self:FreeGoto()
         G.stepGoto = el
@@ -1090,11 +1098,16 @@ end
 
 ---------------------------------------------------------------- position ticker
 C_Timer.NewTicker(0.5, function()
-    if not (G.guide and S:Get("guideShow")) or UnitOnTaxi("player") or S.InInstance() then return end
+    if UnitOnTaxi("player") or S.InInstance() then return end
+    local guideOn = G.guide and S:Get("guideShow")
+    local pinTrip = G.stepGoto and G.stepGoto.pin and G.stepGoto
+    if not (guideOn or pinTrip) then return end   -- your map pin's trip runs with the guide off too
     local changed = false
     local steps = {}
-    if G.current then steps[1] = G.current end
-    for idx in pairs((StewardCharDB.guide and StewardCharDB.guide.side) or {}) do steps[#steps + 1] = G.guide.steps[idx] end
+    if guideOn and G.current then steps[1] = G.current end
+    if guideOn then
+        for idx in pairs((StewardCharDB.guide and StewardCharDB.guide.side) or {}) do steps[#steps + 1] = G.guide.steps[idx] end
+    end
     for _, step in ipairs(steps) do
         for _, el in ipairs(step.elements) do
             local g = el.go
@@ -1112,7 +1125,7 @@ C_Timer.NewTicker(0.5, function()
         end
     end
     -- steps with nothing to tick off complete when you get to their spot
-    local cur = G.current
+    local cur = guideOn and G.current
     if cur then
         local _, _, manual = S:StepStatus(cur)
         if manual == "reach" then
@@ -1123,6 +1136,11 @@ C_Timer.NewTicker(0.5, function()
                 changed = true
             end
         end
+    end
+    -- at your map pin: it comes off (UpdateWaypoint) and the guide, if shown, carries on
+    if pinTrip then
+        local d = S:DistanceTo(pinTrip.go)
+        if d and d < S.PIN_ARRIVED then changed = true end
     end
     local a = G.activeGoto
     if a and a.travel then

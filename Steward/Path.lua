@@ -2852,7 +2852,7 @@ function P.SetRoute(r)
 end
 
 local function switchWanted()
-    return S:Get("guideShow") and S:Get("pathShow") and not broken
+    return (S:Get("guideShow") or (G.stepGoto and G.stepGoto.pin) or (S.FollowName and S:FollowName())) and S:Get("pathShow") and not broken
 end
 
 local function routeTooltip(owner, anchor, hint)
