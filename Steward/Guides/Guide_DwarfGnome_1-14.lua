@@ -1635,7 +1635,7 @@ step << Shaman
 
 step
     .goto 1432/0,-3386.71,-5462.48
-    >>Swim the loch for the Sunken Fishing Toolbox (spawn points vary -- watch the minimap, and steer clear of the big Threshadon)
+    >>Swim the loch for the Discarded Fishing Toolbox (spawn points vary -- watch the minimap, and steer clear of the big Threshadon)
     .accept 86614 >> Accept Silver of the Waves
 
 step

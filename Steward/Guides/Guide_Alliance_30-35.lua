@@ -205,9 +205,8 @@ step
 step
     .isOnQuest 231
     .goto 1431/0,354.62,-10240.11
-    >>Blind Mary keeps a house south of town -- bring her Ladimore's love
+    >>Hand A Daughter's Love in at A Weathered Grave, south of town
     .turnin -231 >> Turn in A Daughter's Love
-    .target Blind Mary
 
 step
     .goto Duskwood,28.1,31.4

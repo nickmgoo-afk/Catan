@@ -152,30 +152,45 @@ local function checkGuides()
                 return
             end
             local step = job.step
-            local go, target
+            -- every NPC the step names and every spot it gives: a step often serves two NPCs standing together
+            -- (the Furlbrows' wagon), so a quest is right when one of its givers or enders is among the step's names
+            -- and the nearest of its spots is near one of the step's spots
+            local targets, gos, firstTarget = {}, {}, nil
             for _, el in ipairs(step.elements) do
-                if el.go and not el.go.route and not go then go = el.go end
-                if el.cmd == "target" and el.args and el.args[1] and not target then target = el.args[1]:gsub("::.*$", "") end
+                if el.go and not el.go.route then
+                    local x, y, inst = worldOf(el.go)
+                    if x then gos[#gos + 1] = { x, y, inst } end
+                end
+                if el.cmd == "target" and el.args and el.args[1] then
+                    local t = el.args[1]:gsub("::.*$", ""):gsub("^%+", "")
+                    targets[t:lower()] = true
+                    firstTarget = firstTarget or t
+                end
             end
-            local gx, gy, ginst = worldOf(go)
             for _, el in ipairs(step.elements) do
-                if (el.cmd == "accept" or el.cmd == "turnin") and el.args then
+                if (el.cmd == "accept" or el.cmd == "turnin") and el.args and #gos > 0 then
                     local qid = math.abs(tonumber(el.args[1] or "") or 0)
                     local q = S.QDB_QUESTS[qid]
-                    if q and gx then
+                    if q then
                         local npcs = el.cmd == "accept" and q[6] or q[8]
                         local objs = el.cmd == "accept" and q[7] or q[9]
                         local best, bestD, bestWho, bestSpot
+                        local names, named = {}, false
                         local function try(list, db)
                             for _, id in ipairs(type(list) == "table" and list or {}) do
                                 local e = db and db[id]
                                 if e and (db ~= S.QDB_NPCS or e[3] == "" or e[3]:find(faction)) then
+                                    names[#names + 1] = e[1]
+                                    -- an object (a poster, a crate, a grave) can't be targeted: the step's name belongs to its NPC
+                                    if db ~= S.QDB_NPCS or targets[e[1]:lower()] then named = true end
                                     for _, p in ipairs(e[2]) do
                                         local x, y, inst = worldOf({ mapID = p[1], x = p[2], y = p[3] })
-                                        if x and inst == ginst then
-                                            local d = math.sqrt((x - gx) ^ 2 + (y - gy) ^ 2)
-                                            if not bestD or d < bestD then
-                                                bestD, bestWho, bestSpot = d, e[1], string.format("%d/%d,%.2f,%.2f", p[1], inst, x, y)
+                                        for _, g in ipairs(gos) do
+                                            if x and inst == g[3] then
+                                                local d = math.sqrt((x - g[1]) ^ 2 + (y - g[2]) ^ 2)
+                                                if not bestD or d < bestD then
+                                                    bestD, bestWho, bestSpot = d, e[1], string.format("%d/%d,%.2f,%.2f", p[1], inst, x, y)
+                                                end
                                             end
                                         end
                                     end
@@ -185,10 +200,10 @@ local function checkGuides()
                         try(npcs, S.QDB_NPCS)
                         try(objs, S.QDB_OBJECTS)
                         checked = checked + 1
-                        local nameOff = target and bestWho and target:lower() ~= bestWho:lower()
+                        local nameOff = next(targets) and #names > 0 and not named
                         if bestD and (bestD > 60 or nameOff) then
                             issues[#issues + 1] = string.format("%s | #%d | %s %d | guide: %s | data: %s %s (%.0f yd)",
-                                job.g.name, step.index, el.cmd, qid, tostring(target), tostring(bestWho), bestSpot or "?", bestD)
+                                job.g.name, step.index, el.cmd, qid, tostring(firstTarget), table.concat(names, " / "), bestSpot or "?", bestD)
                         end
                     end
                 end
