@@ -1,3 +1,4 @@
 *.tga binary
 *.ttf binary
 *.lua text eol=lf
+*.zip binary
