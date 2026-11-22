@@ -2522,7 +2522,12 @@ local function startJob(L, px, py, gx, gy, inst)
         floorS = P.FloorOf("player"), groundS = P.OnGround("player"),
         floorG = L ~= main and P.FloorOf("party") or nil, groundG = L ~= main and P.OnGround("party") or nil,
         indoorsG = nil }
-    if L == main then L.job.indoorsG, L.job.bottomG = goalIndoors, goalBottom end   -- true, false (open sky) or nil; lowest floor
+    if L == main then
+        L.job.indoorsG, L.job.bottomG = goalIndoors, goalBottom     -- true, false (open sky) or nil; lowest floor
+        -- you in the Undercity (by the map you're on): you're on the city's floor, not in the ruins above it
+        local m = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player")
+        if m and MAP_FLOOR[m] == "bottom" then L.job.bottomS = true end
+    end
     L.jobCo = coroutine.create(solve)
     L.jobAt = GetTime()
 end

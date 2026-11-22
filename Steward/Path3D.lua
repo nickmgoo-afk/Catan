@@ -1320,6 +1320,15 @@ local function run(job, tick, P)
     end
     local starts = partsAt(Wd, sn, sw, job.indoorsS ~= nil and job.indoorsS or indoors)
     local ends = partsAt(Wd, gn, gw, job.indoorsG)     -- your body in a cave: the floor under cover
+    -- a lift's landing: the floor named by its place among the floors there, lowest first (a spot has no height)
+    if job.landS then starts = partsAt(Wd, sn, sw, nil) starts = { starts[job.landS] } end
+    if job.landG then ends = partsAt(Wd, gn, gw, nil) ends = { ends[job.landG] } end
+    -- starting in the Undercity (the map you're on): the city's floor, not a room of the ruins over it
+    if job.bottomS and #starts > 1 then
+        for k = 1, #starts do
+            if starts[k][1].flag[starts[k][2]] % 2 == 0 then starts = { starts[k] } break end
+        end
+    end
     if #starts == 0 or #ends == 0 then P3.why = "no floor at an end" return false end
     -- an end on another land (an island, the top of Teldrassil) cannot be walked to: that trip is for the older search,
     -- which knows the boats and portals
@@ -1392,6 +1401,100 @@ local function run(job, tick, P)
     return true
 end
 
+---------------------------------------------------------------- lifts (2026-11-22)
+-- The lifts move, so the floors they carry you between aren't joined in the 3D data. Each lift is two landings
+-- (where you step on and off: north, west, and which floor there, lowest first) and the seconds a ride costs: half the
+-- time between cars plus the ride itself (the game's TransportAnimation table). Where they stand: the Undercity's
+-- three shafts are parts of the city's own model (18 x 24 yd, 107 yd tall, round the Trade Quarter; city floor -41.3,
+-- the hall above 55.3: 96.6 yd, the table's 96.5); Thunder Bluff's are where Wowhead's city guide puts them (the
+-- south-west edge of the central bluff's lower level, 61 yd between the deck at 68.8 and the bluff at 129.7, two empty
+-- car shafts beside them; the north-east edge, 71 yd between the ground at 79.6 and the platform at 150.9).
+-- Not seen in the game yet.
+P3.LIFTS = {
+    [0] = {
+        { name = "Undercity lift (west)", secs = 11.9, { n = 1595.3, w = 197.0, floor = 1 }, { n = 1595.3, w = 177.0, floor = 2 } },
+        { name = "Undercity lift (east)", secs = 11.9, { n = 1596.2, w = 283.0, floor = 1 }, { n = 1596.2, w = 303.0, floor = 2 } },
+        { name = "Undercity lift (south)", secs = 11.9, { n = 1553.0, w = 240.8, floor = 1 }, { n = 1533.0, w = 240.8, floor = 2 } },
+    },
+    [1] = {
+        { name = "Thunder Bluff lift (south-west)", secs = 16.3, { n = -1291.0, w = 156.0, floor = 1 }, { n = -1298.0, w = 172.0, floor = 2 } },
+        { name = "Thunder Bluff lift (north-east)", secs = 17.5, { n = -1077.0, w = -100.0, floor = 1 }, { n = -1081.0, w = -106.0, floor = 1 } },
+    },
+}
+P3.RUN = 7                                          -- yards a second on foot: a ride's seconds as yards of walking
+
+-- the trip, walking or by a lift: the walk as before, then for the lifts that could beat it (counted as the crow flies),
+-- the walk to it, the ride and the walk on; the cheapest wins. One lift a trip.
+local function runLifts(job, tick, P)
+    local ok = run(job, tick, P)
+    local lifts = P3.LIFTS[job.inst]
+    if not lifts or job.noLifts then return ok end
+    local why = P3.why
+    local prices = P and P.ROUTES and P.ROUTES[job.route]
+    local least = min(1, prices and prices.road or 0.97)
+    local best = ok and (job.cost3d or huge) or huge
+    local sn, sw, gn, gw = job.sx, job.sy, job.gx, job.gy
+    if job.swap then sn, sw, gn, gw = sw, sn, gw, gn end
+    local function leg(an, aw, bn, bw)
+        local j = { inst = job.inst, route = job.route, swap = job.swap, noLifts = true }
+        if job.swap then j.sx, j.sy, j.gx, j.gy = aw, an, bw, bn else j.sx, j.sy, j.gx, j.gy = an, aw, bn, bw end
+        return j
+    end
+    -- the lifts that could beat the walk by enough to matter (15%), most promising first; at most four are worked out
+    -- (with no walk at all, e.g. up to the mesas: only lifts roughly on the way)
+    -- In plain yards: going by the lift (as the crow flies to it and from it) must be shorter than the walk found
+    local walkLen = ok and job.len or (sqrt((gn - sn) ^ 2 + (gw - sw) ^ 2) * 2 + 800)
+    local bar = ok and best * 0.85 or huge
+    local opts = {}
+    for _, L in ipairs(lifts) do
+        for dir = 1, 2 do
+            local A, B = L[1], L[2]
+            if dir == 2 then A, B = B, A end
+            local ride = L.secs * P3.RUN * least
+            local geo = sqrt((A.n - sn) ^ 2 + (A.w - sw) ^ 2) + sqrt((gn - B.n) ^ 2 + (gw - B.w) ^ 2)
+            local lb = geo * least + ride
+            if lb < bar and geo < walkLen * 0.95 then opts[#opts + 1] = { lb, L, A, B, ride } end
+        end
+    end
+    table.sort(opts, function(x, y) return x[1] < y[1] end)
+    local pick
+    P3.liftTries = (P3.liftTries or 0) + min(#opts, 4)
+    for k = 1, min(#opts, 4) do
+        local lb, L, A, B, ride = opts[k][1], opts[k][2], opts[k][3], opts[k][4], opts[k][5]
+        if lb < best then
+            local j1 = leg(sn, sw, A.n, A.w)
+            j1.indoorsS, j1.bottomS, j1.landG = job.indoorsS, job.bottomS, A.floor
+            if run(j1, tick, P) and (j1.cost3d or huge) + ride < best then
+                local j2 = leg(B.n, B.w, gn, gw)
+                j2.landS, j2.indoorsG, j2.bottomG = B.floor, job.indoorsG, job.bottomG
+                if run(j2, tick, P) then
+                    local c = j1.cost3d + ride + (j2.cost3d or huge)
+                    if c < best then best, pick = c, { j1, j2, L } end
+                end
+            end
+        end
+    end
+    if not pick then
+        P3.why = why
+        job.lift = nil
+        return ok
+    end
+    local j1, j2, L = pick[1], pick[2], pick[3]
+    local X, Y, U = {}, {}, {}
+    for k = 1, j1.n do X[k], Y[k], U[k] = j1.X[k], j1.Y[k], false end
+    local n1 = j1.n
+    for k = 1, j2.n do X[n1 + k], Y[n1 + k], U[n1 + k] = j2.X[k], j2.Y[k], false end
+    job.X, job.Y, job.U, job.n, job.Z = X, Y, U, n1 + j2.n, nil
+    job.len, job.unsure, job.mode, job.cell = j1.len + j2.len, 0, "terrain", j1.cell
+    job.straight = sqrt((gn - sn) ^ 2 + (gw - sw) ^ 2)
+    job.world3d = (j1.world3d or 0) + (j2.world3d or 0) + 1
+    job.cost3d, job.pops3d = best, (job.pops3d or 0) + (j1.pops3d or 0) + (j2.pops3d or 0)
+    job.long3d = j1.long3d or j2.long3d
+    job.lift, job.liftAt = L.name, n1            -- the ride is between points n1 and n1 + 1
+    P3.why = nil
+    return true
+end
+
 -- the trip of this job through the 3D world. true: job.X / job.Y hold the line. false: not covered, no way found, or
 -- an error (kept in P3.broken; nothing in here runs again this session): the caller goes on with its own search.
 -- Runs inside the caller's search coroutine: `tick` hands the frame back when the time slice is used up.
@@ -1401,7 +1504,7 @@ function P3.Solve(job, tick, P)
     if P3.off or P3.broken or not S:Get("path3D") then P3.why = P3.broken and "error" or "switched off" return false end
     if not (S.Path3DData and S.Path3DData[job.inst]) then P3.why = "no data for this continent" return false end
     P3.why = nil
-    local co = coroutine.create(run)
+    local co = coroutine.create(runLifts)
     if P and P.Solving and P.Solving[coroutine.running() or 0] then P.Solving[co] = true end   -- may wait a frame too
     while true do
         local ok, res = coroutine.resume(co, job, tick, P)
