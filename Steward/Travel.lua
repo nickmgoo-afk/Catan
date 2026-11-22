@@ -575,7 +575,15 @@ end)
 ---------------------------------------------------------------- the game's own travel network (TravelData.lua)
 -- Flight masters, the yards each flight path really flies, boats/zeppelins/skycutters with their real stops, and the
 -- walk between every two of these points measured on the 3D world. Where it has no answer the guesses above stay.
-local FLY_SPEED = 32      -- yards a second on a flight path (to be learned from real flights)
+-- yards a second on a flight path: the game's own flight yards / 30 matched Nick's six flights of 11-21/22 within 1 s
+-- (Ironforge-Thelsamar 4 s); learned from your flights since 0.87.2 (StewardDB.flySpeed). The old 32 yd/s + 20 s made
+-- every flight about 15 s too long.
+local FLY_SPEED = 30
+local FLY_EXTRA = 8       -- seconds a flight costs beside the flying: talk to the flight master, pick, take off
+local function flySpeed()
+    local v = StewardDB and StewardDB.flySpeed
+    return (v and v >= 20 and v <= 45) and v or FLY_SPEED
+end
 local SHIP_SPEED = 20     -- yards a second on a boat, zeppelin or skycutter (to be learned from real rides)
 -- the tables give (north, west); Steward's world spots are in the order the map API wants (Waypoint.lua)
 local function swapped() return S:WorldOrder() == "unitswap" end
@@ -935,9 +943,9 @@ function S:Route(start, target, useHearth, waitForWalks)
                 local d = dist(fps[i], fps[j])
                 local y = net and fps[i].pid and fps[j].pid and net.fly[fps[i].pid] and net.fly[fps[i].pid][fps[j].pid]
                 if y then
-                    edge(fps[i], fps[j], y / FLY_SPEED + 20, "fly", "Fly to " .. fps[j].name)
+                    edge(fps[i], fps[j], y / flySpeed() + FLY_EXTRA, "fly", "Fly to " .. fps[j].name)
                 elseif d then
-                    edge(fps[i], fps[j], d * 1.25 / 32 + 20, "fly", "Fly to " .. fps[j].name)
+                    edge(fps[i], fps[j], d * 1.25 / flySpeed() + FLY_EXTRA, "fly", "Fly to " .. fps[j].name)
                 end
             end
         end
@@ -1263,6 +1271,41 @@ do
         end
         pending = nil
     end
+    -- a flight from one flight master straight to another: the game's yards for it / the seconds on the taxi is the
+    -- speed (0.87.2); the middle of the last 10 is used
+    function S:LearnFlight(x0, y0, i0, x1, y1, i1, secs)
+        local net = S.TravelNet
+        if not (StewardDB and net and net.fm and net.fly and x0 and x1 and i0 == i1 and secs and secs >= 20) then return end
+        local function fmNear(x, y)
+            for id, f in pairs(net.fm) do
+                if f[1] == i0 then
+                    local v = netVec(f[2], f[3])
+                    if (v.x - x) ^ 2 + (v.y - y) ^ 2 < 80 * 80 then return id end
+                end
+            end
+        end
+        local a, b = fmNear(x0, y0), fmNear(x1, y1)
+        local yards = a and b and net.fly[a] and net.fly[a][b]
+        if not yards then return end
+        local v = yards / secs
+        if v < 20 or v > 45 then return end
+        local list = StewardDB.flySpeeds or {}
+        StewardDB.flySpeeds = list
+        table.insert(list, 1, math.floor(v * 100 + 0.5) / 100)
+        list[11] = nil
+        local sorted = {}
+        for i, x in ipairs(list) do sorted[i] = x end
+        table.sort(sorted)
+        StewardDB.flySpeed = sorted[math.floor((#sorted + 1) / 2)]
+    end
+    S:On("PLAYER_ENTERING_WORLD", function()
+        if not (StewardDB and StewardDB.rides) or StewardDB.flightRidesRead then return end
+        StewardDB.flightRidesRead = true
+        for i = #StewardDB.rides, 1, -1 do
+            local r = StewardDB.rides[i]
+            if r.kind == "flight" and not r.cut then pcall(S.LearnFlight, S, r.x0, r.y0, r.i0, r.x1, r.y1, r.i1, r.secs) end
+        end
+    end)
     -- the rides already in your saved data, once (0.87.0): their start times from "when" (this year)
     S:On("PLAYER_ENTERING_WORLD", function()
         if not (StewardDB and StewardDB.rides) or StewardDB.boatRidesRead then return end
@@ -1321,6 +1364,7 @@ do
         if r.secs < 15 or (r.path < 100 and r.jumps == 0) then return end
         if not StewardDB then return end
         if r.kind == "carried" then pcall(S.LearnBoatRide, S, r.x0, r.y0, r.i0, r.x1, r.y1, r.i1, r.at, r.secs) end
+        if r.kind == "flight" and not r.cut then pcall(S.LearnFlight, S, r.x0, r.y0, r.i0, r.x1, r.y1, r.i1, r.secs) end
         StewardDB.rides = StewardDB.rides or {}
         table.insert(StewardDB.rides, 1, r)
         StewardDB.rides[31] = nil
