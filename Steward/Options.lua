@@ -346,7 +346,7 @@ function S:InitOptions()
     local _, rkInit = addSlider(vendor, "runeKeep", "How many of each rune", "Buys up to this many.", 5, 20, 5, tostring)
     under(rkInit, rnInit, function() return rSet:GetValue() end)
     addCheckbox(vendor, "bagsDeleteJunk", "Make room when your bags are full",
-        "Off to start with. When your bags are full, Steward offers to delete your cheapest grey item, but only if it's worth it: when looting, only for a quest item or something that sells for more than that grey (then it loots it for you); when a quest hands you an item, always (then it takes the quest again).")
+        "Off to start with. When your bags are full, Steward deletes your cheapest grey item without asking, but only if it's worth it: when looting, only for a quest item or something that sells for more than that grey (then it loots it for you); when a quest hands you an item, always (then it takes the quest again). Each one is noted in your saved data.")
     addCheckbox(vendor, "vendorTrain", "Learn new spells at your class trainer",
         "Learns every spell you can afford as soon as you talk to your trainer.")
 

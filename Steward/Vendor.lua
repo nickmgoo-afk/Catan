@@ -626,7 +626,7 @@ end
 -- delete the cheapest grey, then pick up the loot that didn't fit (or take the quest again)
 function S.MakeRoom(data)
     local junk = cheapestJunk()
-    if not (junk and deleteJunk(junk)) then return end
+    if not (junk and deleteJunk(junk)) then return false end
     if data and data.lootSlot then
         -- the loot that didn't fit: pick it up in the same click (the game may refuse a loot from a timer, which has
         -- no click behind it; the server takes the delete first, then the loot)
@@ -641,6 +641,7 @@ function S.MakeRoom(data)
             if QuestFrameDetailPanel:IsShown() then AcceptQuest() end
         end)
     end
+    return true
 end
 
 local lastOffer = 0
@@ -658,31 +659,25 @@ S:On("UI_ERROR_MESSAGE", function(_, message)
         end
         return
     end
-    local name = junk.link .. (junk.count > 1 and (" x" .. junk.count) or "")
-    local text, data
+    -- no asking (Nick 2026-11-22: "it's simply asking for permission to delete junk, it doesn't need permission"):
+    -- the cheapest grey goes and the loot that didn't fit is taken (or the quest taken again), when it's worth it
+    local data, why
     if looting then
         local it = lootWorthRoom(junk)
         if not it then return end -- nothing left to loot is worth more than your cheapest junk
-        local what = it.link .. (it.count > 1 and (" x" .. it.count) or "")
-        if it.quest then
-            text = ("Your bags are full.\n\nDelete %s (worth %s) to make room for %s, a quest item?"):format(
-                name, money(junk.worth), what)
-        elseif it.worth then
-            text = ("Your bags are full.\n\nDelete %s (worth %s) to make room for %s (worth %s)?"):format(
-                name, money(junk.worth), what, money(it.worth))
-        else
-            text = ("Your bags are full.\n\nDelete %s (worth %s) to make room for %s?"):format(
-                name, money(junk.worth), what)
-        end
         data = { lootSlot = it.slot }
+        why = it.link .. (it.count > 1 and (" x" .. it.count) or "") .. (it.quest and " (quest item)" or "")
     else
-        text = ("Your bags are full.\n\nDelete %s, your cheapest junk (worth %s)?"):format(name, money(junk.worth))
+        why = "the quest's item"
     end
     lastOffer = GetTime()
-    if S.Persona and S.Persona.On() and S.Persona.BagsFull and S.Persona.BagsFull({
-        junk = junk, loot = looting and lootWorthRoom(junk) or nil, money = money,
-        onYes = function() S.MakeRoom(data) end }) then
-        return
-    end
-    StaticPopup_Show("STEWARD_DELETE_JUNK", text, nil, data)
+    local gone = junk.link .. (junk.count > 1 and (" x" .. junk.count) or "")
+    local ok, done = pcall(S.MakeRoom, data)
+    local log = StewardCharDB.junkLog or {}
+    StewardCharDB.junkLog = log
+    table.insert(log, 1, date("%m-%d %H:%M") .. (ok and done and " deleted " or " could not delete ") .. gone
+        .. " (" .. money(junk.worth) .. ") for " .. why .. (ok and "" or (": " .. tostring(done))))
+    local err = done
+    log[31] = nil
+    if not ok then S:LogError("bagsfull", err) end
 end)
