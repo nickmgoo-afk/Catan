@@ -2,7 +2,7 @@
 ## Title: Steward
 ## Notes: Your leveling companion: equips upgrades, picks quest rewards, and more to come.
 ## Author: nickmgoo
-## Version: 0.79.6
+## Version: 0.80.0
 ## SavedVariables: StewardDB
 ## SavedVariablesPerCharacter: StewardCharDB
 
@@ -28,6 +28,7 @@ Hints.lua
 Tooltip.lua
 Options.lua
 Setup.lua
+Share.lua
 QuestLogMode.lua
 Scan.lua
 GuideParse.lua

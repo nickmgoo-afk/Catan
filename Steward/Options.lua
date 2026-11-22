@@ -125,6 +125,16 @@ function S:InitOptions()
         mainLayout:AddInitializer(CreateSettingsButtonInitializer("All settings", "Reset to defaults",
             function() if S.ConfirmReset then S:ConfirmReset() end end,
             "Puts every Steward setting back the way it comes, then reloads. Your guide progress, the arrow's place and your action bars are kept.", true))
+        mainLayout:AddInitializer(CreateSettingsButtonInitializer("Steward report", "Send my Steward report",
+            function() if S.ShareStart then S:ShareStart() end end,
+            "Sends this character's Steward logs (errors, routes, steps, ride times, route searches that failed) to a friend " ..
+            "who runs Steward, so problems can be found and fixed. You pick who; they're asked first. Nothing goes in chat.", true))
+        local n, people = 0, 0
+        if S.Share then n, people = S.Share.ReportCount() end
+        mainLayout:AddInitializer(CreateSettingsButtonInitializer("Friends' reports", "Delete them",
+            function() if S.ShareConfirmDelete then S:ShareConfirmDelete() end end,
+            "Steward reports friends sent you, kept with your Steward settings: " .. n .. " from " .. people ..
+            (people == 1 and " friend" or " friends") .. " when the game started. The newest 3 per friend are kept.", true))
     end
 
     -- Guide
