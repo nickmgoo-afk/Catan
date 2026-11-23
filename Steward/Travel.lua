@@ -681,6 +681,9 @@ end
 -- Worked out in the background, a few milliseconds a frame: until it is ready the plan uses the straight line, and
 -- when it is ready the plan is made again (S.TravelSyncSweeps: at once, for tests and tools).
 local sweeps, queue, running = {}, {}, false
+-- the walk from each lift landing to every travel point (and doorway): the same all session, so kept all session;
+-- keyed by the landing's key and the mode ("lift 1 3 1 roads")
+local liftWalks = {}
 local SWEEP_MS = 4
 local onSweepsDone          -- set below: make the plan again
 local function sweepCached(p, roads)
@@ -712,7 +715,12 @@ local function runQueue()
     local co = coroutine.create(function()
         while #queue > 0 do
             local q = table.remove(queue, 1)
-            if not sweepCached(q.p, q.roads) then
+            if q.lift then
+                if liftWalks[q.lift] == nil then
+                    local pts, doors = S.Path3D.WalkFrom(q.p.instance, q.n, q.w, q.roads, nil, tick, q.floor)
+                    liftWalks[q.lift] = pts and { pts = pts, doors = doors } or false
+                end
+            elseif not sweepCached(q.p, q.roads) then
                 local pn, pw = NW(q.p)
                 local pts, doors = S.Path3D.WalkFrom(q.p.instance, pn, pw, q.roads, nil, tick)
                 keep(q.p, q.roads, pts or false, doors)
@@ -746,10 +754,31 @@ local function sweepFrom(p, roads)
     for _, q in ipairs(queue) do
         if q.p.instance == p.instance and q.roads == roads and (q.p.world.x - p.world.x) ^ 2 + (q.p.world.y - p.world.y) ^ 2 < 250 * 250 then return nil, nil, true end
     end
-    if #queue < 8 then queue[#queue + 1] = { p = { world = p.world, instance = p.instance }, roads = roads } end
+    local n = 0
+    for _, q in ipairs(queue) do if not q.lift then n = n + 1 end end
+    if n < 8 then queue[#queue + 1] = { p = { world = p.world, instance = p.instance }, roads = roads } end
     runQueue()
     return nil, nil, true    -- being measured: the third value says "not yet" (no 3D data at all says nothing)
 end
+-- the walk from a lift's landing (its own floor) to every travel point: nil while it is being measured, false when
+-- the landing isn't on the 3D world
+local function liftSweep(inst, key, A, roads)
+    local id = key .. (roads and " roads" or " fastest")
+    local w = liftWalks[id]
+    if w ~= nil then return w end
+    local P3 = S.Path3D
+    if S.TravelSyncSweeps then
+        local pts, doors = P3.WalkFrom(inst, A.n, A.w, roads, nil, nil, A.floor)
+        liftWalks[id] = pts and { pts = pts, doors = doors } or false
+        return liftWalks[id]
+    end
+    for _, q in ipairs(queue) do if q.lift == id then return nil end end
+    queue[#queue + 1] = { lift = id, p = { instance = inst }, n = A.n, w = A.w, floor = A.floor, roads = roads }
+    runQueue()
+    return nil
+end
+S.LiftWalksForTests = liftWalks
+
 -- a name for a dock: the town of the flight master nearest it
 local function dockName(inst, n, w)
     local net = S.TravelNet
@@ -903,7 +932,35 @@ function S:Route(start, target, useHearth, waitForWalks)
     local roads = S:Get("pathRoute") == "roads"
     local fromStart, startDoors, startPending = sweepFrom(start, roads)
     local toTarget, targetDoors, targetPending = sweepFrom(target, roads)
-    if waitForWalks and (startPending or targetPending) then
+    -- the lifts (0.89.6; Nick 11-22 20:21 "do 2"): each landing a point the walks reach, the ride between them. A walk
+    -- by a lift stays one "run" leg below: the line to it finds the lift itself and says "Take the lift down"
+    local liftPending = false
+    local P3 = S.Path3D
+    if P3 and P3.LIFTS and P3.LiftKey and start.world and target.world then
+        local insts = { start.instance }
+        if target.instance ~= start.instance then insts[2] = target.instance end
+        for _, inst in ipairs(insts) do
+            for i, L in ipairs(P3.LIFTS[inst] or {}) do
+                local land = {}
+                for side = 1, 2 do
+                    local A = L[side]
+                    local key = P3.LiftKey(inst, i, side)
+                    local w = liftSweep(inst, key, A, roads)
+                    if w == nil then liftPending = true end
+                    if w then
+                        local p = add(point(netVec(A.n, A.w), inst, L.name))
+                        p.pid, p.liftWalk = key, w
+                        land[side] = p
+                    end
+                end
+                if land[1] and land[2] then
+                    edge(land[1], land[2], L.secs, "lift", "Take " .. L.name)
+                    edge(land[2], land[1], L.secs, "lift", "Take " .. L.name)
+                end
+            end
+        end
+    end
+    if waitForWalks and (startPending or targetPending or liftPending) then
         debug.measuring = true
         return nil, nil, "measuring"
     end
@@ -923,6 +980,13 @@ function S:Route(start, target, useHearth, waitForWalks)
         end
         if p == start and q.pid and fromStart then return fromStart[q.pid] end
         if q == target and p.pid and toTarget then return toTarget[p.pid] end
+        -- a lift's landing and any other point: the walk measured from the landing, or none (no straight guesses
+        -- up or down a cliff)
+        if p.liftWalk or q.liftWalk then
+            local w, other = p.liftWalk, q
+            if not w then w, other = q.liftWalk, p end
+            return other.pid and w.pts[other.pid] or nil
+        end
         if p.pid and q.pid then
             local c = netWalk(p.instance, p.pid, q.pid)
             if c == false then return nil end
@@ -976,13 +1040,19 @@ function S:Route(start, target, useHearth, waitForWalks)
         table.insert(path, 1, { from = prev[n].from, to = n, edge = prev[n].edge })
         n = prev[n].from
     end
-    if #path == 1 and path[1].edge.kind == "run" then return {}, best[target] end
+    local walking = true                -- on foot all the way (perhaps by a lift): no legs, the line shows the way
+    for _, step in ipairs(path) do
+        if step.edge.kind ~= "run" and step.edge.kind ~= "lift" then walking = false end
+    end
+    if walking then return {}, best[target] end
 
     -- turn edges into legs: "go to the flight master", "fly to X", "take the boat"...
     local legs = {}
     for i, step in ipairs(path) do
         local e = step.edge
-        if e.kind == "run" and (dist(step.from, step.to) or 0) < 40 then
+        if e.kind == "lift" then
+            -- part of the walk: the leg before it runs on to the next stop, and the line takes the lift
+        elseif e.kind == "run" and (dist(step.from, step.to) or 0) < 40 then
             -- already standing there
         elseif e.kind == "run" then
             local nextEdge = path[i + 1] and path[i + 1].edge
@@ -991,7 +1061,7 @@ function S:Route(start, target, useHearth, waitForWalks)
                 text = (target.person and ("Head to " .. target.name)) or "Head to the quest area"
             elseif nextEdge.kind == "fly" then
                 text = "Go to the " .. step.to.name .. " flight master"
-            elseif nextEdge.kind == "hearth" or nextEdge.kind == "teleport" or nextEdge.kind == "run" then
+            elseif nextEdge.kind == "hearth" or nextEdge.kind == "teleport" or nextEdge.kind == "run" or nextEdge.kind == "lift" then
                 text = nil          -- a run on to the next stop: the next line says where
             else
                 text = "Go to the " .. nextEdge.kind .. " dock for " .. (nextEdge.text:match("to (.+)$") or "")

@@ -1128,7 +1128,68 @@ end
 -- walk from the doorways of its tile (worked out in the workshop). Costs as the walking search counts them (about a
 -- yard each on open ground, more in water). -> { [point id] = cost } (points that cannot be walked to are left out),
 -- or nil when the spot is not on the 3D world. `limit`: stop sweeping at this cost.
-function P3.WalkFrom(inst, north, west, roads, limit, tick)
+-- the price of a yard on each kind of ground (a part's flag), for a walk measured in the travel planner
+local function walkMult(roads)
+    local P = S.Path
+    local water = P and P.WATER or 2.2
+    local road = roads and 0.4 or 0.97
+    local mult = {}
+    for f = 0, 15 do
+        mult[f] = (floor(f / 4) % 2 == 1 and P3.FEL) or (f % 2 == 1 and water) or (floor(f / 2) % 2 == 1 and road) or 1
+    end
+    return mult, road
+end
+-- The lifts' landings as travel points (0.89.6), in the form the data gives the others: the tile, the square in it and
+-- the floor's place in the square, where it is (north, west), and the walk from it to each doorway of its own tile,
+-- both modes (doorway number in the tile's list, cost Fastest, cost Stick to roads, in half yards). Worked out once
+-- (a search on the landing's own tile, from the landing's own floor), so that every measured walk reaches them too.
+-- Keys "lift <continent> <lift> <1|2>"; false when the landing isn't on the 3D world.
+P3.liftPts = {}
+function P3.LiftKey(inst, i, side) return "lift " .. inst .. " " .. i .. " " .. side end
+local function landingPoint(Wd, A, tick)
+    local st = partsAt(Wd, A.n, A.w, nil)[A.floor]
+    if not st then return false end
+    local t, p = st[1], st[2]
+    local s
+    for q = 0, 4095 do
+        local f = t.first[q]
+        if f and p >= f and p < f + t.cnt[q] then s = q break end
+    end
+    if not s then return false end
+    local rec = coarseAt(Wd, t.key)
+    local costs = {}
+    for mode = 1, 2 do
+        local mult, road = walkMult(mode == 2)
+        local _, _, _, _, _, g = search(Wd, { st }, {}, A.n, A.w, A.n, A.w, mult, min(1, road), 1, tick, P3.ATTACH, { [t.key] = true }, true)
+        costs[mode] = g or {}
+    end
+    local e = { t.key, s, p - t.first[s], A.n, A.w }
+    for d = 1, rec and rec.n or 0 do
+        local t2, li = doorLink(Wd, rec, d)
+        local cf = t2 and costs[1][t2.slot * 32768 + li]
+        local cr = t2 and costs[2][t2.slot * 32768 + li]
+        if cf and cr then
+            e[#e + 1], e[#e + 2], e[#e + 3] = d, min(65535, floor(cf * 2 + 0.5)), min(65535, floor(cr * 2 + 0.5))
+        end
+    end
+    return e
+end
+local function liftPoints(Wd, inst, tick)
+    local lifts = P3.LIFTS and P3.LIFTS[inst]
+    if not lifts then return nil end
+    local pts = P3.liftPts[inst]
+    if not pts then
+        pts = {}
+        for i, L in ipairs(lifts) do
+            for side = 1, 2 do pts[P3.LiftKey(inst, i, side)] = landingPoint(Wd, L[side], tick) end
+        end
+        P3.liftPts[inst] = pts
+    end
+    return pts
+end
+
+-- land: the floor to start on, by its place among the floors there, lowest first (a lift's landing)
+function P3.WalkFrom(inst, north, west, roads, limit, tick, land)
     if P3.off or P3.broken or not S:Get("path3D") then return nil end
     local Wd = worldFor(inst)
     if not (Wd and Wd.D.coarse and Wd.D.points) then return nil end
@@ -1136,14 +1197,10 @@ function P3.WalkFrom(inst, north, west, roads, limit, tick)
     -- its own coroutine, so that `tick` can hand the frame back (a yield cannot cross pcall); an error ends it
     local co = coroutine.create(function()
         local starts = partsAt(Wd, north, west, nil)
+        if land then starts = { starts[land] } end
         if #starts == 0 then return nil end
-        local P = S.Path
-        local water = P and P.WATER or 2.2
-        local road = roads and 0.4 or 0.97
-        local mult = {}
-        for f = 0, 15 do
-            mult[f] = (floor(f / 4) % 2 == 1 and P3.FEL) or (f % 2 == 1 and water) or (floor(f / 2) % 2 == 1 and road) or 1
-        end
+        local mult, road = walkMult(roads)
+        local lifted = liftPoints(Wd, inst, tick)
         local tiles = tilesOf(starts)
         local _, _, _, _, _, g = search(Wd, starts, {}, north, west, north, west, mult, min(1, road), 1, tick, P3.ATTACH, tiles, true)
         local push, pop = newHeap()
@@ -1187,8 +1244,7 @@ function P3.WalkFrom(inst, north, west, roads, limit, tick)
                 end
             end
         end
-        local out = {}
-        for pid, e in pairs(Wd.D.points) do
+        local function pointCost(out, pid, e)
             local rec = coarseAt(Wd, e[1])
             local best
             -- a point on the spot's own tile: straight from the walk worked out on that tile (its own floor's crossings)
@@ -1243,6 +1299,9 @@ function P3.WalkFrom(inst, north, west, roads, limit, tick)
             end
             if best then out[pid] = best end
         end
+        local out = {}
+        for pid, e in pairs(Wd.D.points) do pointCost(out, pid, e) end
+        for pid, e in pairs(lifted or {}) do if e then pointCost(out, pid, e) end end
         return { pts = out, doors = gC }
     end)
     P3.live[co] = true
