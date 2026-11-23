@@ -687,6 +687,8 @@ local liftWalks = {}
 -- the walk from where your Hearthstone lands you (0.89.7): the same while you stay bound there, so kept all session;
 -- keyed by the spot and the mode
 local innWalks = {}
+-- the walk from the tram stations, Dalaran's portal and where your teleports land (0.90.5): the same all session too
+local spotWalks = {}
 local SWEEP_MS = 4
 local onSweepsDone          -- set below: make the plan again
 local function sweepCached(p, roads)
@@ -789,7 +791,70 @@ local function innSweep(h, roads)
     local id = string.format("%d %.0f %.0f %s", h.instance, n, w, roads and "roads" or "fastest")
     return fixedSweep(innWalks, id, h.instance, n, w, roads, nil, true)
 end
-S.LiftWalksForTests, S.InnWalksForTests = liftWalks, innWalks
+-- the tram stations, the portal's two ends, a teleport's landing: inside, so the covered floor where floors lie over
+-- each other (the Mage Quarter's tower, the stations under Stormwind and Ironforge, the Undercity's city floor)
+local function spotSweep(p, roads)
+    if not (S.Path3D and S.Path3D.WalkFrom and p.world) then return false end
+    local n, w = NW(p)
+    local id = string.format("%d %.0f %.0f %s", p.instance, n, w, roads and "roads" or "fastest")
+    return fixedSweep(spotWalks, id, p.instance, n, w, roads, nil, true)
+end
+S.LiftWalksForTests, S.InnWalksForTests, S.SpotWalksForTests = liftWalks, innWalks, spotWalks
+local function spotKey(p)
+    local n, w = NW(p)
+    return string.format("spot %d %.0f %.0f", p.instance, n, w)
+end
+-- the tram stations, the portal's ends and every teleport's landing as travel points of the 3D world (0.90.5), so that
+-- every measured walk (from you, from where you're going, from a flight master) reaches them as it reaches the lifts.
+-- Set again only when one moves (a landing learned the first time you go through): then the walks measured before
+-- are dropped, since they don't know the new point
+local spotsSig
+local function setSpots()
+    local P3 = S.Path3D
+    if not (P3 and P3.SetSpots) then return end
+    local tl = StewardDB and StewardDB.teleportLanding
+    local sig = {}
+    for _, t in ipairs(TELEPORTS) do
+        local l = tl and tl[t.spell]
+        sig[#sig + 1] = l and string.format("%s %.0f %.0f", tostring(l.inst), l.n or 0, l.w or 0) or "-"
+    end
+    for _, t in ipairs(TRANSPORTS) do
+        if t.learn then
+            local l = landing(t)
+            sig[#sig + 1] = string.format("%.0f %.0f", l.wa or 0, l.wb or 0)
+        end
+    end
+    sig = table.concat(sig, ";")
+    if sig == spotsSig then return end
+    local lists = {}
+    local function put(p)
+        if not (p and p.world) then return end
+        local n, w = NW(p)
+        lists[p.instance] = lists[p.instance] or {}
+        lists[p.instance][spotKey(p)] = { n = n, w = w, indoors = true }
+    end
+    for _, t in ipairs(TRANSPORTS) do
+        if t.kind == "tram" or t.kind == "portal" then
+            put(fromGoto(t.a, t.aName))
+            put(fromGoto(t.learn and landing(t) or t.b, t.bName))
+        end
+    end
+    for _, t in ipairs(TELEPORTS) do
+        local l = tl and tl[t.spell]
+        put(point(netVec(l and l.n or t.n, l and l.w or t.w), l and l.inst or t.inst, t.name))
+    end
+    local changed = false
+    for inst, list in pairs(lists) do
+        if P3.SetSpots(inst, list) then changed = true end
+    end
+    if changed then
+        for k in pairs(liftWalks) do liftWalks[k] = nil end
+        for k in pairs(innWalks) do innWalks[k] = nil end
+        for k in pairs(spotWalks) do spotWalks[k] = nil end
+        for i = #sweeps, 1, -1 do sweeps[i] = nil end
+    end
+    spotsSig = sig
+end
 
 -- a name for a dock: the town of the flight master nearest it
 local function dockName(inst, n, w)
@@ -817,6 +882,7 @@ end
 -- (returns nil, nil, "measuring") instead of guessing straight lines (Nick 2026-11-22: "it tried to have me run through
 -- the map and it guessed a route, even though the portal was there": Rut'theran straight up the tree to Narla)
 function S:Route(start, target, useHearth, waitForWalks)
+    setSpots()
 
     local speed = runSpeed()
     local faction = UnitFactionGroup("player")
@@ -911,6 +977,7 @@ function S:Route(start, target, useHearth, waitForWalks)
             local a, b = fromGoto(t.a, t.aName), fromGoto(t.learn and landing(t) or t.b, t.bName)
             if a and b then
                 add(a) add(b)
+                a.fixed, b.fixed = true, true
                 local secs = t.mins * 60
                 edge(a, b, secs, t.kind, "Take the " .. t.kind .. " to " .. t.bName)
                 if not t.oneway then edge(b, a, secs, t.kind, "Take the " .. t.kind .. " to " .. t.aName) end
@@ -938,7 +1005,7 @@ function S:Route(start, target, useHearth, waitForWalks)
     for _, t in ipairs(S:Get("travelTeleport") ~= false and self:TeleportsReady() or {}) do
         local l = StewardDB and StewardDB.teleportLanding and StewardDB.teleportLanding[t.spell]
         local p = add(point(netVec(l and l.n or t.n, l and l.w or t.w), l and l.inst or t.inst, t.name))
-        p.spell = t.spell
+        p.spell, p.fixed = t.spell, true
         edge(start, p, TELEPORT_SECS, "teleport", "Teleport to " .. t.name)
     end
     -- running between any two points on the same continent: on the 3D world where it is mapped (the walk measured from
@@ -979,8 +1046,20 @@ function S:Route(start, target, useHearth, waitForWalks)
     if inn then
         innWalk = innSweep(inn, roads)
         innPending = innWalk == nil
+        if innWalk then inn.walk = innWalk end
     end
-    if waitForWalks and (startPending or targetPending or liftPending or innPending) then
+    -- the walks from the tram stations, the portal's ends and your teleports' landings (0.90.5): before, a straight
+    -- line and a fifth more (a teleport onto Thunder Bluff "50 yd" from a spot at its foot). Only those on the
+    -- continents of this trip: the others can't be walked to from here
+    local spotPending, spots = false, 0
+    for _, p in ipairs(nodes) do
+        if p.fixed and not p.pid and (p.instance == start.instance or p.instance == target.instance) then
+            local w = spotSweep(p, roads)
+            if w == nil then spotPending = true elseif w then p.walk, p.pid, spots = w, spotKey(p), spots + 1 end
+        end
+    end
+    debug.spotWalks = spots
+    if waitForWalks and (startPending or targetPending or liftPending or innPending or spotPending) then
         debug.measuring = true
         return nil, nil, "measuring"
     end
@@ -1000,14 +1079,18 @@ function S:Route(start, target, useHearth, waitForWalks)
     local function walkCost(p, q)
         if p.instance ~= q.instance then return nil end
         if p == start and q == target and startDoors and targetDoors then return viaDoors(startDoors, targetDoors, p, q) end
-        if innWalk and (p == inn or q == inn) then
-            local other = p == inn and q or p
-            if other == target and targetDoors then return viaDoors(innWalk.doors, targetDoors, p, q) end
-            if other == start and startDoors then return viaDoors(startDoors, innWalk.doors, p, q) end
-            if other.pid then return innWalk.pts[other.pid] end
-        end
         if p == start and q.pid and fromStart then return fromStart[q.pid] end
         if q == target and p.pid and toTarget then return toTarget[p.pid] end
+        -- a spot with its own measured walk (the inn; a tram station, a portal's end, a teleport's landing: these are
+        -- travel points too, so the walks from you and from the target reach them, above)
+        if p.walk or q.walk then
+            local W, other = p.walk, q
+            if not W then W, other = q.walk, p end
+            if other == target and targetDoors then return viaDoors(W.doors, targetDoors, p, q) end
+            if other == start and startDoors then return viaDoors(startDoors, W.doors, p, q) end
+            if other.pid then return W.pts[other.pid] end
+            if other.walk then return viaDoors(W.doors, other.walk.doors, p, q) end
+        end
         -- a lift's landing and any other point: the walk measured from the landing, or none (no straight guesses
         -- up or down a cliff)
         if p.liftWalk or q.liftWalk then

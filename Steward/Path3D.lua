@@ -1181,7 +1181,9 @@ end
 P3.liftPts = {}
 function P3.LiftKey(inst, i, side) return "lift " .. inst .. " " .. i .. " " .. side end
 local function landingPoint(Wd, A, tick)
-    local st = partsAt(Wd, A.n, A.w, nil)[A.floor]
+    local st
+    if A.floor then st = partsAt(Wd, A.n, A.w, nil)[A.floor]
+    else st = partsAt(Wd, A.n, A.w, A.indoors)[1] or nearFloor(Wd, A.n, A.w) end
     if not st then return false end
     local t, p = st[1], st[2]
     local s
@@ -1208,15 +1210,35 @@ local function landingPoint(Wd, A, tick)
     end
     return e
 end
+-- More travel points of the same form (0.90.5): the tram stations, the Dalaran portal's two ends and where the
+-- teleports land, set by the trip planner (Travel.lua) as { [key] = { n =, w =, indoors = true } } per continent.
+-- Inside, so the covered floor where floors lie over each other.
+P3.spots = {}
+-- returns true when the set changed (walks measured before it don't know the new points)
+function P3.SetSpots(inst, list)
+    local old = P3.spots[inst] or {}
+    local same = true
+    for k, v in pairs(list) do
+        local o = old[k]
+        if not (o and o.n == v.n and o.w == v.w) then same = false break end
+    end
+    if same then for k in pairs(old) do if not list[k] then same = false break end end end
+    if same then return false end
+    P3.spots[inst] = list
+    P3.liftPts[inst] = nil
+    return true
+end
 local function liftPoints(Wd, inst, tick)
     local lifts = P3.LIFTS and P3.LIFTS[inst]
-    if not lifts then return nil end
+    local spots = P3.spots[inst]
+    if not (lifts or spots) then return nil end
     local pts = P3.liftPts[inst]
     if not pts then
         pts = {}
-        for i, L in ipairs(lifts) do
+        for i, L in ipairs(lifts or {}) do
             for side = 1, 2 do pts[P3.LiftKey(inst, i, side)] = landingPoint(Wd, L[side], tick) end
         end
+        for key, A in pairs(spots or {}) do pts[key] = landingPoint(Wd, A, tick) end
         P3.liftPts[inst] = pts
     end
     return pts
