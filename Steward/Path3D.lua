@@ -1188,16 +1188,17 @@ local function liftPoints(Wd, inst, tick)
     return pts
 end
 
--- land: the floor to start on, by its place among the floors there, lowest first (a lift's landing)
-function P3.WalkFrom(inst, north, west, roads, limit, tick, land)
+-- land: the floor to start on, by its place among the floors there, lowest first (a lift's landing). indoors: where
+-- floors lie over each other, start on the ones with something overhead (true) or under the open sky (false)
+function P3.WalkFrom(inst, north, west, roads, limit, tick, land, indoors)
     if P3.off or P3.broken or not S:Get("path3D") then return nil end
     local Wd = worldFor(inst)
     if not (Wd and Wd.D.coarse and Wd.D.points) then return nil end
     if not P3.Covers(inst, north, west) then return nil end
     -- its own coroutine, so that `tick` can hand the frame back (a yield cannot cross pcall); an error ends it
     local co = coroutine.create(function()
-        local starts = partsAt(Wd, north, west, nil)
-        if land then starts = { starts[land] } end
+        local starts = partsAt(Wd, north, west, indoors)
+        if land then starts = { partsAt(Wd, north, west, nil)[land] } end
         if #starts == 0 then return nil end
         local mult, road = walkMult(roads)
         local lifted = liftPoints(Wd, inst, tick)

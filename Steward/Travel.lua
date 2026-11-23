@@ -684,6 +684,9 @@ local sweeps, queue, running = {}, {}, false
 -- the walk from each lift landing to every travel point (and doorway): the same all session, so kept all session;
 -- keyed by the landing's key and the mode ("lift 1 3 1 roads")
 local liftWalks = {}
+-- the walk from where your Hearthstone lands you (0.89.7): the same while you stay bound there, so kept all session;
+-- keyed by the spot and the mode
+local innWalks = {}
 local SWEEP_MS = 4
 local onSweepsDone          -- set below: make the plan again
 local function sweepCached(p, roads)
@@ -716,9 +719,9 @@ local function runQueue()
         while #queue > 0 do
             local q = table.remove(queue, 1)
             if q.lift then
-                if liftWalks[q.lift] == nil then
-                    local pts, doors = S.Path3D.WalkFrom(q.p.instance, q.n, q.w, q.roads, nil, tick, q.floor)
-                    liftWalks[q.lift] = pts and { pts = pts, doors = doors } or false
+                if q.store[q.lift] == nil then
+                    local pts, doors = S.Path3D.WalkFrom(q.p.instance, q.n, q.w, q.roads, nil, tick, q.floor, q.indoors)
+                    q.store[q.lift] = pts and { pts = pts, doors = doors } or false
                 end
             elseif not sweepCached(q.p, q.roads) then
                 local pn, pw = NW(q.p)
@@ -762,22 +765,31 @@ local function sweepFrom(p, roads)
 end
 -- the walk from a lift's landing (its own floor) to every travel point: nil while it is being measured, false when
 -- the landing isn't on the 3D world
-local function liftSweep(inst, key, A, roads)
-    local id = key .. (roads and " roads" or " fastest")
-    local w = liftWalks[id]
-    if w ~= nil then return w end
+local function fixedSweep(store, id, inst, n, w, roads, floor, indoors)
+    local v = store[id]
+    if v ~= nil then return v end
     local P3 = S.Path3D
     if S.TravelSyncSweeps then
-        local pts, doors = P3.WalkFrom(inst, A.n, A.w, roads, nil, nil, A.floor)
-        liftWalks[id] = pts and { pts = pts, doors = doors } or false
-        return liftWalks[id]
+        local pts, doors = P3.WalkFrom(inst, n, w, roads, nil, nil, floor, indoors)
+        store[id] = pts and { pts = pts, doors = doors } or false
+        return store[id]
     end
     for _, q in ipairs(queue) do if q.lift == id then return nil end end
-    queue[#queue + 1] = { lift = id, p = { instance = inst }, n = A.n, w = A.w, floor = A.floor, roads = roads }
+    queue[#queue + 1] = { lift = id, store = store, p = { instance = inst }, n = n, w = w, floor = floor, indoors = indoors, roads = roads }
     runQueue()
     return nil
 end
-S.LiftWalksForTests = liftWalks
+local function liftSweep(inst, key, A, roads)
+    return fixedSweep(liftWalks, key .. (roads and " roads" or " fastest"), inst, A.n, A.w, roads, A.floor, nil)
+end
+-- where the Hearthstone lands you: inside the inn, so where floors lie over each other, the covered one
+local function innSweep(h, roads)
+    if not (S.Path3D and S.Path3D.WalkFrom and h.world) then return false end
+    local n, w = NW(h)
+    local id = string.format("%d %.0f %.0f %s", h.instance, n, w, roads and "roads" or "fastest")
+    return fixedSweep(innWalks, id, h.instance, n, w, roads, nil, true)
+end
+S.LiftWalksForTests, S.InnWalksForTests = liftWalks, innWalks
 
 -- a name for a dock: the town of the flight master nearest it
 local function dockName(inst, n, w)
@@ -906,6 +918,7 @@ function S:Route(start, target, useHearth, waitForWalks)
         end
     end
     local wait = useHearth and S:Get("travelHearth") ~= false and hearthWait() or nil
+    local inn                                    -- where the Hearthstone would land you, when it's a choice
     local debug = { when = date("%H:%M"), flightPaths = #fps, bind = GetBindLocation and GetBindLocation(),
         hearthReady = wait == 0, hearthWait = wait and math.floor(wait) }
     if useHearth then StewardCharDB.travelDebug = debug end
@@ -914,6 +927,7 @@ function S:Route(start, target, useHearth, waitForWalks)
         local h = bindPoint(fps)
         debug.bindFound = h ~= nil
         if h then
+            inn = h
             add(h)
             local text = "Hearth to " .. h.name
             if wait > 5 then text = text .. string.format(" (ready in %d min)", math.ceil(wait / 60)) end
@@ -960,23 +974,37 @@ function S:Route(start, target, useHearth, waitForWalks)
             end
         end
     end
-    if waitForWalks and (startPending or targetPending or liftPending) then
+    -- the walk from the inn: measured too (before 0.89.7 a straight line and a fifth more, over cliffs and all)
+    local innWalk, innPending
+    if inn then
+        innWalk = innSweep(inn, roads)
+        innPending = innWalk == nil
+    end
+    if waitForWalks and (startPending or targetPending or liftPending or innPending) then
         debug.measuring = true
         return nil, nil, "measuring"
     end
     debug.walk3d = fromStart ~= nil and toTarget ~= nil
+    -- between two spots measured from: through the doorway where their walks meet
+    local function viaDoors(da, db, p, q)
+        local best
+        for K, c in pairs(db) do
+            local a = da[K]
+            if a and (not best or a + c < best) then best = a + c end
+        end
+        if best then return best end
+        local d = runDist(p, q)
+        if d and d < 400 then return d * 1.2 end     -- both on one small spot of ground between doorways
+        return nil
+    end
     local function walkCost(p, q)
         if p.instance ~= q.instance then return nil end
-        if p == start and q == target and startDoors and targetDoors then
-            local best
-            for K, c in pairs(targetDoors) do
-                local a = startDoors[K]
-                if a and (not best or a + c < best) then best = a + c end
-            end
-            if best then return best end
-            local d = runDist(p, q)
-            if d and d < 400 then return d * 1.2 end     -- both on one small spot of ground between doorways
-            return nil
+        if p == start and q == target and startDoors and targetDoors then return viaDoors(startDoors, targetDoors, p, q) end
+        if innWalk and (p == inn or q == inn) then
+            local other = p == inn and q or p
+            if other == target and targetDoors then return viaDoors(innWalk.doors, targetDoors, p, q) end
+            if other == start and startDoors then return viaDoors(startDoors, innWalk.doors, p, q) end
+            if other.pid then return innWalk.pts[other.pid] end
         end
         if p == start and q.pid and fromStart then return fromStart[q.pid] end
         if q == target and p.pid and toTarget then return toTarget[p.pid] end
@@ -1048,12 +1076,19 @@ function S:Route(start, target, useHearth, waitForWalks)
 
     -- turn edges into legs: "go to the flight master", "fly to X", "take the boat"...
     local legs = {}
+    local walkFrom              -- where a walk of several pieces (by a lift, or point to point) began
     for i, step in ipairs(path) do
         local e = step.edge
+        local from = walkFrom or step.from
+        walkFrom = nil
+        if e.kind == "run" or e.kind == "lift" then
+            local k = path[i + 1] and path[i + 1].edge.kind
+            if k == "run" or k == "lift" then walkFrom = from end
+        end
         if e.kind == "lift" then
             -- part of the walk: the leg before it runs on to the next stop, and the line takes the lift
-        elseif e.kind == "run" and (dist(step.from, step.to) or 0) < 40 then
-            -- already standing there
+        elseif e.kind == "run" and (dist(from, step.to) or 0) < 40 then
+            -- already standing there (from where this walk began: the last piece after a lift can be short)
         elseif e.kind == "run" then
             local nextEdge = path[i + 1] and path[i + 1].edge
             local text
