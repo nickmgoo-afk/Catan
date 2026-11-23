@@ -213,6 +213,10 @@ local function condOK(c)
     if cmd == "isOnQuest" then
         for _, id in ipairs(ids(a[1] and table.concat(a, ","))) do if onQuest(id) then return true end end
         return false
+    elseif cmd == "isNotOnQuest" then
+        -- applies while none of the quests is in your log
+        for _, id in ipairs(ids(table.concat(a, ","))) do if onQuest(id) then return false end end
+        return true
     elseif cmd == "isQuestComplete" then
         for _, id in ipairs(ids(table.concat(a, ","))) do if onQuest(id) and questComplete(id) then return true end end
         return false
@@ -267,8 +271,11 @@ local function condOK(c)
         local stats = link and ((C_Item and C_Item.GetItemStats) or GetItemStats)(link) or {}
         return compare(stats[stat] or 0, spec)
     elseif cmd == "dungeon" then
-        -- dungeon steps are off by default (no dungeon settings yet)
-        return (a[1] or ""):sub(1, 1) == "!"
+        -- ".dungeon X": a dungeon-route step, shown when the Dungeons option is on;
+        -- ".dungeon !X": its solo counterpart, shown when it is off (off by default)
+        local on = S:Get("guideDungeons") == true
+        if (a[1] or ""):sub(1, 1) == "!" then return not on end
+        return on
     elseif cmd == "skill" then
         -- ".skill name,n,1": skip the step once the check holds ("<80" = while the skill is under 80)
         local name, spec = (a[1] or ""):lower(), a[2] or ">0"

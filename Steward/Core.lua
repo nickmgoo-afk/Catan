@@ -50,6 +50,7 @@ S.defaults = {
     guideReplacesQuests = true, -- the guide takes the place of WoW's quest list in the tracker
     rewardsSell = true,    -- no upgrade: take the highest vendor price
     guideShow = true,      -- show the leveling guide in the quest tracker
+    guideDungeons = false, -- the guide's dungeon route (Skyborne mage: their chapters 40-92 with dungeons); off = solo route
     guideDynamic = true,   -- smart routing: do the guide's tasks in the order that walks the least
     guideArrow = true,     -- on-screen arrow pointing to the next waypoint
     mapStepSpots = true,   -- gold dots on the world map (0.90.0) and minimap (0.90.1) for the step's other spots still to do

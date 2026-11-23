@@ -5,7 +5,7 @@ S.guides = {}
 S.guidesByName = {}
 
 local CONDITIONS = {
-    isOnQuest = true, isQuestComplete = true, isQuestTurnedIn = true, isQuestAvailable = true,
+    isOnQuest = true, isNotOnQuest = true, isQuestComplete = true, isQuestTurnedIn = true, isQuestAvailable = true,
     isQuestNotComplete = true, money = true, itemcount = true, cooldown = true, itemStat = true,
     maxlevel = true, dungeon = true, skill = true, bindlocation = true, zoneskip = true, subzoneskip = true,
 }

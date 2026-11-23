@@ -151,6 +151,8 @@ function S:InitOptions()
     if ssInit and ssInit.SetParentInitializer then
         ssInit:SetParentInitializer(gInit, function() return gShow:GetValue() end)
     end
+    addCheckbox(guidePage, "guideDungeons", "Include dungeons",
+        "The guide's dungeon route: where a guide has one (the Skyborne mage's, levels 21-32), it sends you into the dungeons with their quests. Off: the solo route.")
     local function arrowOn() return gShow:GetValue() and aShow:GetValue() end
     local _, asInit = addSlider(guidePage, "arrowSize", "Arrow size", "How big the arrow is (its words too).", 50, 200, 10, pct)
     under(asInit, aInit, arrowOn)

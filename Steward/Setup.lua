@@ -55,6 +55,7 @@ local PAGES = {
         { "check", "guideShow", "Show the guide", "At the top of the quest tracker. Right-click a step to skip it." },
         { "check", "guideReplacesQuests", "The guide takes the quest list's place in the tracker", "Your quest log itself is unchanged.", parent = "guideShow" },
         { "check", "guideReplace", "Hide the quest list while the guide shows", nil, parent = "guideShow" },
+        { "check", "guideDungeons", "Include dungeons", "The guide's dungeon route, where it has one: dungeons and their quests. Off: the solo route." },
         { "check", "guideDynamic", "Smart routing", "Do the guide's steps in the order that walks the least.", when = smartMode },
         { "check", "fillerQuests", "Extra quests instead of grinding", "When you're behind the guide's level.", when = smartMode },
         { "check", "guideTraining", "Fit class training in", "A trainer visit when you have new spells to learn.", when = smartMode },
