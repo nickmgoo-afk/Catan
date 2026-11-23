@@ -146,6 +146,11 @@ function S:InitOptions()
     if aInit and aInit.SetParentInitializer then
         aInit:SetParentInitializer(gInit, function() return gShow:GetValue() end)
     end
+    local _, ssInit = addCheckbox(guidePage, "mapStepSpots", "Mark the step's other spots on the map",
+        "When a step has several spots (kill here, then there), the one you're headed to has the map's pin and the others still to do get a small gold dot on the world map.")
+    if ssInit and ssInit.SetParentInitializer then
+        ssInit:SetParentInitializer(gInit, function() return gShow:GetValue() end)
+    end
     local function arrowOn() return gShow:GetValue() and aShow:GetValue() end
     local _, asInit = addSlider(guidePage, "arrowSize", "Arrow size", "How big the arrow is (its words too).", 50, 200, 10, pct)
     under(asInit, aInit, arrowOn)

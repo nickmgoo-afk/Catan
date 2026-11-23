@@ -67,6 +67,7 @@ local PAGES = {
     } },
     { title = "The arrow and the map", rows = {
         { "check", "guideArrow", "Show the arrow", "Points to where the guide wants you to go. Drag it to move it." },
+        { "check", "mapStepSpots", "Mark the step's other spots on the map", "Gold dots where the step goes after the spot you're headed to." },
         { "cycle", "arrowStyle", "Arrow look", nil, parent = "guideArrow", list = "arrows" },
         { "amount", nil, "Arrow size", nil, parent = "guideArrow", key2 = "arrowSize", min = 50, max = 200, step = 10, pct = true },
         { "check", "arrowLocked", "Lock the arrow in place", nil, parent = "guideArrow" },

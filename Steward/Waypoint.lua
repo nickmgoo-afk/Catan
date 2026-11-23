@@ -135,6 +135,7 @@ function S:ActiveGoto(step)
     local els = step.elements
     local lead = leadsWith(self, step)
     local first, routeCount, routeLeft = nil, 0, 0
+    local all = {}                  -- every spot of the step still to do, in order (the map marks the others: 0.90.0)
     local parentActive = nil -- nil = no objective seen yet
     for i, el in ipairs(els) do
         if self:GateOK(el.gate) then
@@ -174,7 +175,10 @@ function S:ActiveGoto(step)
                     if done then active = false end
                     parentActive = not done
                 end
-                if active and not first then first = el end
+                if active then
+                    all[#all + 1] = el
+                    if not first then first = el end
+                end
             end
         end
     end
@@ -185,7 +189,7 @@ function S:ActiveGoto(step)
         end
         return self:ActiveGoto(step)
     end
-    return first
+    return first, all
 end
 
 ---------------------------------------------------------------- Blizzard waypoint
@@ -1095,6 +1099,114 @@ function S:UpdateWaypoint()
     end)
     if ok then lastTarget = tkey end
 end
+
+---------------------------------------------------------------- the step's other spots on the world map (0.90.0)
+-- Nick 2026-11-22 ("show the rest of a multi-waypoint step on the map"): the spot Steward is taking you to has the
+-- game's own pin; every other spot of the step that is still to do gets a small gold dot on the world map, so you can
+-- see where the step goes next (kill here, then there). Plain textures on a frame over the map's canvas: no map pins
+-- (a pin added by an add-on can be blocked in a fight, 0.88.5). Setting `mapStepSpots`.
+local spotFrame, spotDots, spotKey = nil, {}, nil
+function S:StepSpots()
+    local out = {}
+    if not (self:Get("guideShow") and self:Get("mapStepSpots") ~= false and G.guide and G.current) then return out end
+    if self:GuideMode() == "free" then return out end
+    local ok, _, all = pcall(self.ActiveGoto, self, G.current)
+    if not ok or not all then return out end
+    local here = G.stepGoto and G.stepGoto.go
+    local hr = here and self:ResolveGoto(here)
+    for _, el in ipairs(all) do
+        local g = el.go
+        if g and g ~= here then
+            local r = self:ResolveGoto(g)
+            -- the same spot as the pin (a step that names it twice): no dot under the pin
+            local same = r and hr and r.mapID == hr.mapID and math.abs((r.x or 0) - (hr.x or 0)) < 0.002 and math.abs((r.y or 0) - (hr.y or 0)) < 0.002
+            if r and not same then out[#out + 1] = r end
+        end
+    end
+    return out
+end
+local function hideSpots()
+    for i = 1, #spotDots do spotDots[i].fill:Hide() spotDots[i].ring:Hide() end
+end
+local function drawSpots()
+    local wm = _G.WorldMapFrame
+    if not (wm and wm.GetCanvas and wm.IsShown and wm:IsShown()) then hideSpots() return end
+    local mapID = wm.GetMapID and wm:GetMapID()
+    local canvas = wm:GetCanvas()
+    if not (mapID and canvas) then hideSpots() return end
+    local list = S:StepSpots()
+    if not spotFrame then
+        spotFrame = CreateFrame("Frame", nil, canvas)
+        spotFrame:SetAllPoints(canvas)
+    end
+    spotFrame:SetFrameStrata(canvas:GetFrameStrata())
+    spotFrame:SetFrameLevel(2020)
+    spotFrame:Show()
+    local cw, ch = canvas:GetWidth(), canvas:GetHeight()
+    local scale = 1
+    if spotFrame.GetEffectiveScale and UIParent.GetEffectiveScale then
+        local a, b = spotFrame:GetEffectiveScale(), UIParent:GetEffectiveScale()
+        if a and b and a > 0 and b > 0 then scale = a / b end
+    end
+    local used = 0
+    for _, r in ipairs(list) do
+        local x, y
+        if r.mapID == mapID then
+            x, y = r.x, r.y
+        elseif r.world and r.instance and C_Map.GetMapPosFromWorldPos then
+            local ok, m, pos = pcall(C_Map.GetMapPosFromWorldPos, r.instance, r.world, mapID)
+            if ok and m == mapID and pos then x, y = pos.x, pos.y end
+        end
+        if x and y and x >= 0 and x <= 1 and y >= 0 and y <= 1 then
+            used = used + 1
+            local d = spotDots[used]
+            if not d then
+                d = { ring = spotFrame:CreateTexture(nil, "OVERLAY", nil, 6), fill = spotFrame:CreateTexture(nil, "OVERLAY", nil, 7) }
+                d.ring:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask")
+                d.ring:SetVertexColor(0, 0, 0, 0.8)
+                d.fill:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask")
+                d.fill:SetVertexColor(1, 0.82, 0.1, 1)
+                spotDots[used] = d
+            end
+            d.ring:SetSize(13 / scale, 13 / scale)
+            d.fill:SetSize(9 / scale, 9 / scale)
+            d.ring:ClearAllPoints()
+            d.ring:SetPoint("CENTER", spotFrame, "TOPLEFT", x * cw, -y * ch)
+            d.fill:ClearAllPoints()
+            d.fill:SetPoint("CENTER", spotFrame, "TOPLEFT", x * cw, -y * ch)
+            d.ring:Show() d.fill:Show()
+        end
+    end
+    for i = used + 1, #spotDots do spotDots[i].fill:Hide() spotDots[i].ring:Hide() end
+    S.stepSpotsShown = used
+end
+function S._spotDotsForTests() return spotDots end
+function S:RefreshStepSpots()
+    local ok, err = pcall(drawSpots)
+    if not ok then self:LogError("step spots", err) hideSpots() end
+end
+-- redrawn when the map opens, changes or zooms, and while it is open whenever the step's spots change
+local spotsHooked = false
+local function hookSpots()
+    if spotsHooked then return end
+    local wm = _G.WorldMapFrame
+    if not (wm and wm.GetCanvas) then return end
+    spotsHooked = true
+    local function redraw() spotKey = nil S:RefreshStepSpots() end
+    if wm.HookScript then wm:HookScript("OnShow", redraw) end
+    if wm.OnMapChanged then hooksecurefunc(wm, "OnMapChanged", redraw) end
+    if wm.OnCanvasScaleChanged then hooksecurefunc(wm, "OnCanvasScaleChanged", redraw) end
+end
+C_Timer.NewTicker(0.5, function()
+    local ok = pcall(hookSpots)
+    local wm = _G.WorldMapFrame
+    if not (ok and wm and wm.IsShown and wm:IsShown()) then return end
+    -- what would be drawn: redraw only when it changes
+    local key = tostring(G.current) .. "|" .. tostring(G.stepGoto and G.stepGoto.go) .. "|" .. tostring(wm.GetMapID and wm:GetMapID())
+    local okS, list = pcall(S.StepSpots, S)
+    if okS then for _, r in ipairs(list) do key = key .. "|" .. tostring(r.x) .. "," .. tostring(r.y) end end
+    if key ~= spotKey then spotKey = key S:RefreshStepSpots() end
+end)
 
 ---------------------------------------------------------------- position ticker
 C_Timer.NewTicker(0.5, function()
