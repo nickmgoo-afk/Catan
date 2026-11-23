@@ -615,8 +615,8 @@ step
     .target Shakes O'Breen
 
 step
-    .goto Arathi Highlands,55.0,25.0,60,0
-    >>North through the highlands into the Hinterlands' western gate, then up to Aerie Peak
+    .goto Arathi Highlands,24.4,18.4,60,0
+    >>Northwest through the highlands, along the Hillsbrad border into the Hinterlands' western gate, then up to Aerie Peak
     .goto The Hinterlands,11.0,46.0
     .fp Aerie Peak >> Get the Aerie Peak flight path
 

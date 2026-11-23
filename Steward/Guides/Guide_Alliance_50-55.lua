@@ -329,12 +329,6 @@ step
     .complete -5245,1 --Highborne Relic Fragments (4)
 
 step
-    .goto Winterspring,46.0,16.0
-    >>Hand in Troubled Spirits of Kel'Theril at Aurora Skycaller
-    .turnin -5245 >> Turn in Troubled Spirits of Kel'Theril
-    .target Aurora Skycaller
-
-step
     .goto Winterspring,61.0,38.0
     >>Umi pays the furs (skip her next yeti errand -- it runs off this route)
     .turnin 3783 >> Turn in Are We There, Yeti?

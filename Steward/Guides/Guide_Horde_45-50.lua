@@ -622,8 +622,8 @@ step
     .target Jarkal Mossmeld
 
 step
-    .goto Badlands,8.0,35.0,60,0
-    >>North through the Kargath pass into the Searing Gorge, to Thorium Point -- the Brotherhood pays anyone who hurts the Dark Iron
+    .goto Badlands,2.6,61.9,60,0
+    >>South from Kargath along the western cliffs, then west through the pass into the Searing Gorge, to Thorium Point -- the Brotherhood pays anyone who hurts the Dark Iron
     .goto Searing Gorge,34.8,30.9
     .fp Thorium Point >> Get the Thorium Point flight path
 

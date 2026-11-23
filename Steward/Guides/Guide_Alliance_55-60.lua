@@ -207,6 +207,12 @@ step
     .target Caretaker Alen
 
 step
+    .goto 1423,46.4,16.0
+    >>North to Northpass Tower: Aurora Skycaller takes the four Highborne Relic Fragments from Winterspring (she also stands at 53,22)
+    .turnin -5245 >> Turn in Troubled Spirits of Kel'Theril
+    .target Aurora Skycaller
+
+step
     .goto 1423/0,-3977.08,1971.67
     .xp 57 >> Plaguewood edges and the scar's packs to 57 -- then the desert of the old god
 ]])
