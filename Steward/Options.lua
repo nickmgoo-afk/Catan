@@ -371,6 +371,8 @@ function S:InitOptions()
         "Learns every spell you can afford as soon as you talk to your trainer.")
     addCheckbox(vendor, "trainProfessions", "Learn new recipes at your profession trainers",
         "For the professions you already have: learns every recipe and rank you can afford as soon as you talk to the trainer. It never starts a new profession for you. Hold Shift when you talk to a trainer to learn nothing.")
+    addCheckbox(vendor, "demonBooks", "Buy your demons' spell books (warlock)",
+        "At the Demon Trainer: the newest book of each demon spell Wowhead's leveling page lists, once you've had that demon out. With a book in your bags and its demon out, a button by your demon's portrait teaches it in one click.")
 
     -- Action bars
     local bars, barsLayout = Settings.RegisterVerticalLayoutSubcategory(main, "Action bars")

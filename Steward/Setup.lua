@@ -49,6 +49,7 @@ local PAGES = {
         { "check", "bagsDeleteJunk", "Make room when your bags are full", "Deletes your cheapest grey item, without asking, to make room for something worth more." },
         { "check", "vendorTrain", "Learn new spells at your trainer", "Everything you can afford, as soon as you talk to them." },
         { "check", "trainProfessions", "Learn new recipes at your profession trainers", "For the professions you have; it never starts a new one." },
+        { "check", "demonBooks", "Buy your demons' spell books (warlock)", "At the Demon Trainer; a button by your demon's portrait teaches each one." },
     } },
     { title = "The guide", rows = {
         { "check", "guideShow", "Show the guide", "At the top of the quest tracker. Right-click a step to skip it." },

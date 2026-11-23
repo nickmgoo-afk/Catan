@@ -241,6 +241,7 @@ local function merchantItem(i)
     local name, _, price, stack, avail, usable, extended = GetMerchantItemInfo(i)
     return name, price, stack, avail, usable, extended
 end
+S.MerchantItem = merchantItem
 
 -- the best thing of a kind this merchant sells that you can use now
 local function bestOnSale(kind)
@@ -402,6 +403,11 @@ local function atMerchant()
     -- runes for a mage's Teleport and Portal spells
     local okR, errR = pcall(function() budget = restockRunes(budget, lines) end)
     if not okR then S:LogError("vendor runes", errR) end
+    -- a warlock's demon books, at the Demon Trainer (DemonBooks.lua)
+    if S.BuyDemonBooks then
+        local okB, errB = pcall(S.BuyDemonBooks)
+        if not okB then S:LogError("demon books", errB) end
+    end
     -- done quietly: nothing pops up
 end
 
