@@ -23,14 +23,14 @@ P3.NEAR = 1500        -- a trip shorter than this is tried by the exact search a
 P3.PIECE = 800        -- yards a piece of a long trip reaches ahead ...
 P3.COMMIT = 0.8       -- ... of which this much is kept before the next piece starts (its far end is only a doorway)
 P3.WEIGHT_LONG = 1.2  -- the pull in a piece of a long trip (Fastest; 1.05 was tried: same line, a third slower)
-P3.WEIGHT_LONG_ROADS = 1.6 -- the same in Stick to roads (11-22, 480 fixed trips: 1.6 is 14-20% less work than 1.3 and no trip over 2%
-                            -- dearer; 1.75 let a few go 8% dearer, 2.0 11%, 2.5 29%: the line leaves the road)
+P3.WEIGHT_LONG_ROADS = 1.3 -- the same in Stick to roads. 1.6 was tried (0.89.3: 14-20% less work, cost within 2%) and taken back:
+                            -- half the trips walked 50-300 yd more off the road, none fewer (Nick: roads are for safety)
 P3.PIECE_POPS = 40000 -- crossings one piece may visit
 P3.KEEP_LAST = true   -- a piece of a long trip keeps the tiles of the piece before it unpacked too
 P3.ATTACH = 30000     -- crossings to find the doorways of an end's own tile
 P3.WEIGHT = 1.1       -- how hard the search pulls towards the goal (1 = the cheapest way exactly, slowest). The way is pulled
                       -- tight afterwards, so a little pull costs next to nothing in the line and saves most of the search
-P3.WEIGHT_ROADS = 1.6 -- the same in Stick to roads, where a yard of road is cheap and the plain guess is weak (was 1.3)
+P3.WEIGHT_ROADS = 1.3 -- the same in Stick to roads, where a yard of road is cheap and the plain guess is weak
 P3.REACH = 10         -- an end may be this far from floor (yards)
 P3.KEEP = 80          -- unpacked map tiles kept; more than this and all are dropped after a search
 P3.FEL = 12           -- a yard through fel liquid: only when the way round is twelve times as long
