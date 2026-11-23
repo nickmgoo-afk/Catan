@@ -2809,6 +2809,36 @@ local function drawMini()
     for _, L in ipairs(LAYERS) do drawMiniLayer(L) end
 end
 
+-- a world spot on the minimap, the same way the line's dots are placed: pixels right and up from its centre, whether it
+-- lies inside the minimap, and the minimap; nil when that can't be worked out (0.90.1: the step's other spots)
+function P.MiniSpot(wx, wy, winst)
+    local mm = _G.Minimap
+    if not (mm and wx and wy) then return nil end
+    local order = S:WorldOrder()
+    if order ~= "unitdirect" and order ~= "unitswap" then return nil end
+    local px, py, inst = S:PlayerWorld()
+    if not px or inst ~= winst then return nil end
+    local radius = viewRadius()
+    local half = (mm:GetWidth() or 140) / 2
+    if half <= 0 or not radius or radius <= 0 then return nil end
+    local pxPerYard = half / radius
+    local cf, sf = 1, 0
+    if GetCVar and GetCVar("rotateMinimap") == "1" then
+        local facing = GetPlayerFacing and GetPlayerFacing()
+        if not facing or S.Secret(facing) then return nil end
+        cf, sf = math.cos(facing), math.sin(facing)
+    end
+    local north, west = wx - px, wy - py
+    if order == "unitswap" then north, west = west, north end
+    local sx = -(west * cf - north * sf) * pxPerYard
+    local sy = (north * cf + west * sf) * pxPerYard
+    local limit = half * 0.88
+    local inside
+    if not (GetMinimapShape and GetMinimapShape() == "SQUARE") then inside = sx * sx + sy * sy <= limit * limit
+    else inside = abs(sx) <= limit and abs(sy) <= limit end
+    return sx, sy, inside, mm
+end
+
 local function hideLayer(L)
     hideMapLayer(L)
     hideMiniLayer(L)

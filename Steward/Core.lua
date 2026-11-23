@@ -51,7 +51,7 @@ S.defaults = {
     guideShow = true,      -- show the leveling guide in the quest tracker
     guideDynamic = true,   -- smart routing: do the guide's tasks in the order that walks the least
     guideArrow = true,     -- on-screen arrow pointing to the next waypoint
-    mapStepSpots = true,   -- gold dots on the world map for the step's other spots still to do (0.90.0)
+    mapStepSpots = true,   -- gold dots on the world map (0.90.0) and minimap (0.90.1) for the step's other spots still to do
     arrowStyle = "navigation", -- which of the game's arrows to use
     guideTravel = true,    -- plan the fastest route when the next spot is far away
     -- what trips may use (the guide's, your map pin's, "Travel to" a group member; Nick 11-22: "I need travel options,

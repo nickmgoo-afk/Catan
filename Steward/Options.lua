@@ -146,8 +146,8 @@ function S:InitOptions()
     if aInit and aInit.SetParentInitializer then
         aInit:SetParentInitializer(gInit, function() return gShow:GetValue() end)
     end
-    local _, ssInit = addCheckbox(guidePage, "mapStepSpots", "Mark the step's other spots on the map",
-        "When a step has several spots (kill here, then there), the one you're headed to has the map's pin and the others still to do get a small gold dot on the world map.")
+    local _, ssInit = addCheckbox(guidePage, "mapStepSpots", "Mark the step's other spots on the map and minimap",
+        "When a step has several spots (kill here, then there), the one you're headed to has the map's pin and the others still to do get a small gold dot on the world map and the minimap.")
     if ssInit and ssInit.SetParentInitializer then
         ssInit:SetParentInitializer(gInit, function() return gShow:GetValue() end)
     end

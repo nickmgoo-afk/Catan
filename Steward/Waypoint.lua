@@ -1104,7 +1104,7 @@ end
 -- Nick 2026-11-22 ("show the rest of a multi-waypoint step on the map"): the spot Steward is taking you to has the
 -- game's own pin; every other spot of the step that is still to do gets a small gold dot on the world map, so you can
 -- see where the step goes next (kill here, then there). Plain textures on a frame over the map's canvas: no map pins
--- (a pin added by an add-on can be blocked in a fight, 0.88.5). Setting `mapStepSpots`.
+-- (a pin added by an add-on can be blocked in a fight, 0.88.5). Setting `mapStepSpots`. Since 0.90.1 the minimap too.
 local spotFrame, spotDots, spotKey = nil, {}, nil
 function S:StepSpots()
     local out = {}
@@ -1197,6 +1197,55 @@ local function hookSpots()
     if wm.OnMapChanged then hooksecurefunc(wm, "OnMapChanged", redraw) end
     if wm.OnCanvasScaleChanged then hooksecurefunc(wm, "OnCanvasScaleChanged", redraw) end
 end
+-- and on the minimap (0.90.1): the same dots, smaller, for the spots inside it, moved as you move (every 0.1 s; the
+-- list itself is worked out again every half second)
+local miniSpots, miniDots, miniFrameS = {}, {}, nil
+local function hideMiniSpots() for i = 1, #miniDots do miniDots[i].fill:Hide() miniDots[i].ring:Hide() end end
+local function drawMiniSpots()
+    local P = S.Path
+    local used = 0
+    if #miniSpots > 0 and P and P.MiniSpot then
+        for _, r in ipairs(miniSpots) do
+            local w = r.world
+            local sx, sy, inside, mm = P.MiniSpot(w and w.x, w and w.y, r.instance)
+            if sx and inside then
+                if not miniFrameS then
+                    miniFrameS = CreateFrame("Frame", nil, mm)
+                    miniFrameS:SetAllPoints(mm)
+                    miniFrameS:SetFrameLevel((mm:GetFrameLevel() or 0) + 4)
+                end
+                used = used + 1
+                local d = miniDots[used]
+                if not d then
+                    d = { ring = miniFrameS:CreateTexture(nil, "OVERLAY", nil, 6), fill = miniFrameS:CreateTexture(nil, "OVERLAY", nil, 7) }
+                    d.ring:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask")
+                    d.ring:SetVertexColor(0, 0, 0, 0.8)
+                    d.ring:SetSize(10, 10)
+                    d.fill:SetTexture("Interface\\CharacterFrame\\TempPortraitAlphaMask")
+                    d.fill:SetVertexColor(1, 0.82, 0.1, 1)
+                    d.fill:SetSize(7, 7)
+                    miniDots[used] = d
+                end
+                d.ring:ClearAllPoints() d.ring:SetPoint("CENTER", miniFrameS, "CENTER", sx, sy)
+                d.fill:ClearAllPoints() d.fill:SetPoint("CENTER", miniFrameS, "CENTER", sx, sy)
+                d.ring:Show() d.fill:Show()
+            end
+        end
+    end
+    for i = used + 1, #miniDots do miniDots[i].fill:Hide() miniDots[i].ring:Hide() end
+    S.stepSpotsMini = used
+end
+function S:RefreshMiniSpots(again)
+    if again then
+        local ok, list = pcall(self.StepSpots, self)
+        miniSpots = ok and list or {}
+    end
+    local ok, err = pcall(drawMiniSpots)
+    if not ok then self:LogError("step spots (minimap)", err) hideMiniSpots() miniSpots = {} end
+end
+S._miniDotsForTests = function() return miniDots end
+C_Timer.NewTicker(0.1, function() if #miniSpots > 0 or (S.stepSpotsMini or 0) > 0 then S:RefreshMiniSpots(false) end end)
+C_Timer.NewTicker(0.5, function() S:RefreshMiniSpots(true) end)
 C_Timer.NewTicker(0.5, function()
     local ok = pcall(hookSpots)
     local wm = _G.WorldMapFrame
