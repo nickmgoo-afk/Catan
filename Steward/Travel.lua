@@ -798,11 +798,12 @@ function S:Route(start, target, useHearth, waitForWalks)
         return (w or e.loop / 2) + e.ride
     end
 
-    local fps = flightNodes()
+    local fps = flightNodes()               -- (also where your inn is: the Hearthstone's landing, below)
     local net = S.TravelNet
+    local useFly, useBoats = S:Get("travelFly") ~= false, S:Get("travelBoats") ~= false
     for _, n in ipairs(fps) do
-        add(n)
         n.pid = netFlightMaster(n)
+        if useFly then add(n) end
     end
     -- a dock's name: the town the hand-made list calls it (Dalaran, Valanaar, Rut'theran...), else the nearest flight master's
     local named = {}
@@ -819,7 +820,7 @@ function S:Route(start, target, useHearth, waitForWalks)
         end
         return best or dockName(inst, n, w)
     end
-    if net then
+    if net and useBoats then
         for _, sh in ipairs(net.ships) do
             local name, fac, stops, legs = sh[1], sh[2], sh[3], sh[4]
             if not fac or fac == faction then
@@ -863,7 +864,9 @@ function S:Route(start, target, useHearth, waitForWalks)
         end
     end
     for _, t in ipairs(TRANSPORTS) do
-        if (not net or t.kind == "tram" or t.kind == "portal") and (not t.faction or t.faction == faction) then
+        local isShip = t.kind == "boat" or t.kind == "zeppelin" or t.kind == "skycutter"
+        if (not net or t.kind == "tram" or t.kind == "portal") and (not t.faction or t.faction == faction)
+            and (useBoats or not isShip) then
             local a, b = fromGoto(t.a, t.aName), fromGoto(t.learn and landing(t) or t.b, t.bName)
             if a and b then
                 add(a) add(b)
@@ -873,7 +876,7 @@ function S:Route(start, target, useHearth, waitForWalks)
             end
         end
     end
-    local wait = useHearth and hearthWait() or nil
+    local wait = useHearth and S:Get("travelHearth") ~= false and hearthWait() or nil
     local debug = { when = date("%H:%M"), flightPaths = #fps, bind = GetBindLocation and GetBindLocation(),
         hearthReady = wait == 0, hearthWait = wait and math.floor(wait) }
     if useHearth then StewardCharDB.travelDebug = debug end
@@ -889,7 +892,7 @@ function S:Route(start, target, useHearth, waitForWalks)
         end
     end
     -- your teleports (a mage's runes, a druid's Moonglade): cast where you stand
-    for _, t in ipairs(self:TeleportsReady()) do
+    for _, t in ipairs(S:Get("travelTeleport") ~= false and self:TeleportsReady() or {}) do
         local l = StewardDB and StewardDB.teleportLanding and StewardDB.teleportLanding[t.spell]
         local p = add(point(netVec(l and l.n or t.n, l and l.w or t.w), l and l.inst or t.inst, t.name))
         p.spell = t.spell
@@ -937,7 +940,7 @@ function S:Route(start, target, useHearth, waitForWalks)
         end
     end
     -- flying between known flight paths on the same continent
-    for i = 1, #fps do
+    for i = 1, useFly and #fps or 0 do
         for j = 1, #fps do
             if i ~= j then
                 local d = dist(fps[i], fps[j])

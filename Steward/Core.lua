@@ -52,6 +52,12 @@ S.defaults = {
     guideArrow = true,     -- on-screen arrow pointing to the next waypoint
     arrowStyle = "navigation", -- which of the game's arrows to use
     guideTravel = true,    -- plan the fastest route when the next spot is far away
+    -- what trips may use (the guide's, your map pin's, "Travel to" a group member; Nick 11-22: "I need travel options,
+    -- like more, to disable flight paths and hearthstoning")
+    travelFly = true,      -- flight paths
+    travelHearth = true,   -- your Hearthstone
+    travelTeleport = true, -- a mage's or druid's teleport spells
+    travelBoats = true,    -- boats, zeppelins and skycutters
     guideAutoFly = true,   -- take the guide's flight as soon as you open the flight map
     guideAutoHome = true,  -- make the inn your home when the guide says to
     guideTraining = true,  -- fit class training in when new abilities are available

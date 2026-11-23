@@ -192,6 +192,21 @@ function S:InitOptions()
     if tInit and tInit.SetParentInitializer then
         tInit:SetParentInitializer(gInit, function() return gShow:GetValue() end)
     end
+    -- what trips may use: the guide's, your map pin's and "Travel to" a group member's (Nick 11-22)
+    local function replanTrips()
+        S:SettingsChanged()
+        if S.ReplanTravel then pcall(S.ReplanTravel) end
+        local who = S.FollowName and S:FollowName()
+        if who and S.FollowMember then pcall(S.FollowMember, S, who) end
+    end
+    addCheckbox(guidePage, "travelFly", "Trips may use flight paths",
+        "For the guide's trips, your map pin's and Travel to a group member. Off: Steward never sends you to a flight master.", replanTrips)
+    addCheckbox(guidePage, "travelHearth", "Trips may use your Hearthstone",
+        "Off: no trip starts with \"Hearth to ...\", so your Hearthstone stays where you want it.", replanTrips)
+    addCheckbox(guidePage, "travelTeleport", "Trips may use your teleport spells",
+        "A mage's city teleports and a druid's Teleport: Moonglade.", replanTrips)
+    addCheckbox(guidePage, "travelBoats", "Trips may use boats, zeppelins and skycutters",
+        "Off: trips only cross the sea by flight path, teleport or Hearthstone (or not at all). The tram and portals stay in.", replanTrips)
     -- the travel path is a drawing only: changing it touches nothing in the guide
     if S.Path then
         local pShow, pInit = addCheckbox(guidePage, "pathShow", "Draw the way on the map and minimap",
