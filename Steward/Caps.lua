@@ -150,6 +150,19 @@ S:On("PLAYER_ENTERING_WORLD", safely(function()
             end
         end
         probe("C_Container.GetItemCooldown", C_Container and C_Container.GetItemCooldown, 6948)
+        -- 0.89.2: the modern calls Steward reads by field name (Forever's client is built on the modern one and
+        -- has dropped GetMerchantItemInfo, GetSpellTabInfo, GetQuestLogTitle and the like)
+        if C_QuestLog and C_QuestLog.GetInfo then
+            for i = 1, nq do
+                local info = C_QuestLog.GetInfo(i)
+                if info and not info.isHeader then probe("C_QuestLog.GetInfo", C_QuestLog.GetInfo, i) break end
+            end
+        end
+        local p1 = GetProfessions and GetProfessions()
+        if p1 then probe("GetProfessionInfo", GetProfessionInfo, p1) end
+        local bank = Enum and Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player or 0
+        probe("C_SpellBook.GetSpellBookItemInfo", C_SpellBook and C_SpellBook.GetSpellBookItemInfo, 1, bank)
+        probe("C_SpellBook.GetSpellBookSkillLineInfo", C_SpellBook and C_SpellBook.GetSpellBookSkillLineInfo, 1)
     end))
 end))
 S:On("MERCHANT_SHOW", safely(function()
@@ -157,6 +170,15 @@ S:On("MERCHANT_SHOW", safely(function()
         probe("GetMerchantItemInfo", GetMerchantItemInfo, 1)
         probe("GetRepairAllCost", GetRepairAllCost)
         probe("GetMerchantItemLink", GetMerchantItemLink, 1)
+        probe("GetMerchantItemID", GetMerchantItemID, 1)
+        if C_MerchantFrame and C_MerchantFrame.GetItemInfo then
+            probe("C_MerchantFrame.GetItemInfo", C_MerchantFrame.GetItemInfo, 1)
+            -- and the values Vendor.lua reads from it (stock: -1 for no limit, as Blizzard's merchant window reads it)
+            probe("C_MerchantFrame.GetItemInfo values", function(i)
+                local t = C_MerchantFrame.GetItemInfo(i)
+                if t then return t.name, t.price, t.stackCount, t.numAvailable, t.isUsable, t.hasExtendedCost end
+            end, 1)
+        end
     end))
 end))
 S:On("LOOT_OPENED", safely(function()
