@@ -23,6 +23,7 @@ S.defaults = {
     vendorAmmo = true,     -- top up arrows or bullets for your ranged weapon
     vendorRunes = true,    -- a mage keeps runes for the Teleport and Portal spells they know
     vendorTrain = true,    -- learn every spell you can afford at your class trainer
+    trainProfessions = true, -- and every recipe and rank you can afford at a trainer of a profession you have (0.89.8)
     barsAuto = true,       -- arrange the action bars and keep them up to date
     talentsAuto = true,    -- spend talent points along a leveling build for your spec
     rotationHelper = true, -- in combat, show what to press next and light up its button

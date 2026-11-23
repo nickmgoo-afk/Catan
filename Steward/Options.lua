@@ -364,6 +364,8 @@ function S:InitOptions()
         "Off to start with. When your bags are full, Steward deletes your cheapest grey item without asking, but only if it's worth it: when looting, only for a quest item or something that sells for more than that grey (then it loots it for you); when a quest hands you an item, always (then it takes the quest again). Each one is noted in your saved data.")
     addCheckbox(vendor, "vendorTrain", "Learn new spells at your class trainer",
         "Learns every spell you can afford as soon as you talk to your trainer.")
+    addCheckbox(vendor, "trainProfessions", "Learn new recipes at your profession trainers",
+        "For the professions you already have: learns every recipe and rank you can afford as soon as you talk to the trainer. It never starts a new profession for you. Hold Shift when you talk to a trainer to learn nothing.")
 
     -- Action bars
     local bars, barsLayout = Settings.RegisterVerticalLayoutSubcategory(main, "Action bars")

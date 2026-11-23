@@ -441,6 +441,28 @@ end)
 
 ---------------------------------------------------------------- at your class trainer
 local learned, spent, training
+local mode                  -- "class": your class trainer; "profession": a trainer of a profession you have (0.89.8)
+-- the professions you have (their names, lower case without spaces): a profession trainer only teaches you more of
+-- these; it never starts a new one (Nick 2026-11-22: "for 3, yes, but that should be an option")
+local function profKey(name) return (tostring(name):lower():gsub("%s", "")) end
+local function myProfessions()
+    local mine = {}
+    if not (GetProfessions and GetProfessionInfo) then return mine end
+    local list = { GetProfessions() }
+    for i = 1, 6 do
+        if list[i] then
+            local ok, name = pcall(GetProfessionInfo, list[i])
+            if ok and name then mine[profKey(name)] = true end
+        end
+    end
+    return mine
+end
+local profs                 -- myProfessions() for this visit
+local function professionService(i)
+    local line = GetTrainerServiceSkillLine and GetTrainerServiceSkillLine(i)
+    return line ~= nil and profs ~= nil and profs[profKey(line)] == true
+end
+S.MyProfessions = myProfessions
 -- what the trainer offered and what Steward did, for the last 5 visits (StewardCharDB.trainDiag): Nick 2026-11-15,
 -- "isn't this supposed to train for me? It didn't"
 local diag
@@ -472,9 +494,10 @@ end
 local function learnNext()
     if not training then return end
     local reserve = 0
+    local prof = mode == "profession"
     -- Wowhead's mandatory abilities for your spec first; optional ones only once none of those is left on offer
-    local first = S.MandatoryTraining and S:MandatoryTraining()
-    local skip = S.SkippedTraining and S:SkippedTraining() or {}
+    local first = not prof and S.MandatoryTraining and S:MandatoryTraining() or nil
+    local skip = not prof and S.SkippedTraining and S:SkippedTraining() or {}
     local pass = { first and "mandatory" or "all" }
     -- mandatory: that spell, or (a page that stops at a level) that rank
     local function isFirst(i, name)
@@ -496,6 +519,7 @@ local function learnNext()
     for i = 1, GetNumTrainerServices() or 0 do
         local name, rank, category = S.TrainerService(i)
         local wanted = which == "all" or (which == "mandatory") == isFirst(i, name)
+        if prof then wanted = professionService(i) end
         if category == "available" and wanted and not skip[name] then
             local cost = GetTrainerServiceCost(i) or 0
             if cost <= GetMoney() - reserve then
@@ -514,15 +538,37 @@ local function learnNext()
 end
 
 S:On("TRAINER_SHOW", function()
-    if IsShiftKeyDown() or not S:Get("vendorTrain") then
-        pcall(diagStart, IsShiftKeyDown() and "shift held" or "setting off")
+    if IsShiftKeyDown() then
+        pcall(diagStart, "shift held")
         return
     end
     C_Timer.After(0.3, function()
         pcall(diagStart, "open")
-        if not (S.IsClassTrainer and S.IsClassTrainer()) or not (GetTrainerServiceCost and BuyTrainerService) then
-            if diag then diag.why = "not a class trainer (or no trainer API)" end
+        if not (GetTrainerServiceCost and BuyTrainerService) then
+            if diag then diag.why = "no trainer API" end
             return
+        end
+        if S.IsClassTrainer and S.IsClassTrainer() then
+            if not S:Get("vendorTrain") then
+                if diag then diag.why = "setting off" end
+                return
+            end
+            mode = "class"
+        else
+            -- a profession trainer (a weapon master's skills are no profession of yours, so nothing is bought there)
+            profs = myProfessions()
+            local any = false
+            for i = 1, GetNumTrainerServices() or 0 do if professionService(i) then any = true end end
+            if not any then
+                if diag then diag.why = "not a class trainer, nor one of your professions" end
+                return
+            end
+            if S:Get("trainProfessions") == false then
+                if diag then diag.why = "profession trainer: setting off" end
+                return
+            end
+            mode = "profession"
+            if diag then diag.why = "profession trainer" end
         end
         learned, spent, training = {}, 0, true
         local ok, err = pcall(learnNext)
