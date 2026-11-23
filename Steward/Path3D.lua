@@ -32,6 +32,7 @@ P3.WEIGHT = 1.1       -- how hard the search pulls towards the goal (1 = the che
                       -- tight afterwards, so a little pull costs next to nothing in the line and saves most of the search
 P3.WEIGHT_ROADS = 1.3 -- the same in Stick to roads, where a yard of road is cheap and the plain guess is weak
 P3.REACH = 10         -- an end may be this far from floor (yards)
+P3.REACH_FAR = 50     -- a trip's goal with no floor that near: the nearest floor this far away (a guide's spot on a rock top)
 P3.KEEP = 80          -- unpacked map tiles kept; more than this and all are dropped after a search
 P3.FEL = 12           -- a yard through fel liquid: only when the way round is twelve times as long
 P3.FORMAT = 1
@@ -317,6 +318,39 @@ local function partsAt(Wd, north, west, indoors)
         if #keep > 0 then out = keep end
     end
     return out
+end
+
+-- a goal with no floor within P3.REACH (0.90.3): the nearest floor within P3.REACH_FAR, by the middle of its part, and that
+-- middle. The guides' "go to this area" spots sometimes fall on a rock or a hill top nobody walks onto, and a few quest
+-- givers stand by lava or at a building's door; the line then ends on the ground next to them instead of being handed to
+-- the older search. Only for goals and the walks measured from them, never for where you stand.
+local function nearFloor(Wd, north, west)
+    local cs = Wd.cs
+    local fr, fc = (north - Wd.x0) / cs, (west - Wd.y0) / cs
+    local sr, sc = floor(fr), floor(fc)
+    local reach = ceil(P3.REACH_FAR / cs) + 1
+    local best, bd, bn, bw
+    for dr = -reach, reach do
+        for dc = -reach, reach do
+            local t2, s2 = squareAt(Wd, sr + dr, sc + dc)
+            local f2 = t2 and t2.first[s2]
+            if f2 then
+                for p = f2, f2 + t2.cnt[s2] - 1 do
+                    local m, sn, sw, k = t2.mask[p], 0, 0, 0
+                    for q = 0, 15 do
+                        if bit(m, q) == 1 then sn, sw, k = sn + floor(q / 4) + 0.5, sw + q % 4 + 0.5, k + 1 end
+                    end
+                    if k > 0 then
+                        local pn = Wd.x0 + (sr + dr + sn / k / 4) * cs
+                        local pw = Wd.y0 + (sc + dc + sw / k / 4) * cs
+                        local d = sqrt((pn - north) ^ 2 + (pw - west) ^ 2)
+                        if d <= P3.REACH_FAR and (not bd or d < bd) then best, bd, bn, bw = { t2, p }, d, pn, pw end
+                    end
+                end
+            end
+        end
+    end
+    return best, bn, bw, bd
 end
 
 ---------------------------------------------------------------- the search
@@ -1199,6 +1233,10 @@ function P3.WalkFrom(inst, north, west, roads, limit, tick, land, indoors)
     local co = coroutine.create(function()
         local starts = partsAt(Wd, north, west, indoors)
         if land then starts = { partsAt(Wd, north, west, nil)[land] } end
+        if #starts == 0 and not land then       -- a goal's walk: from the floor its trip's line will end on
+            local e, en, ew = nearFloor(Wd, north, west)
+            if e then starts, north, west = { e }, en, ew end
+        end
         if #starts == 0 then return nil end
         local mult, road = walkMult(roads)
         local lifted = liftPoints(Wd, inst, tick)
@@ -1470,6 +1508,11 @@ local function run(job, tick, P)
             if starts[k][1].flag[starts[k][2]] % 2 == 0 then starts = { starts[k] } break end
         end
     end
+    job.snapG = nil
+    if #ends == 0 and not job.landG then
+        local e, en, ew, d = nearFloor(Wd, gn, gw)
+        if e then ends, gn, gw, job.snapG = { e }, en, ew, d end
+    end
     if #starts == 0 or #ends == 0 then P3.why = "no floor at an end" return false end
     -- an end on another land (an island, the top of Teldrassil) cannot be walked to: that trip is for the older search,
     -- which knows the boats and portals
@@ -1730,4 +1773,5 @@ function P3.Solve(job, tick, P)
 end
 
 -- for tests and tools
+P3._nearFloor = nearFloor
 P3._unpack, P3._world, P3._partsAt, P3._tileAt, P3._farEnd, P3._coarseAt = unpackTile, worldFor, partsAt, tileAt, farEnd, coarseAt
