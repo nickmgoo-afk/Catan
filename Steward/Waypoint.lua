@@ -960,6 +960,23 @@ function S:UserPin()
 end
 S.PIN_ARRIVED = 15            -- yards: you're there, the pin comes off
 
+-- 0.90.2: no changes to the game's map pin in a fight while the world map is open. Blizzard's waypoint and quest pin
+-- providers listen for USER_WAYPOINT_UPDATED / SUPER_TRACKING_CHANGED only while the map is shown, and redraw at once
+-- from inside Steward's call: AcquirePin -> CheckMouseButtonPassthrough -> SetPassThroughButtons, protected in combat,
+-- so the game blocks it once per pin and blames Steward (20 at 18:46:26 on 0.88.8, after 0.88.5 stopped the map
+-- opening in a fight). The change waits for the fight's end or the map closing, then UpdateWaypoint puts it right.
+local pinWaiting = false
+local function mapBusy()
+    local wm = _G.WorldMapFrame
+    return InCombatLockdown and InCombatLockdown() and wm and wm.IsShown and wm:IsShown() and true or false
+end
+local function clearPin()
+    if mapBusy() then pinWaiting = true return false end
+    if C_Map.ClearUserWaypoint then pcall(C_Map.ClearUserWaypoint) end
+    return true
+end
+S.MapPinBusy = mapBusy
+
 function S:UpdateWaypoint()
     local corpse = self:CorpseGoto()
     if corpse then
@@ -967,14 +984,13 @@ function S:UpdateWaypoint()
         G.activeGoto = corpse
         sideChanged()
         if self.UpdateArrow then self:UpdateArrow() end
-        if lastTarget and C_Map.ClearUserWaypoint then C_Map.ClearUserWaypoint() lastTarget = nil end
+        if lastTarget and C_Map.ClearUserWaypoint and clearPin() then lastTarget = nil end
         return
     end
     local pin = self:UserPin()
     if pin then
         local d = self:DistanceTo(pin.go)
-        if d and d < self.PIN_ARRIVED then
-            pcall(C_Map.ClearUserWaypoint)          -- you're there: back to the guide
+        if d and d < self.PIN_ARRIVED and clearPin() then   -- you're there: back to the guide (after the fight, map open)
             pinEl, pin = nil, nil
         end
     end
@@ -997,7 +1013,7 @@ function S:UpdateWaypoint()
         G.stepGoto, G.travel, G.travelPending, G.activeGoto = nil, nil, nil, nil
         sideChanged()
         if self.UpdateArrow then self:UpdateArrow() end
-        if lastTarget and C_Map.ClearUserWaypoint then C_Map.ClearUserWaypoint() lastTarget = nil end
+        if lastTarget and C_Map.ClearUserWaypoint and clearPin() then lastTarget = nil end
         return
     end
     if self:GuideMode() == "free" then
@@ -1013,13 +1029,14 @@ function S:UpdateWaypoint()
         if self.UpdateArrow then self:UpdateArrow() end
         if not (C_Map.SetUserWaypoint and UiMapPoint) then return end
         if not el or not self:Get("guideShow") then
-            if lastTarget then C_Map.ClearUserWaypoint() lastTarget = nil end
+            if lastTarget and clearPin() then lastTarget = nil end
             return
         end
         local r = self:ResolveGoto(el.go)
         if not r then return end
         local tkey = string.format("%d:%.3f:%.3f", r.mapID or 0, r.x or 0, r.y or 0)
         if lastTarget == tkey then return end
+        if mapBusy() then pinWaiting = true return end
         if C_Map.CanSetUserWaypointOnMap and not C_Map.CanSetUserWaypointOnMap(r.mapID) then return end
         if pcall(C_Map.SetUserWaypoint, UiMapPoint.CreateFromCoordinates(r.mapID, r.x, r.y)) then lastTarget = tkey S.stewardPin = { r.mapID, r.x, r.y } StewardCharDB.stewardPin = S.stewardPin end
         return
@@ -1039,7 +1056,7 @@ function S:UpdateWaypoint()
         G.activeGoto = escort
         sideChanged()
         if self.UpdateArrow then self:UpdateArrow() end
-        if lastTarget and C_Map.ClearUserWaypoint then C_Map.ClearUserWaypoint() lastTarget = nil end
+        if lastTarget and C_Map.ClearUserWaypoint and clearPin() then lastTarget = nil end
         return
     end
     -- behind on levels: extra quests nearby instead of a grind spot
@@ -1078,16 +1095,14 @@ function S:UpdateWaypoint()
     if self.UpdateArrow then self:UpdateArrow() end
     if not (C_Map.SetUserWaypoint and UiMapPoint) then return end
     if not el or not self:Get("guideShow") then
-        if lastTarget then
-            C_Map.ClearUserWaypoint()
-            lastTarget = nil
-        end
+        if lastTarget and clearPin() then lastTarget = nil end
         return
     end
     local r = self:ResolveGoto(el.go)
     if not r then return end
     local tkey = string.format("%d:%.3f:%.3f", r.mapID or 0, r.x or 0, r.y or 0)
     if lastTarget == tkey then return end
+    if mapBusy() then pinWaiting = true return end
     if C_Map.CanSetUserWaypointOnMap and not C_Map.CanSetUserWaypointOnMap(r.mapID) then return end
     local ok = pcall(function()
         C_Map.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(r.mapID, r.x, r.y))
@@ -1099,6 +1114,17 @@ function S:UpdateWaypoint()
     end)
     if ok then lastTarget = tkey end
 end
+
+-- the pin change that waited (0.90.2): after the fight, or as soon as the map closes
+local function pinCatchUp()
+    if not pinWaiting or mapBusy() then return end
+    pinWaiting = false
+    local ok, err = pcall(S.UpdateWaypoint, S)
+    if not ok then S:LogError("waypoint after the fight", err) end
+end
+S:On("PLAYER_REGEN_ENABLED", pinCatchUp)
+C_Timer.NewTicker(0.5, function() if pinWaiting then pinCatchUp() end end)
+S._pinWaitingForTests = function() return pinWaiting end
 
 ---------------------------------------------------------------- the step's other spots on the world map (0.90.0)
 -- Nick 2026-11-22 ("show the rest of a multi-waypoint step on the map"): the spot Steward is taking you to has the
@@ -1133,7 +1159,7 @@ local function drawSpots()
     if not (wm and wm.GetCanvas and wm.IsShown and wm:IsShown()) then hideSpots() return end
     local mapID = wm.GetMapID and wm:GetMapID()
     local canvas = wm:GetCanvas()
-    if not (mapID and canvas) then hideSpots() return end
+    if not (mapID and type(canvas) == "table" and canvas.GetWidth) then hideSpots() return end
     local list = S:StepSpots()
     if not spotFrame then
         spotFrame = CreateFrame("Frame", nil, canvas)
