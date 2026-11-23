@@ -131,16 +131,14 @@ local BUILD = {
             { "Holy Specialization", 2 }, { "Divine Fury", 5 }, { "Holy Nova", 1 }, { "Spirit Tap", 5 },
             { "Mental Agility", 3 }, { "Power in Light", 5 }, { "Holy Specialization", 5 }, { "Blessed Recovery", 1 },
             { "Searing Light", 2 }, { "Mental Strength", 5 }, { "Holy Reach", 1 } },
-        -- Holy: the build Wowhead's Forever Holy leveling page shows (16/35/0, read 2026-11-13). Its "Talent Order"
-        -- list holds one entry only, so the order is Steward's, from the page's text: Wand Specialization first (when
-        -- mostly solo), then the Holy tree tier by tier until Prayer of Mending (the page: reached in the early 40s),
-        -- then Discipline towards Meditation with Inner Focus on the way, then the last Holy points.
+        -- Holy: Wowhead's Forever Holy leveling page, its Talent Order point by point (19/32/0; the page updated
+        -- 2026-11-21 and read 2026-11-22: before, its list held one entry and Steward's order came from the page's text)
         Holy = { exact = true,
-            { "Wand Specialization", 2 }, { "Improved Renew", 3 }, { "Holy Specialization", 5 }, { "Divine Fury", 5 },
-            { "Holy Nova", 1 }, { "Inspiration", 3 }, { "Holy Reach", 2 }, { "Improved Healing", 3 }, { "Holy Binding", 1 },
-            { "Litany of Light", 2 }, { "Spirit of Redemption", 1 }, { "Spiritual Guidance", 5 }, { "Prayer of Mending", 1 },
-            { "Twin Disciplines", 5 }, { "Mental Strength", 3 }, { "Inner Focus", 1 }, { "Meditation", 3 },
-            { "Mental Strength", 5 }, { "Spiritual Healing", 3 } },
+            { "Wand Specialization", 2 }, { "Holy Specialization", 5 }, { "Divine Fury", 5 }, { "Inspiration", 3 },
+            { "Holy Nova", 1 }, { "Twilight Focus", 1 }, { "Improved Healing", 3 }, { "Holy Reach", 2 },
+            { "Spirit of Redemption", 1 }, { "Spiritual Guidance", 5 }, { "Spiritual Healing", 3 }, { "Litany of Light", 2 },
+            { "Prayer of Mending", 1 }, { "Twin Disciplines", 3 }, { "Mental Strength", 5 }, { "Inner Focus", 1 },
+            { "Meditation", 3 }, { "Twin Disciplines", 5 }, { "Improved Power Word: Shield", 3 } },
     },
     SHAMAN = {
         -- Wowhead's Forever leveling builds, point by point from 10 to 60. Elemental: the guide's "True Elemental"
