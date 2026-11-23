@@ -12,15 +12,16 @@ local BUILD = {
     -- WoW: Forever's trees (Sanctity Aura removed; Improved Blessing of Wisdom and Lasting Judgement
     -- now baseline; Sanctified Judgement, Sacred Arbiter, Champion of the Light, Unsealed Wrath new)
     PALADIN = {
-        -- Nick's build (2026-11-12): Retribution (Unsealed Wrath) 14/6/31, point by point from level 10 to 60.
-        -- exact: each step raises that talent to that rank, in this order; nothing else is ever taken.
+        -- Retribution: Wowhead's Forever leveling build (12/8/31; the page updated 2026-11-18, read 2026-11-22), point
+        -- by point from level 10 to 60. exact: each step raises that talent to that rank, in this order; nothing else
+        -- is ever taken.
         Retribution = { exact = true,
             { "Benediction", 5 }, { "Improved Judgement", 2 }, { "Sanctified Judgement", 3 }, { "Seal of Command", 1 },
             { "Pursuit of Justice", 2 }, { "Conviction", 2 }, { "Sacred Arbiter", 1 },
             { "Two-Handed Weapon Specialization", 3 }, { "Conviction", 3 }, { "Vengeance", 3 }, { "Repentance", 1 },
             { "Unyielding Faith", 1 }, { "Champion of the Light", 5 }, { "Unsealed Wrath", 1 },
-            { "Divine Strength", 5 }, { "Improved Seals", 5 }, { "Divine Intellect", 5 }, { "Precision", 1 },
-            { "Holy Conduit", 2 }, { "Reverence", 2 } },
+            { "Divine Strength", 5 }, { "Improved Seals", 5 }, { "Holy Conduit", 2 }, { "Divine Intellect", 5 },
+            { "Precision", 3 } },
         -- Protection and Holy: Wowhead's Forever leveling builds, in their order (both checked point by point against
         -- the leveling pages, 2026-11-12). Holy's order lists 46 points from 15; Steward spends them as they come.
         Protection = { exact = true,
@@ -41,15 +42,15 @@ local BUILD = {
             { "Divine Intellect", 5 } },
     },
     WARRIOR = {
-        -- Wowhead's Forever leveling guides (read 2026-11-12), point by point from 10 to 60.
-        -- Arms 35/16/0
+        -- Wowhead's Forever leveling guides (read 2026-11-12; all three again 2026-11-22), point by point from 10 to 60.
+        -- Arms 36/15/0 (the page updated 2026-11-18)
         Arms = { exact = true,
             { "Improved Rend", 3 }, { "Deflection", 2 }, { "Improved Overpower", 2 }, { "Improved Tactical Mastery", 3 },
-            { "Deep Wounds", 3 }, { "Anger Management", 1 }, { "Improved Charge", 1 },
-            { "Two-Handed Weapon Specialization", 3 }, { "Impale", 2 }, { "Bloodthrill", 2 }, { "Sweeping Strikes", 1 },
-            { "Weaponmaster", 2 }, { "Improved Slam", 1 }, { "Weaponmaster", 5 }, { "Improved Slam", 2 },
-            { "Mortal Strike", 1 }, { "Cruelty", 5 }, { "Lingering Rage", 5 }, { "Enrage", 3 }, { "Piercing Howl", 1 },
-            { "Enrage", 5 }, { "Improved Charge", 2 }, { "Deflection", 5 } },
+            { "Deep Wounds", 3 }, { "Anger Management", 1 }, { "Deflection", 3 }, { "Spearing Strike", 1 },
+            { "Two-Handed Weapon Specialization", 3 }, { "Impale", 1 }, { "Bloodthrill", 1 }, { "Impale", 2 },
+            { "Sweeping Strikes", 1 }, { "Bloodthrill", 2 }, { "Weaponmaster", 5 }, { "Improved Slam", 1 },
+            { "Mortal Strike", 1 }, { "Cruelty", 5 }, { "Lingering Rage", 5 }, { "Enrage", 5 }, { "Improved Slam", 2 },
+            { "Deflection", 5 }, { "Improved Charge", 2 } },
         -- Fury 11/40/0
         Fury = { exact = true,
             { "Cruelty", 5 }, { "Unbridled Wrath", 5 }, { "Enrage", 2 }, { "Blood Craze", 3 }, { "Reckless Swings", 1 },
@@ -150,13 +151,13 @@ local BUILD = {
             { "Call of Thunder", 1 }, { "Lightning Overload", 3 }, { "Convection", 4 }, { "Elemental Fury", 5 },
             { "Lightning Mastery", 1 }, { "Trial by Fire", 2 }, { "Convection", 5 }, { "Thundering Strikes", 5 },
             { "Ancestral Knowledge", 2 } },
+        -- Enhancement: 17/26/8 (the page updated 2026-11-18, read 2026-11-22)
         Enhancement = { exact = true,
             { "Thundering Strikes", 5 }, { "Mental Dexterity", 3 }, { "Ancestral Knowledge", 2 }, { "Shamanistic Focus", 1 },
-            { "Elemental Weapons", 3 }, { "Anticipation", 1 }, { "Improved Ghost Wolf", 1 }, { "Stormstrike", 1 },
-            { "Improved Ghost Wolf", 2 }, { "Flurry", 2 }, { "Improved Stormstrike", 2 }, { "Mental Quickness", 2 },
-            { "Spirit Weapons", 1 }, { "Tidal Focus", 5 }, { "Mindfulness", 3 }, { "Concussion", 5 }, { "Call of Flame", 3 },
-            { "Elemental Devastation", 2 }, { "Elemental Focus", 1 }, { "Elemental Devastation", 3 }, { "Reverberation", 3 },
-            { "Trial by Fire", 2 }, { "Earthbound", 1 } },
+            { "Elemental Weapons", 3 }, { "Ancestral Knowledge", 3 }, { "Stormstrike", 1 }, { "Improved Ghost Wolf", 2 },
+            { "Flurry", 2 }, { "Improved Stormstrike", 2 }, { "Mental Quickness", 2 }, { "Spirit Weapons", 1 },
+            { "Maelstrom Weapon", 1 }, { "Tidal Focus", 5 }, { "Mindfulness", 3 }, { "Concussion", 5 }, { "Call of Flame", 3 },
+            { "Elemental Devastation", 3 }, { "Elemental Focus", 1 }, { "Reverberation", 3 }, { "Trial by Fire", 2 } },
         Restoration = { exact = true,
             { "Tidal Focus", 5 }, { "Mindfulness", 3 }, { "Improved Reincarnation", 2 }, { "Water Shield", 1 },
             { "Healing Focus", 3 }, { "Improved Healing Wave", 1 }, { "Mana Tide Totem", 1 }, { "Tidal Mastery", 4 },
@@ -219,12 +220,13 @@ local BUILD = {
             { "Improved Moonfire", 2 }, { "Nature's Splendor", 1 }, { "Insect Swarm", 1 }, { "Improved Starfire", 4 },
             { "Eclipse", 3 }, { "Improved Starfire", 5 }, { "Nature's Grace", 1 }, { "Moonfury", 5 }, { "Moonkin Form", 1 },
             { "Nature's Focus", 5 }, { "Reflection", 3 }, { "Naturalist", 5 }, { "Genesis", 2 }, { "Vengeance", 5 } },
+        -- Feral: 0/34/17 (the page updated 2026-11-19, read 2026-11-22)
         Feral = { exact = true,
-            { "Ferocity", 5 }, { "Furor", 3 }, { "Feral Swiftness", 2 }, { "Feral Charge", 1 }, { "Savage Fury", 2 },
+            { "Ferocity", 5 }, { "Feral Swiftness", 2 }, { "Feral Instinct", 3 }, { "Feral Charge", 1 }, { "Savage Fury", 2 },
             { "Sharpened Claws", 2 }, { "Predatory Discipline", 1 }, { "Blood Frenzy", 2 }, { "Lacerate", 1 },
             { "Predatory Strikes", 1 }, { "Leader of the Pack", 1 }, { "Natural Instinct", 2 }, { "Predatory Strikes", 3 },
-            { "Rend and Tear", 5 }, { "Primal Bite", 1 }, { "Shifting Power", 1 }, { "Heart of the Wild", 5 },
-            { "Naturalist", 5 }, { "Genesis", 5 }, { "Nature's Reach", 2 }, { "Nature's Majesty", 2 } },
+            { "Rend and Tear", 5 }, { "Shifting Power", 1 }, { "Primal Bite", 1 }, { "Heart of the Wild", 5 },
+            { "Natural Shapeshifter", 3 }, { "Reflection", 3 }, { "Naturalist", 5 }, { "Swiftmend", 1 }, { "Brutal Impact", 2 } },
         Restoration = { exact = true,
             { "Improved Wrath", 5 }, { "Nature's Focus", 5 }, { "Reflection", 3 }, { "Naturalist", 2 }, { "Bloom", 1 },
             { "Nature's Majesty", 2 }, { "Genesis", 3 }, { "Nature's Splendor", 1 }, { "Improved Entangling Roots", 3 },
