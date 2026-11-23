@@ -113,7 +113,10 @@ local function safely(f) return function(...) if StewardDB then pcall(f, ...) en
 
 S:On("PLAYER_ENTERING_WORLD", safely(function()
     C_Timer.After(6, safely(function()
-        local nq = GetNumQuestLogEntries and GetNumQuestLogEntries() or 0
+        -- the quest log's size: the modern call first (Forever has no GetNumQuestLogEntries, so before 0.89.9 this was 0
+        -- and C_QuestLog.GetInfo below was never noted; Nick's save of 11-22 21:11)
+        local CQ = C_QuestLog
+        local nq = (CQ and CQ.GetNumQuestLogEntries and CQ.GetNumQuestLogEntries()) or (GetNumQuestLogEntries and GetNumQuestLogEntries()) or 0
         for i = 1, nq do
             if GetQuestLogTitle then
                 local _, _, _, header = GetQuestLogTitle(i)
