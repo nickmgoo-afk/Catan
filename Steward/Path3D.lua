@@ -25,6 +25,7 @@ P3.COMMIT = 0.8       -- ... of which this much is kept before the next piece st
 P3.WEIGHT_LONG = 1.2  -- the pull in a piece of a long trip (Fastest; 1.05 was tried: same line, a third slower)
 P3.WEIGHT_LONG_ROADS = 1.3 -- the same in Stick to roads (1.6 is faster but can leave the road: one trip came out 58% dearer)
 P3.PIECE_POPS = 40000 -- crossings one piece may visit
+P3.KEEP_LAST = true   -- a piece of a long trip keeps the tiles of the piece before it unpacked too
 P3.ATTACH = 30000     -- crossings to find the doorways of an end's own tile
 P3.WEIGHT = 1.1       -- how hard the search pulls towards the goal (1 = the cheapest way exactly, slowest). The way is pulled
                       -- tight afterwards, so a little pull costs next to nothing in the line and saves most of the search
@@ -79,16 +80,7 @@ local function unpackTile(Wd, key)
     local lown, ldir, lidx, loff, ln, lw = {}, {}, {}, {}, {}, {}
     local x0, y0, cs = Wd.x0, Wd.y0, Wd.cs
     local np, nl, s, i = 0, 0, 0, 1
-    local function link(dir, ix, off)
-        nl = nl + 1
-        lown[nl], ldir[nl], lidx[nl], loff[nl] = np, dir, ix, off
-        local r, c = r0 + floor(s / 64), c0 + s % 64
-        if dir == 1 then
-            ln[nl], lw[nl] = x0 + (r + 1) * cs, y0 + (c + (off + 0.5) / 12) * cs
-        else
-            ln[nl], lw[nl] = x0 + (r + (off + 0.5) / 12) * cs, y0 + (c + 1) * cs
-        end
-    end
+    -- (each link is written out where it is read, not through a helper: unpacking was a fifth of a long trip's time)
     while i <= nb do
         local v = b[i]
         i = i + 1
@@ -109,8 +101,19 @@ local function unpackTile(Wd, key)
             for _ = 1, run do
                 np = np + 1
                 first[s], cnt[s], psq[np], mask[np], flag[np], ls[np], land[np] = np, 1, s, 65535, fl, nl + 1, cur
-                if hn == 1 then link(1, 0, 6) end
-                if hw == 1 then link(2, 0, 6) end
+                if hn == 1 or hw == 1 then
+                    local r, c, off = r0 + floor(s / 64), c0 + s % 64, 6
+                    if hn == 1 then
+                        nl = nl + 1
+                        lown[nl], ldir[nl], lidx[nl], loff[nl] = np, 1, 0, off
+                        ln[nl], lw[nl] = x0 + (r + 1) * cs, y0 + (c + (off + 0.5) / 12) * cs
+                    end
+                    if hw == 1 then
+                        nl = nl + 1
+                        lown[nl], ldir[nl], lidx[nl], loff[nl] = np, 2, 0, off
+                        ln[nl], lw[nl] = x0 + (r + (off + 0.5) / 12) * cs, y0 + (c + 1) * cs
+                    end
+                end
                 s = s + 1
             end
         elseif v >= 192 and (v < 200 or v == 216) then
@@ -122,6 +125,7 @@ local function unpackTile(Wd, key)
                 k = v - 191
             end
             first[s], cnt[s] = np + 1, k
+            local r, c = r0 + floor(s / 64), c0 + s % 64
             for _ = 1, k do
                 local h = b[i]
                 if h >= 224 then
@@ -140,7 +144,15 @@ local function unpackTile(Wd, key)
                         ix = b[i]
                         i = i + 1
                     end
-                    link(x >= 128 and 2 or 1, ix, x % 16)
+                    local off = x % 16
+                    nl = nl + 1
+                    if x >= 128 then
+                        lown[nl], ldir[nl], lidx[nl], loff[nl] = np, 2, ix, off
+                        ln[nl], lw[nl] = x0 + (r + (off + 0.5) / 12) * cs, y0 + (c + 1) * cs
+                    else
+                        lown[nl], ldir[nl], lidx[nl], loff[nl] = np, 1, ix, off
+                        ln[nl], lw[nl] = x0 + (r + 1) * cs, y0 + (c + (off + 0.5) / 12) * cs
+                    end
                 end
             end
             s = s + 1
@@ -189,6 +201,27 @@ local function squareAt(Wd, r, c)
 end
 function P3.Drop()
     for _, Wd in pairs(worlds) do Wd.tiles, Wd.slots, Wd.nslot, Wd.loaded, Wd.co, Wd.entRec, Wd.entIdx = {}, {}, 0, 0, {}, {}, {} end
+end
+-- Searches side by side (2026-11-22). In the game the line search (Path.lua, a slice a frame) and the travel planner's
+-- walk measuring (Travel.lua's queue, on its own timer) take turns over the same unpacked tiles, and a search paused
+-- half-way holds tile and crossing numbers. Dropping or trimming tiles under it gave it a different line, or an error
+-- that switched the 3D search off for the session (/home/claude/fast/interleave.py: 4 of 8 trips with the tiles
+-- dropped often). So no search drops or trims while another is still under way; a drop waits for the last one. A
+-- search left behind (its trip changed) stops counting once the garbage collector takes its coroutine.
+P3.live = setmetatable({}, { __mode = "k" })
+local function othersLive()
+    local me = coroutine.running()
+    for co in pairs(P3.live) do
+        if co ~= me and coroutine.status(co) ~= "dead" then return true end
+    end
+    return false
+end
+P3.OthersLive = othersLive
+local function dropIfIdle(Wd)
+    if not (P3.dropPending or (Wd and Wd.loaded > P3.KEEP)) then return end
+    if othersLive() then P3.dropPending = true return end
+    P3.dropPending = nil
+    P3.Drop()
 end
 -- does a trip that ends here belong to the 3D search? (the spot lies on a tile of a finished zone)
 function P3.Covers(inst, north, west)
@@ -306,57 +339,74 @@ local function search(Wd, starts, goals, sn, sw, gn, gw, mult, least, weight, ti
         end
         hf[i], hid[i] = f, id
     end
-    local function pop()
-        local f, id = hf[1], hid[1]
-        local lf, lid = hf[hn], hid[hn]
-        hf[hn], hid[hn] = nil, nil
-        hn = hn - 1
-        if hn > 0 then
-            local i = 1
-            while true do
-                local c = 2 * i
-                if c > hn then break end
-                if c < hn and hf[c + 1] < hf[c] then c = c + 1 end
-                if hf[c] >= lf then break end
-                hf[i], hid[i] = hf[c], hid[c]
-                i = c
-            end
-            hf[i], hid[i] = lf, lid
-        end
-        return f, id
-    end
     local wl = collect and 0 or weight * least
-    local function relax(t, li, cost, from)
-        local id = t.slot * 32768 + li
-        if closed[id] then return end
-        local old = g[id]
-        if not old or cost < old then
-            g[id], par[id] = cost, from
-            local dn, dw = t.ln[li] - gn, t.lw[li] - gw
-            push(cost + wl * sqrt(dn * dn + dw * dw), id)
-        end
-    end
+    local tiles = Wd.tiles
     -- every crossing of a part: the links it keeps (north and west), and the links the squares south and east of it
-    -- keep that lead to it
+    -- keep that lead to it. (Written out in full rather than through relax and squareAt: this is where a search
+    -- spends most of its time. The sums are the same, in the same order, so the way found is the same.)
     local function around(t, p, fromN, fromW, gl, mu, from)
         local ls, ln, lw = t.ls, t.ln, t.lw
+        local base = t.slot * 32768
         for k = ls[p], ls[p + 1] - 1 do
-            local dn, dw = ln[k] - fromN, lw[k] - fromW
-            relax(t, k, gl + sqrt(dn * dn + dw * dw) * mu, from)
+            local id = base + k
+            if not closed[id] then
+                local dn, dw = ln[k] - fromN, lw[k] - fromW
+                local cost = gl + sqrt(dn * dn + dw * dw) * mu
+                local old = g[id]
+                if not old or cost < old then
+                    g[id], par[id] = cost, from
+                    local hn_, hw_ = ln[k] - gn, lw[k] - gw
+                    push(cost + wl * sqrt(hn_ * hn_ + hw_ * hw_), id)
+                end
+            end
         end
         local s = t.psq[p]
         local ix = p - t.first[s]
-        local r, c = t.r0 + floor(s / 64), t.c0 + s % 64
+        local sr, sc = floor(s / 64), s % 64
         for side = 1, 2 do
             local t2, s2
-            if side == 1 then t2, s2 = squareAt(Wd, r - 1, c) else t2, s2 = squareAt(Wd, r, c - 1) end
+            if side == 1 then
+                if sr > 0 then
+                    t2, s2 = t, s - 64
+                else
+                    local r = t.r0 - 1
+                    if r >= 0 then
+                        local key = floor(r / 64) * 256 + floor((t.c0 + sc) / 64)
+                        t2 = tiles[key]
+                        if t2 == nil then t2 = tileAt(Wd, key) end
+                        s2 = 63 * 64 + sc
+                    end
+                end
+            else
+                if sc > 0 then
+                    t2, s2 = t, s - 1
+                else
+                    local c = t.c0 - 1
+                    if c >= 0 then
+                        local key = floor((t.r0 + sr) / 64) * 256 + floor(c / 64)
+                        t2 = tiles[key]
+                        if t2 == nil then t2 = tileAt(Wd, key) end
+                        s2 = sr * 64 + 63
+                    end
+                end
+            end
             local f2 = t2 and t2.first[s2]
             if f2 then
                 local ls2, ldir2, lidx2, ln2, lw2 = t2.ls, t2.ldir, t2.lidx, t2.ln, t2.lw
+                local base2 = t2.slot * 32768
                 for k = ls2[f2], ls2[f2 + t2.cnt[s2]] - 1 do
                     if ldir2[k] == side and lidx2[k] == ix then
-                        local dn, dw = ln2[k] - fromN, lw2[k] - fromW
-                        relax(t2, k, gl + sqrt(dn * dn + dw * dw) * mu, from)
+                        local id = base2 + k
+                        if not closed[id] then
+                            local dn, dw = ln2[k] - fromN, lw2[k] - fromW
+                            local cost = gl + sqrt(dn * dn + dw * dw) * mu
+                            local old = g[id]
+                            if not old or cost < old then
+                                g[id], par[id] = cost, from
+                                local hn_, hw_ = ln2[k] - gn, lw2[k] - gw
+                                push(cost + wl * sqrt(hn_ * hn_ + hw_ * hw_), id)
+                            end
+                        end
                     end
                 end
             end
@@ -372,7 +422,23 @@ local function search(Wd, starts, goals, sn, sw, gn, gw, mult, least, weight, ti
     end
     local pops = 0
     while hn > 0 do
-        local _, id = pop()
+        -- take the cheapest off the heap (written out here: it runs once a crossing)
+        local id = hid[1]
+        local lf, lid = hf[hn], hid[hn]
+        hf[hn], hid[hn] = nil, nil
+        hn = hn - 1
+        if hn > 0 then
+            local i = 1
+            while true do
+                local c = 2 * i
+                if c > hn then break end
+                if c < hn and hf[c + 1] < hf[c] then c = c + 1 end
+                if hf[c] >= lf then break end
+                hf[i], hid[i] = hf[c], hid[c]
+                i = c
+            end
+            hf[i], hid[i] = lf, lid
+        end
         if id == GOAL then
             local links, l = {}, goalFrom
             local startPart
@@ -390,12 +456,17 @@ local function search(Wd, starts, goals, sn, sw, gn, gw, mult, least, weight, ti
             closed[id] = true
             pops = pops + 1
             if pops > maxPops then return nil, nil, nil, pops, nil, g end
-            if tick then tick(4) end
+            if tick and pops % 4 == 0 then tick(16) end
             local t = slots[floor(id / 32768)]
             local li = id % 32768
             local gl, pn, pw = g[id], t.ln[li], t.lw[li]
             local t2, p2
-            if not allow or allow[farKey(t, li)] then t2, p2 = farEnd(Wd, t, li) end
+            local bt = t.bt[li]
+            if bt ~= nil then                              -- far end already known (as farEnd would answer)
+                if bt and (not allow or allow[bt.key]) then t2, p2 = bt, t.bp[li] end
+            elseif not allow or allow[farKey(t, li)] then
+                t2, p2 = farEnd(Wd, t, li)
+            end
             for side = 1, 2 do
                 local tt, p
                 if side == 1 then
@@ -811,6 +882,7 @@ end
 -- drop the unpacked tiles not in `keep` (a long trip keeps only the tiles of the piece it works on: an unpacked tile
 -- holds about 1.4 MB of Lua tables)
 local function trim(Wd, keep)
+    if P3.dbg then P3.dbg.peak = math.max(P3.dbg.peak or 0, Wd.loaded) end
     for key, t in pairs(Wd.tiles) do
         if t and not keep[key] then
             Wd.tiles[key] = nil
@@ -921,6 +993,7 @@ local function longWay(Wd, starts, ends, goals, sn, sw, gn, gw, mult, least, wei
     end
     local cur, cn, cw = starts, sn, sw
     local j, k = 0, #E
+    local lastAllow
     for _ = 1, 1000 do
         -- how far is left is measured along the plan, not as the crow flies: a goal on a cliff 500 yd away may be
         -- 7,000 yd of walking round
@@ -944,7 +1017,13 @@ local function longWay(Wd, starts, ends, goals, sn, sw, gn, gw, mult, least, wei
         local keep = {}
         for key in pairs(allow) do keep[key] = true end
         for key in pairs(gTiles) do keep[key] = true end
-        trim(Wd, keep)
+        -- and the last piece's: the next piece mostly runs over the same ground, and unpacking a tile again was a
+        -- fifth of a long trip's time
+        if P3.KEEP_LAST and lastAllow then
+            for key in pairs(lastAllow) do keep[key] = true end
+        end
+        lastAllow = allow
+        if not othersLive() then trim(Wd, keep) end   -- another search under way may be on the others
         local tn, tw, tg
         if final then
             tn, tw, tg = gn, gw, goals
@@ -1165,13 +1244,14 @@ function P3.WalkFrom(inst, north, west, roads, limit, tick)
         end
         return { pts = out, doors = gC }
     end)
+    P3.live[co] = true
     local ok, res
     while true do
         ok, res = coroutine.resume(co)
         if not ok or coroutine.status(co) == "dead" then break end
         if tick and coroutine.running() then coroutine.yield() end    -- the caller's coroutine waits a frame too
     end
-    if Wd.loaded > P3.KEEP then P3.Drop() end
+    dropIfIdle(Wd)
     if not ok then P3.walkErr = tostring(res) return nil end
     if not res then return nil end
     return res.pts, res.doors
@@ -1397,7 +1477,7 @@ local function run(job, tick, P)
     job.X, job.Y, job.U, job.n, job.Z = X, Y, U, n, nil
     job.len, job.unsure, job.straight, job.mode, job.cell = len, 0, straight, "terrain", Wd.cs
     job.world3d = job.long3d and n or #links
-    if Wd.loaded > P3.KEEP then P3.Drop() end
+    dropIfIdle(Wd)
     return true
 end
 
@@ -1572,7 +1652,9 @@ function P3.Solve(job, tick, P)
     if P3.off or P3.broken or not S:Get("path3D") then P3.why = P3.broken and "error" or "switched off" return false end
     if not (S.Path3DData and S.Path3DData[job.inst]) then P3.why = "no data for this continent" return false end
     P3.why = nil
+    if P3.dropPending then dropIfIdle(nil) end        -- a drop that waited for another search
     local co = coroutine.create(runLifts)
+    P3.live[co] = true
     if P and P.Solving and P.Solving[coroutine.running() or 0] then P.Solving[co] = true end   -- may wait a frame too
     while true do
         local ok, res = coroutine.resume(co, job, tick, P)
