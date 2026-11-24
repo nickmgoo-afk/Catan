@@ -3503,14 +3503,6 @@ step
     .dungeon !dungeons
     >>Accept "Devils in Westfall" from Collin Mauren 53.0, 86.6
 step
-    #optional
-    .goto 1453,51.5,69.4
-    .turnin 389 >>Turn in Bazil Thredd
-    .target Warden Thelwater
-    .isOnQuest 389
-    .dungeon !dungeons
-    >>Optional: turn in "Bazil Thredd" to Warden Thelwater 51.5, 69.4 (shows only if you have it)
-step
     .goto 1453,58.5,69.0
     .vendor >>Sell and stock up
     .target Frederick Stover
@@ -3611,13 +3603,6 @@ step
     .target Sirra Von'Indi
     .dungeon !dungeons
     >>Accept "The Valor Family" from Sirra Von'Indi 72.6, 47.6
-step
-    .goto 1431,73.3,44.8
-    .turnin 95161 >>Turn in Remember That I Love You
-    .target Avette Fellwood
-    .isOnQuest 95161
-    .dungeon !dungeons
-    >>Turn in "Remember That I Love You" to Avette Fellwood 73.3, 44.8 (shows only if you have it)
 step
     .goto 1431,75.3,48.7
     .accept 163 >>Accept Raven Hill
@@ -4617,18 +4602,6 @@ step
     .dungeon !dungeons
     >>Accept "Wanted: Lieutenant Fangore" from the other Wanted Poster 21.6, 46.4
 step
-    .goto 1433,22.6,21.4
-    .complete 126,1
-    .target Yowler
-    .dungeon !dungeons
-    >>Kill Yowler in the northern hills 22.6, 21.4 for Yowler's Paw, for "Howling in the Hills"
-step
-    .goto 1433,79.4,46.8
-    .turnin 94 >>Turn in A Watchful Eye
-    .isOnQuest 94
-    .dungeon !dungeons
-    >>Click the Old Lion Statue 79.4, 46.8 to turn in "A Watchful Eye" (shows only if you have it)
-step
     .goto 1433,79.4,46.8
     .accept 248 >>Accept Looking Further
     .dungeon !dungeons
@@ -4701,13 +4674,6 @@ step
     .target Marshal Marris
     .dungeon !dungeons
     >>Turn in "Missing In Action" to Marshal Marris 28.4, 49.0
-step
-    .goto 1433,25.9,47.3
-    .turnin 126 >>Turn in Howling in the Hills
-    .target Verner Osgood
-    .isOnQuest 126
-    .dungeon !dungeons
-    >>Turn in "Howling in the Hills" to Verner Osgood 25.9, 47.3 (shows only if you have it)
 step
     .goto 1433,24.6,44.3
     .turnin 91 >>Turn in Solomon's Law
@@ -6536,13 +6502,6 @@ step
     .dungeon !dungeons
     >>Accept "The Missing Diplomat" (the next part) from Elling Trias 66.0, 74.1
 step
-    .goto 1453,53.0,86.6
-    .turnin 1078 >>Turn in Retrieval for Mauren
-    .target Collin Mauren
-    .isOnQuest 1078
-    .dungeon !dungeons
-    >>Turn in "Retrieval for Mauren" to Collin Mauren 53.0, 86.6 (shows only if you have it done)
-step
     .goto 1453,50.5,87.4
     .accept 690 >>Accept Malin's Request
     .target Archmage Malin
@@ -7063,13 +7022,6 @@ step
     .target Gwennyth Bly'Leggonde
     .dungeon dungeons
     >>Turn in "Beached Sea Turtle" (the one at 31.2, 85.6) to Gwennyth Bly'Leggonde 36.6, 45.6
-step
-    .goto 1439,39.4,43.5
-    .turnin 995 >>Turn in Escape Through Stealth
-    .target Terenthis
-    .isOnQuest 995
-    .dungeon dungeons
-    >>Turn in "Escape Through Stealth" to Terenthis 39.4, 43.5 (shows only if you have it)
 step
     .goto 1439,37.4,41.8
     .turnin 731 >>Turn in The Absent Minded Prospector
@@ -7714,13 +7666,6 @@ step
     .dungeon dungeons
     >>Accept "Crime and Punishment" from Councilman Millstipe 71.9, 47.8
 step
-    .goto 1431,73.3,44.8
-    .turnin 95161 >>Turn in Remember That I Love You
-    .target Avette Fellwood
-    .isOnQuest 95161
-    .dungeon dungeons
-    >>Turn in "Remember That I Love You" to Avette Fellwood 73.3, 44.8 (shows only if you have it)
-step
     .goto 1431,75.3,48.7
     .accept 163 >>Accept Raven Hill
     .target Elaine Carevin
@@ -8315,13 +8260,6 @@ step
     .target Warden Thelwater
     .dungeon dungeons
     >>Accept "Quell The Uprising" from Warden Thelwater 51.5, 69.4
-step
-    .goto 1453,51.5,69.4
-    .turnin 389 >>Turn in Bazil Thredd
-    .target Warden Thelwater
-    .isOnQuest 389
-    .dungeon dungeons
-    >>Turn in "Bazil Thredd" to Warden Thelwater 51.5, 69.4 (shows only if you have it)
 step
     .goto 1453,51.5,69.4
     .accept 391 >>Accept The Stockade Riots
@@ -8945,18 +8883,6 @@ step
     .dungeon dungeons
     >>Turn in "What Comes Around..." to Guard Berton 21.2, 46.6 (shows only if you have it done)
 step
-    .goto 1433,22.6,21.4
-    .complete 126,1
-    .target Yowler
-    .dungeon dungeons
-    >>Kill Yowler in the northern hills 22.6, 21.4 for Yowler's Paw, for "Howling in the Hills"
-step
-    .goto 1433,79.4,46.8
-    .turnin 94 >>Turn in A Watchful Eye
-    .isOnQuest 94
-    .dungeon dungeons
-    >>Click the Old Lion Statue 79.4, 46.8 to turn in "A Watchful Eye" (shows only if you have it)
-step
     .goto 1433,79.4,46.8
     .accept 248 >>Accept Looking Further
     .dungeon dungeons
@@ -9029,13 +8955,6 @@ step
     .target Marshal Marris
     .dungeon dungeons
     >>Turn in "Missing In Action" to Marshal Marris 28.4, 49.0
-step
-    .goto 1433,25.9,47.3
-    .turnin 126 >>Turn in Howling in the Hills
-    .target Verner Osgood
-    .isOnQuest 126
-    .dungeon dungeons
-    >>Turn in "Howling in the Hills" to Verner Osgood 25.9, 47.3 (shows only if you have it)
 step
     .goto 1433,24.6,44.3
     .turnin 91 >>Turn in Solomon's Law
@@ -11595,13 +11514,6 @@ step
     .target Elling Trias
     .dungeon dungeons
     >>Accept "The Missing Diplomat" (the next part) from Elling Trias 66.0, 74.1
-step
-    .goto 1453,53.0,86.6
-    .turnin 1078 >>Turn in Retrieval for Mauren
-    .target Collin Mauren
-    .isOnQuest 1078
-    .dungeon dungeons
-    >>Turn in "Retrieval for Mauren" to Collin Mauren 53.0, 86.6 (shows only if you have it done)
 step
     .goto 1453,50.5,87.5
     .accept 690 >>Accept Malin's Request
@@ -14950,12 +14862,6 @@ step
     .accept 1286 >>Accept The Deserters
     .target Captain Garran Vimes
     >>Accept "The Deserters" from Captain Garran Vimes 68.2, 48.6
-step
-    .goto 1445,66.3,45.5
-    .turnin 1260 >>Turn in Morgan Stern
-    .target Morgan Stern
-    .isOnQuest 1260
-    >>Turn in "Morgan Stern" to Morgan Stern 66.3, 45.5 (shows only if you have it)
 step
     .goto 1445,66.3,45.5
     .accept 1204 >>Accept Mudrock Soup and Bugs
@@ -21303,12 +21209,6 @@ step
     .target Khaelyn Steelwing
     >>Fly from Khaelyn Steelwing at Light's Hope 81.6, 59.3 to Ironforge
 step
-    .goto 1455,75.8,23.4
-    .turnin 4513 >>Turn in A Little Slime Goes a Long Way
-    .target Laris Geardawdle
-    .isOnQuest 4513
-    >>Turn in "A Little Slime Goes a Long Way" to Laris Geardawdle 75.8, 23.4 (shows only if you have it done)
-step
     .goto 1422,76.6,51.3
     .zone Stormwind City >>Take the Deeprun Tram 76.6, 51.3 to Stormwind City
     >>Take the Deeprun Tram 76.6, 51.3 to Stormwind City
@@ -21702,12 +21602,6 @@ step
     .goto 1451,51.4,38.3
     .accept 8283 >>Accept Wanted - Deathclasp, Terror of the Sands
     >>Read the wanted poster 51.4, 38.3 to accept "Wanted - Deathclasp, Terror of the Sands"
-step
-    .goto 1451,51.2,38.3
-    .turnin 8275 >>Turn in Taking Back Silithus
-    .target Windcaller Proudhorn
-    .isOnQuest 8275
-    >>Turn in "Taking Back Silithus" to Windcaller Proudhorn 51.2, 38.3 (shows only if you have it)
 step
     .goto 1451,51.2,38.3
     .accept 8280 >>Accept Securing the Supply Lines

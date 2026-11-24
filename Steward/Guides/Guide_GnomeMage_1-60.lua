@@ -1020,7 +1020,7 @@ step
 
 S.RegisterGuide([[
 #name 12 Redridge flight path - Gnome Mage
-#next 12 Stormwind - Gnome Mage
+#next 12 Goldshire again - Gnome Mage
 << Gnome Mage Alliance
 step
     .goto 1433,15.6,71.4
@@ -1042,18 +1042,6 @@ step
     .fly Stormwind City >>Fly to Stormwind
     .target Ariena Stormfeather
     >>Fly from Ariena Stormfeather 30.6, 59.4 to Stormwind
-]])
-
-S.RegisterGuide([[
-#name 12 Stormwind - Gnome Mage
-#next 12 Goldshire again - Gnome Mage
-<< Gnome Mage Alliance
-step
-    .goto 1453,63.2,74.4
-    .turnin 61 >>Turn in Shipment to Stormwind
-    .target Morgan Pestle
-    .isOnQuest 61
-    >>Turn in "Shipment to Stormwind" to Morgan Pestle 63.2, 74.4 (shows only if you have it)
 ]])
 
 S.RegisterGuide([[
@@ -8943,13 +8931,6 @@ step
     .target Warden Thelwater
     .dungeon dungeons
     >>Accept "Quell The Uprising" from Warden Thelwater 51.5, 69.4
-step
-    .goto 1453,51.5,69.4
-    .turnin 389 >>Turn in Bazil Thredd
-    .target Warden Thelwater
-    .isOnQuest 389
-    .dungeon dungeons
-    >>Turn in "Bazil Thredd" to Warden Thelwater 51.5, 69.4 (shows only if you have it)
 step
     .goto 1453,51.5,69.4
     .accept 391 >>Accept The Stockade Riots
@@ -22277,12 +22258,6 @@ step
     .goto 1451,51.4,38.3
     .accept 8283 >>Accept Wanted - Deathclasp, Terror of the Sands
     >>Read the wanted poster 51.4, 38.3 to accept "Wanted - Deathclasp, Terror of the Sands"
-step
-    .goto 1451,51.2,38.3
-    .turnin 8275 >>Turn in Taking Back Silithus
-    .target Windcaller Proudhorn
-    .isOnQuest 8275
-    >>Turn in "Taking Back Silithus" to Windcaller Proudhorn 51.2, 38.3 (shows only if you have it)
 step
     .goto 1451,51.2,38.3
     .accept 8280 >>Accept Securing the Supply Lines

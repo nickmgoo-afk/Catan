@@ -849,12 +849,6 @@ step
     .isOnQuest 91746
     >>Turn in "Elmpaw's Head" to Helene Peltskinner 46.2, 62.2 (shows only if you have it)
 step
-    .goto 1429,46.2,62.2
-    .turnin 91751 >>Turn in Rough Wolf Pelts
-    .target Helene Peltskinner
-    .isOnQuest 91751
-    >>Turn in "Rough Wolf Pelts" to Helene Peltskinner 46.2, 62.2 (shows only if you have it done)
-step
     .goto 1429,43.3,66.2
     .trainer >>Train at your class trainer
     .target Zaldimar Wefhellt
@@ -9011,13 +9005,6 @@ step
     .target Warden Thelwater
     .dungeon dungeons
     >>Accept "Quell The Uprising" from Warden Thelwater 51.5, 69.4
-step
-    .goto 1453,51.5,69.4
-    .turnin 389 >>Turn in Bazil Thredd
-    .target Warden Thelwater
-    .isOnQuest 389
-    .dungeon dungeons
-    >>Turn in "Bazil Thredd" to Warden Thelwater 51.5, 69.4 (shows only if you have it)
 step
     .goto 1453,51.5,69.4
     .accept 391 >>Accept The Stockade Riots
@@ -22345,12 +22332,6 @@ step
     .goto 1451,51.4,38.3
     .accept 8283 >>Accept Wanted - Deathclasp, Terror of the Sands
     >>Read the wanted poster 51.4, 38.3 to accept "Wanted - Deathclasp, Terror of the Sands"
-step
-    .goto 1451,51.2,38.3
-    .turnin 8275 >>Turn in Taking Back Silithus
-    .target Windcaller Proudhorn
-    .isOnQuest 8275
-    >>Turn in "Taking Back Silithus" to Windcaller Proudhorn 51.2, 38.3 (shows only if you have it)
 step
     .goto 1451,51.2,38.3
     .accept 8280 >>Accept Securing the Supply Lines

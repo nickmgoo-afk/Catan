@@ -9234,13 +9234,6 @@ step
     >>Accept "Quell The Uprising" from Warden Thelwater 51.5, 69.4
 step
     .goto 1453,51.5,69.4
-    .turnin 389 >>Turn in Bazil Thredd
-    .target Warden Thelwater
-    .isOnQuest 389
-    .dungeon dungeons
-    >>Turn in "Bazil Thredd" to Warden Thelwater 51.5, 69.4 (shows only if you have it)
-step
-    .goto 1453,51.5,69.4
     .accept 391 >>Accept The Stockade Riots
     .target Warden Thelwater
     .isQuestTurnedIn 389
@@ -22571,12 +22564,6 @@ step
     .goto 1451,51.4,38.3
     .accept 8283 >>Accept Wanted - Deathclasp, Terror of the Sands
     >>Read the wanted poster 51.4, 38.3 to accept "Wanted - Deathclasp, Terror of the Sands"
-step
-    .goto 1451,51.2,38.3
-    .turnin 8275 >>Turn in Taking Back Silithus
-    .target Windcaller Proudhorn
-    .isOnQuest 8275
-    >>Turn in "Taking Back Silithus" to Windcaller Proudhorn 51.2, 38.3 (shows only if you have it)
 step
     .goto 1451,51.2,38.3
     .accept 8280 >>Accept Securing the Supply Lines
