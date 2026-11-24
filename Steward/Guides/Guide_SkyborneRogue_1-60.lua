@@ -3491,7 +3491,7 @@ step
     .dungeon !dungeons
     >>Get the flight path from Vesprystus in Rut'theran Village 58.4, 94.0
 step
-    .goto 1457,55.9,89.4
+    .goto 1438,55.9,89.4
     .zone Darnassus >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
     .dungeon !dungeons
     >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
@@ -6617,7 +6617,7 @@ step
     .dungeon !dungeons
     >>Fly from Daelyshia 34.4, 48.0 to Rut'theran Village
 step
-    .goto 1440,55.9,89.4
+    .goto 1438,55.9,89.4
     .zone Darnassus >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
     .dungeon !dungeons
     >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
@@ -8093,7 +8093,7 @@ step
     .dungeon dungeons
     >>Get the flight path from Vesprystus in Rut'theran Village 58.4, 94.0
 step
-    .goto 1457,55.9,89.4
+    .goto 1438,55.9,89.4
     .zone Darnassus >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
     .dungeon dungeons
     >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
@@ -10059,7 +10059,7 @@ step
     .dungeon dungeons
     >>Fly from Daelyshia 34.4, 48.0 to Rut'theran Village (shows only if you walked out of the dungeon)
 step
-    .goto 1457,55.9,89.4
+    .goto 1438,55.9,89.4
     .zone Darnassus >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
     .zoneskip Darnassus
     .dungeon dungeons
@@ -11563,7 +11563,7 @@ step
     .dungeon dungeons
     >>Fly from Daelyshia 34.4, 48.0 to Rut'theran Village
 step
-    .goto 1440,55.9,89.4
+    .goto 1438,55.9,89.4
     .zone Darnassus >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
     .dungeon dungeons
     >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
@@ -20041,7 +20041,7 @@ step
     .target Bragok
     >>Fly from Bragok 63.1, 37.2 to Rut'theran Village
 step
-    .goto 1413,55.9,89.4
+    .goto 1438,55.9,89.4
     .zone Darnassus >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
     >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
 ]])
