@@ -14,7 +14,7 @@ Steward.RegisterGuide([[
 #group Custom Forever Guides
 #name 1-9 Zephras Isle (Skyborne)
 #next 9-13 Zephras Isle (Skyborne)
-<< Skyborne !Mage !Warrior / Skyborne !Alliance
+<< Skyborne !Mage !Warrior !Hunter / Skyborne !Alliance
 
 step
     #completewith next
@@ -994,7 +994,7 @@ Steward.RegisterGuide([[
 #next 14-16 Darkshore (Alliance) << Alliance Hunter
 #next 12-14 Silverpine Forest (Horde) << Horde !Hunter
 #next 12-17 The Barrens (Horde) << Horde Hunter
-<< Skyborne !Mage !Warrior / Skyborne !Alliance
+<< Skyborne !Mage !Warrior !Hunter / Skyborne !Alliance
 
 step
     #completewith next
