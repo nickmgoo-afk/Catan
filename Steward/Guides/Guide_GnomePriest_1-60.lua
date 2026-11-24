@@ -1366,7 +1366,7 @@ step
     >>Turn in "Report to Gryan Stoutmantle" to Gryan Stoutmantle at Sentinel Hill 56.3, 47.5
 step
     .goto 1436,56.3,47.5
-    .accept 13 >>Accept The People's Militia
+    .accept 12 >>Accept The People's Militia
     .target Gryan Stoutmantle
     >>Accept "The People's Militia" from Gryan Stoutmantle 56.3, 47.5
 step
@@ -1463,7 +1463,7 @@ step
     >>Go to the vendor, Farmer Saldean 56.0, 31.2, to sell and stock up
 step
     .goto 1436,51.5,32.3
-    .accept 92911 >>Accept Harvesting the Harvesters
+    .accept 92909 >>Accept Harvesting the Harvesters
     .target Ozwin Ironsprocket
     >>Accept "Harvesting the Harvesters" from Ozwin Ironsprocket 51.5, 32.3
 step
@@ -1671,8 +1671,9 @@ step
 step
     .goto 1439,36.6,45.6
     .turnin 3524 >>Turn in Washed Ashore
+    .accept 4681 >>Accept Washed Ashore
     .target Gwennyth Bly'Leggonde
-    >>Turn in "Washed Ashore" to Gwennyth Bly'Leggonde 36.6, 45.6
+    >>Turn in "Washed Ashore" to Gwennyth Bly'Leggonde 36.6, 45.6, and accept the next part
 step
     #completewith h321
     .goto 1439,33.6,40.4
@@ -3770,8 +3771,9 @@ step
     .goto 1431,73.3,44.8
     .turnin 95161 >>Turn in Remember That I Love You
     .target Avette Fellwood
+    .isOnQuest 95161
     .dungeon !dungeons
-    >>Turn in "Remember That I Love You" to Avette Fellwood 73.3, 44.8
+    >>Turn in "Remember That I Love You" to Avette Fellwood 73.3, 44.8 (shows only if you have it)
 step
     .goto 1431,75.3,48.7
     .accept 163 >>Accept Raven Hill
@@ -3805,7 +3807,7 @@ step
     >>HARD STEP: buy a Bronze Tube from Herble Baubbletump 78.0, 48.3 for "Look to the Stars" (if he has one)
 step
     .goto 1431,79.8,48.0
-    .accept 175 >>Accept Look To The Stars
+    .accept 174 >>Accept Look To The Stars
     .target Viktori Prism'Antras
     .itemcount 4371,1
     .dungeon !dungeons
@@ -3818,7 +3820,7 @@ step
     >>Turn in "Look to the Stars" to Viktori Prism'Antras 79.8, 48.0
 step
     .goto 1431,79.8,48.0
-    .accept 181 >>Accept Look To The Stars
+    .accept 175 >>Accept Look To The Stars
     .target Viktori Prism'Antras
     .dungeon !dungeons
     >>Accept "Look to the Stars" (the next part) from Viktori Prism'Antras 79.8, 48.0
@@ -4002,8 +4004,6 @@ step
 step
     #label h710
     .goto 1436,39.0,49.3
-    .complete 92911,1
-    .complete 92911,2
     .complete 103,1
     .dungeon !dungeons
     >>HARD STEP: kill Harvest Watchers 39.0, 49.3 for the last Flasks of Oil. Skipped if the soft step (#707) is done
@@ -4453,13 +4453,13 @@ S.RegisterGuide([[
 << Gnome Priest Alliance
 step
     .goto 1431,78.0,48.3
-    .collect 4371,1,181
+    .complete 174,1
     .target Herble Baubbletump
     .dungeon !dungeons
     >>Buy a Bronze Tube from Herble Baubbletump 78.0, 48.3 (shows only if you still need one for "Look to the Stars")
 step
     .goto 1431,79.8,48.0
-    .accept 175 >>Accept Look To The Stars
+    .accept 181 >>Accept Look To The Stars
     .target Viktori Prism'Antras
     .dungeon !dungeons
     >>Accept "Look to the Stars" from Viktori Prism'Antras 79.8, 48.0 (shows only if you haven't done it and have a Bronze Tube)
@@ -5718,7 +5718,7 @@ step
     .dungeon !dungeons
     >>Accept "The Thandol Span" (the next part) from Rhag Garmason 49.9, 18.2
 step
-    .complete 647,1
+    .accept 647 >>Accept MacKreel's Moonshine
     .target Foggy MacKreel
     .dungeon !dungeons
     >>Drop from the bridge onto the hidden chain and the broken beam to reach Foggy MacKreel, and accept "MacKreel's Moonshine" (timed: 15 minutes to Southshore)
@@ -7026,7 +7026,7 @@ S.RegisterGuide([[
 << Gnome Priest Alliance
 step
     .goto 1434,40.3,8.4
-    .complete 215,1
+    .accept 215 >>Accept Jungle Secrets
     .target Private Thorsen
     .dungeon !dungeons
     >>Kill the two Kurzen's Agents that jump Private Thorsen on the road below the Rebel Camp 40.3, 8.4, and accept "Jungle Secrets" from him (shows only if you see it: he walks down every 30 minutes)
@@ -8258,8 +8258,9 @@ step
     .goto 1431,73.3,44.8
     .turnin 95161 >>Turn in Remember That I Love You
     .target Avette Fellwood
+    .isOnQuest 95161
     .dungeon dungeons
-    >>Turn in "Remember That I Love You" to Avette Fellwood 73.3, 44.8
+    >>Turn in "Remember That I Love You" to Avette Fellwood 73.3, 44.8 (shows only if you have it)
 step
     .goto 1431,75.3,48.7
     .accept 163 >>Accept Raven Hill
@@ -8293,7 +8294,7 @@ step
     >>Buy a Bronze Tube from Herble Baubbletump 78.0, 48.3 if he has one, for "Look to the Stars" (shows only if you don't have one)
 step
     .goto 1431,79.8,48.0
-    .accept 175 >>Accept Look To The Stars
+    .accept 174 >>Accept Look To The Stars
     .target Viktori Prism'Antras
     .itemcount 4371,1
     .dungeon dungeons
@@ -8306,7 +8307,7 @@ step
     >>Turn in "Look to the Stars" to Viktori Prism'Antras 79.8, 48.0
 step
     .goto 1431,79.8,48.0
-    .accept 181 >>Accept Look To The Stars
+    .accept 175 >>Accept Look To The Stars
     .target Viktori Prism'Antras
     .dungeon dungeons
     >>Accept "Look to the Stars" (the next part) from Viktori Prism'Antras 79.8, 48.0
@@ -8840,7 +8841,7 @@ S.RegisterGuide([[
 << Gnome Priest Alliance
 step
     .goto 1453,73.3,55.1
-    .complete 388,1
+    .accept 388 >>Accept The Color of Blood
     .target Nikova Raskol
     .dungeon dungeons
     >>Find Nikova Raskol, who walks around Old Town 73.3, 55.1, and accept "The Color of Blood"
@@ -9141,7 +9142,7 @@ step
     >>Turn in "Look to the Stars" to Viktori Prism'Antras 79.8, 48.0 (shows only if you have it)
 step
     .goto 1431,79.8,48.0
-    .accept 175 >>Accept Look To The Stars
+    .accept 181 >>Accept Look To The Stars
     .target Viktori Prism'Antras
     .dungeon dungeons
     >>Accept "Look to the Stars" (the next part) from Viktori Prism'Antras 79.8, 48.0 (shows only if you haven't done it)
@@ -11986,7 +11987,7 @@ S.RegisterGuide([[
 << Gnome Priest Alliance
 step
     .goto 1434,40.3,8.4
-    .complete 215,1
+    .accept 215 >>Accept Jungle Secrets
     .target Private Thorsen
     .dungeon dungeons
     >>Kill the two Kurzen's Agents that jump Private Thorsen on the road below the Rebel Camp 40.3, 8.4, and accept "Jungle Secrets" from him (shows only if you see it: he walks down every 30 minutes)
@@ -13393,7 +13394,7 @@ S.RegisterGuide([[
 << Gnome Priest Alliance
 step
     .goto 1434,40.3,8.4
-    .complete 215,1
+    .accept 215 >>Accept Jungle Secrets
     .target Private Thorsen
     >>Kill the two Kurzen's Agents that jump Private Thorsen on the road below the Rebel Camp 40.3, 8.4, and accept "Jungle Secrets" from him (shows only if you see it and haven't done it)
 step
@@ -15256,13 +15257,12 @@ step
 step
     #optional
     .goto 1417,46.0,47.8
-    .complete 684,1
+    .accept 684 >>Accept WANTED: Marez Cowl
     >>Optional: accept "Wanted! Marez Cowl" from the Wanted Board 46.0, 47.8 (a group quest)
 step
     #optional
     .goto 1417,46.0,47.8
-    .complete 685,1
-    .complete 685,2
+    .accept 685 >>Accept WANTED: Otto and Falconcrest
     >>Optional: accept "Wanted! Otto and Falconcrest" from the Wanted Board 46.0, 47.8 (a group quest)
 ]])
 
@@ -15881,7 +15881,8 @@ step
 step
     #optional
     .goto 1418,42.4,52.9
-    .complete 705,1
+    .accept 705 >>Accept Pearl Diving
+    .turnin 705 >>Turn in Pearl Diving
     .target Rigglefuzz
     >>Optional: accept and turn in "Pearl Diving" at Rigglefuzz 42.4, 52.9 (shows only if you have 9 Blue Pearls)
 step
@@ -17166,7 +17167,7 @@ step
     >>Turn in "In Search of Knowledge" to Daryn Lightwind up the stairs 55.4, 92.2
 step
     .goto 1438,55.2,91.5
-    .complete 2940,1
+    .accept 2940 >>Accept Feralas: A History
     .target A
     >>Click the Feralas: A History book on the floor 55.2, 91.5 to accept "Feralas: A History"
 step
@@ -17261,6 +17262,7 @@ step
     >>Make Gadgetzan your home at Innkeeper Fizzgrimble 52.5, 27.9
 step
     .goto 1446,52.4,27.0
+    .accept 2741 >>Accept The Super Egg-O-Matic
     .turnin 2741 >>Turn in The Super Egg-O-Matic
     >>Click the Egg-O-Matic 52.4, 27.0 to turn in "The Super Egg-O-Matic" (it comes with the Hippogryph Egg)
 step
@@ -17732,7 +17734,7 @@ step
     >>SOFT STEP: pick up Power Crystals (7 of each colour) and Un'Goro Soil (25) from the ground as you go
 step
     .goto 1449,63.0,68.6
-    .complete 3844,1
+    .accept 3844 >>Accept It's a Secret to Everybody
     >>Click the Wrecked Raft 63.0, 68.6 to accept "It's a Secret to Everybody"
 step
     .goto 1449,63.1,69.1
@@ -18398,10 +18400,14 @@ S.RegisterGuide([[
 step
     #optional
     .goto 1453,54.0,81.7
-    .complete 7791,1
-    .complete 7793,1
-    .complete 7794,1
-    .complete 7795,1
+    .accept 7791 >>Accept A Donation of Wool
+    .turnin 7791 >>Turn in A Donation of Wool
+    .accept 7793 >>Accept A Donation of Silk
+    .turnin 7793 >>Turn in A Donation of Silk
+    .accept 7794 >>Accept A Donation of Mageweave
+    .turnin 7794 >>Turn in A Donation of Mageweave
+    .accept 7795 >>Accept A Donation of Runecloth
+    .turnin 7795 >>Turn in A Donation of Runecloth
     .target Clavicus Knavingham
     >>Optional: accept and turn in "A Donation of Wool", "A Donation of Silk", "A Donation of Mageweave" and "A Donation of Runecloth" at Clavicus Knavingham upstairs 54.0, 81.7 (shows only if you have 3 stacks of each cloth)
 step
@@ -18432,7 +18438,7 @@ step
     >>Accept "A Tale of Sorrow" from the Fallen Hero of the Horde 34.3, 66.1
 step
     .goto 1435,34.3,66.1
-    .complete 2801,1
+    .turnin 2801 >>Turn in A Tale of Sorrow
     >>Listen to the Fallen Hero's whole story, then turn in "A Tale of Sorrow" 34.3, 66.1
 ]])
 
@@ -18499,7 +18505,7 @@ S.RegisterGuide([[
 << Gnome Priest Alliance
 step
     #completewith h2377
-    .complete 5090,1
+    .accept 5090 >>Accept A Call to Arms: The Plaguelands!
     .target Courier Hammerfall
     >>SOFT STEP: accept "A Call to Arms: The Plaguelands!" from Courier Hammerfall if you run into him (he walks laps around the city)
 step
@@ -18587,7 +18593,7 @@ step
 step
     #label h2377
     .goto 1455,33.0,22.4
-    .complete 5090,1
+    .accept 5090 >>Accept A Call to Arms: The Plaguelands!
     .target Courier Hammerfall
     >>HARD STEP: find Courier Hammerfall on his lap around the city 33.0, 22.4 and accept "A Call to Arms: The Plaguelands!". Skipped if done
 step
@@ -19523,7 +19529,7 @@ step
     >>Accept "Roll the Bones" from Spark Nilminer 43.5, 7.5
 step
     .goto 1449,43.5,8.4
-    .complete 4501,1
+    .accept 4501 >>Accept Beware of Pterrordax
     >>Read the Wanted poster 43.5, 8.4 to accept "Beware of Pterrordax"
 step
     .goto 1449,43.6,8.5
@@ -19820,7 +19826,7 @@ S.RegisterGuide([[
 << Gnome Priest Alliance
 step
     .goto 1457,61.6,40.6
-    .complete 1047,1
+    .accept 1047 >>Accept The New Frontier
     .target Herald Moonstalker
     >>Find Herald Moonstalker, who walks all over the city (she passes 61.6, 40.6), and accept "The New Frontier"
 step
@@ -20074,7 +20080,8 @@ step
 step
     #optional
     .goto 1448,65.7,2.8
-    .complete 6031,1
+    .accept 6031 >>Accept Runecloth
+    .turnin 6031 >>Turn in Runecloth
     .target Meilosh
     >>Optional: accept and turn in "Runecloth" at Meilosh 65.7, 2.8 (shows only if you're friendly with Timbermaw and have 30 Runecloth)
 ]])
@@ -20189,7 +20196,7 @@ step
     >>Drink the Videre Elixir at the Tanaris graveyard 54.0, 28.6
 step
     .goto 1446,53.9,23.3
-    .complete 3912,1
+    .turnin 3912 >>Turn in Meet at the Grave
     .target Gaeriyan
     >>While dead, turn in "Meet at the Grave" to Gaeriyan 53.9, 23.3
 step
@@ -20561,7 +20568,7 @@ step
     >>Accept "The Smoldering Ruins of Thaurissan" from Royal Historian Archesonus 38.4, 55.3
 step
     .goto 1455,38.4,55.3
-    .complete 3702,1
+    .turnin 3702 >>Turn in The Smoldering Ruins of Thaurissan
     .target Royal Historian Archesonus
     >>Listen to his whole story, then turn in "The Smoldering Ruins of Thaurissan" to Royal Historian Archesonus 38.4, 55.3
 step
@@ -21109,7 +21116,8 @@ step
     >>Use the Beacon Torch at the entrance of the second tower 44.2, 63.1, for "All Along the Watchtowers"
 step
     .goto 1422,47.8,50.7
-    .complete 5058,1
+    .accept 5058 >>Accept Mrs. Dalson's Diary
+    .turnin 5058 >>Turn in Mrs. Dalson's Diary
     >>Click Mrs. Dalson's Diary in the barn at Dalson's Tears 47.8, 50.7 to accept and turn in "Mrs. Dalson's Diary"
 step
     .goto 1422,47.9,49.9
@@ -21127,6 +21135,7 @@ step
     >>Kill Farmer Dalson 48.1, 49.7 for the Dalson Cabinet Key
 step
     .goto 1422,47.4,49.6
+    .accept 5059 >>Accept Locked Away
     .turnin 5059 >>Turn in Locked Away
     >>Open the locked cabinet upstairs in the house 47.4, 49.6 to turn in "Locked Away"
 step
@@ -21410,7 +21419,7 @@ step
     >>Accept "Redemption" from Tirion Fordring 7.5, 43.6
 step
     .goto 1423,5.1,35.5
-    .complete 5742,1
+    .turnin 5742 >>Turn in Redemption
     .target Tirion Fordring
     >>Listen to his story, then turn in "Redemption" to Tirion Fordring 7.5, 43.6
 step
@@ -21425,7 +21434,7 @@ step
     >>Kill Zaeldarr the Outcast in the crypt 12.9, 81.6 for his head, for "Zaeldarr the Outcast"
 step
     .goto 1423,9.7,70.1
-    .complete 6024,1
+    .accept 6024 >>Accept Hameya's Plea
     >>Click the Torn Scroll on the ground 12.6, 82.0 to accept "Hameya's Plea"
 step
     .goto 1423,11.0,71.3
@@ -22208,7 +22217,7 @@ step
     >>Accept "Deadly Desert Venom" from Beetix Ficklespragg upstairs in Cenarion Hold 51.8, 38.6
 step
     .goto 1451,51.4,38.3
-    .complete 8283,1
+    .accept 8283 >>Accept Wanted - Deathclasp, Terror of the Sands
     >>Read the wanted poster 51.4, 38.3 to accept "Wanted - Deathclasp, Terror of the Sands"
 step
     .goto 1451,51.2,38.3
