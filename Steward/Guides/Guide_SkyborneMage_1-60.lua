@@ -16515,9 +16515,9 @@ step
     >>Turn in "Ansirem's Key" to Catelyn the Blade in the inn 27.3, 77.5
 step
     .goto 1434,27.3,77.5
-    .complete 610,1
-    .target Boy
-    >>Accept ""Pretty Boy" Duncan" from Catelyn the Blade 27.3, 77.5
+    .accept 610 >>Accept "Pretty Boy" Duncan
+    .target Catelyn the Blade
+    >>Accept "“Pretty Boy” Duncan" from Catelyn the Blade 27.3, 77.5
 step
     .goto 1434,27.1,77.2
     .accept 600 >>Accept Venture Company Mining
@@ -16567,6 +16567,7 @@ step
     >>Accept "The Bloodsail Buccaneers" (the next part) from the Bloodsail Correspondence 27.3, 69.5
 step
     .goto 1434,27.4,69.4
+    .complete 610,1
     >>Kill "Pretty Boy" Duncan 27.4, 69.4 for Catelyn's Blade
 step
     .goto 1434,28.1,76.2
@@ -16580,9 +16581,9 @@ step
     >>Accept "The Bloodsail Buccaneers" (the next part) from First Mate Crazz 28.1, 76.2
 step
     .goto 1434,27.3,77.5
-    .complete 610,1
-    .target Boy
-    >>Turn in ""Pretty Boy" Duncan" to Catelyn the Blade 27.3, 77.5
+    .turnin 610 >>Turn in "Pretty Boy" Duncan
+    .target Catelyn the Blade
+    >>Turn in "“Pretty Boy” Duncan" to Catelyn the Blade 27.3, 77.5
 step
     .goto 1434,27.3,77.5
     .accept 611 >>Accept The Curse of the Tides
@@ -19696,8 +19697,9 @@ step
     >>Turn in "Kim'jael Indeed!" to Kim'jael 53.5, 21.8
 step
     .goto 1447,53.5,21.8
+    .accept 5534 >>Accept Kim'jael's "Missing" Equipment
     .target Kim'jael
-    >>Accept "Kim'jael's "Missing" Equipment" from Kim'jael 53.5, 21.8
+    >>Accept "Kim'jael's “Missing” Equipment" from Kim'jael 53.5, 21.8
 step
     .goto 1447,39.6,50.3
     .complete 3449,1
@@ -19728,11 +19730,13 @@ step
     >>Take a rubbing of the rune 42.3, 64.1, for "Arcane Runes"
 step
     .goto 1447,46.0,52.8
-    >>Kill Spitelash Myrmidons and Sirens along the coast 46.0, 52.8 for Kim'jael's rune, for "Kim'jael's "Missing" Equipment"
+    .complete 5534,1
+    >>Kill Spitelash Myrmidons and Sirens along the coast 46.0, 52.8 for Kim'jael's rune, for "Kim'jael's “Missing” Equipment"
 step
     .goto 1447,53.5,21.8
+    .turnin 5534 >>Turn in Kim'jael's "Missing" Equipment
     .target Kim'jael
-    >>Turn in "Kim'jael's "Missing" Equipment" to Kim'jael 53.5, 21.8
+    >>Turn in "Kim'jael's “Missing” Equipment" to Kim'jael 53.5, 21.8
 step
     .goto 1447,77.8,91.3
     >>Climb the south-east mountain to the landing pad 77.8, 91.3
