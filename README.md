@@ -4,7 +4,7 @@ A World of Warcraft: Forever add-on (made for client 1.60.1). It walks you throu
 
 ## Install
 
-1. **[Download Steward.zip](Steward.zip?raw=1)** (version 0.98.0, 25 MB). If it opens a page instead, press the download button on that page.
+1. **[Download Steward.zip](Steward.zip?raw=1)** (version 0.99.0, 25 MB). If it opens a page instead, press the download button on that page.
 2. Unzip it into your game's add-on folder:
    `World of Warcraft\_forever_\Interface\AddOns\`
    You should end up with `AddOns\Steward\Steward.toc` (not `AddOns\Steward\Steward\...`).

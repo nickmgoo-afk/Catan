@@ -16,7 +16,7 @@ Steward.RegisterGuide([[
 #group Custom Forever Guides
 #name 1-5 Coldridge Valley (Dwarf/Gnome)
 #next 5-11 Dun Morogh (Dwarf/Gnome)
-<< Alliance
+<< Alliance !Gnome / Gnome !Warrior !Rogue !Priest !Mage !Warlock
 
 step
     #completewith next
@@ -391,7 +391,7 @@ Steward.RegisterGuide([[
 #group Custom Forever Guides
 #name 5-11 Dun Morogh (Dwarf/Gnome)
 #next 11-12 Elwynn (Dwarf/Gnome)
-<< Alliance
+<< Alliance !Gnome / Gnome !Warrior !Rogue !Priest !Mage !Warlock
 
 step
     #sticky
@@ -1193,7 +1193,7 @@ Steward.RegisterGuide([[
 #group Custom Forever Guides
 #name 11-12 Elwynn (Dwarf/Gnome)
 #next 12-14 Loch Modan (Dwarf/Gnome)
-<< Alliance
+<< Alliance !Gnome / Gnome !Warrior !Rogue !Priest !Mage !Warlock
 
 step
     .goto 1453/0,484.20,-8832.50
@@ -1445,7 +1445,7 @@ Steward.RegisterGuide([[
 #group Custom Forever Guides
 #name 12-14 Loch Modan (Dwarf/Gnome)
 #next 13-15 Westfall (Alliance)
-<< Alliance
+<< Alliance !Gnome / Gnome !Warrior !Rogue !Priest !Mage !Warlock
 
 step
     .goto 1432/0,-3014.88,-5367.00

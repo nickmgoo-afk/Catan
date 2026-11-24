@@ -2,7 +2,7 @@
 ## Title: Steward
 ## Notes: Your leveling companion: equips upgrades, picks quest rewards, and more to come.
 ## Author: nickmgoo
-## Version: 0.98.0
+## Version: 0.99.0
 ## SavedVariables: StewardDB
 ## SavedVariablesPerCharacter: StewardCharDB
 
@@ -91,5 +91,10 @@ Guides\Guide_HumanPriest_1-60.lua
 Guides\Guide_HumanRogue_1-60.lua
 Guides\Guide_HumanWarlock_1-60.lua
 Guides\Guide_HumanHunter_1-60.lua
+Guides\Guide_GnomeWarrior_1-60.lua
+Guides\Guide_GnomeRogue_1-60.lua
+Guides\Guide_GnomePriest_1-60.lua
+Guides\Guide_GnomeMage_1-60.lua
+Guides\Guide_GnomeWarlock_1-60.lua
 Guides\Guide_Tauren_1-12.lua
 Guides\Guide_Undead_1-14.lua
