@@ -2,7 +2,7 @@
 ## Title: Steward
 ## Notes: Your leveling companion: equips upgrades, picks quest rewards, and more to come.
 ## Author: nickmgoo
-## Version: 0.96.0
+## Version: 0.97.0
 ## SavedVariables: StewardDB
 ## SavedVariablesPerCharacter: StewardCharDB
 
@@ -85,5 +85,6 @@ Guides\Guide_SkyborneHunter_1-60.lua
 Guides\Guide_SkyborneRogue_1-60.lua
 Guides\Guide_SkyborneDruid_1-60.lua
 Guides\Guide_HumanPaladin_1-60.lua
+Guides\Guide_HumanWarrior_1-60.lua
 Guides\Guide_Tauren_1-12.lua
 Guides\Guide_Undead_1-14.lua
