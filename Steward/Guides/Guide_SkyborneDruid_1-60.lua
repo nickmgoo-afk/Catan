@@ -1909,7 +1909,10 @@ step
     .target Caylais Moonfeather
     >>Get the flight path from Caylais Moonfeather 36.3, 45.6
 step
-    #completewith h448
+    #optional
+    >>Optional: gather Earthroot as you quest if you have Herbalism (you need 5 for a druid quest at #542)
+step
+    #completewith h449
     .complete 2178,1
     .target Foreststrider
     >>SOFT STEP: kill Foreststrider Fledglings as you go for 5 Strider Meat, for "Easy Strider Living" later (Alanndarian Nightsong)
@@ -1945,7 +1948,7 @@ step
     .target Gwennyth Bly'Leggonde
     >>Turn in "Washed Ashore" to Gwennyth Bly'Leggonde 36.6, 45.6
 step
-    #completewith h390
+    #completewith h391
     .goto 1439,33.6,40.4
     .complete 1001,1
     >>SOFT STEP: kill Darkshore Threshers as you go in the water west of town 33.6, 40.4 for 3 Thresher Eyes for "Buzzbox 411"
@@ -2030,7 +2033,7 @@ S.RegisterGuide([[
 #next 15-16 Ameth'Aran - Druid
 << Skyborne Druid Alliance
 step
-    #label h390
+    #label h391
     .goto 1439,35.7,32.3
     .complete 1001,1
     >>HARD STEP: finish killing Darkshore Threshers up the coast 35.7, 32.3 for 3 Thresher Eyes for "Buzzbox 411"
@@ -2055,7 +2058,7 @@ step
     .accept 1002 >>Accept Buzzbox 323
     >>Accept "Buzzbox 323" from Buzzbox 411 42.0, 28.6
 step
-    #completewith h447
+    #completewith h448
     .complete 1002,1
     .target Moonstalker
     >>SOFT STEP: kill Moonstalker Runts as you go for 6 Moonstalker Fangs for "Buzzbox 323"
@@ -2163,7 +2166,7 @@ step
     .target Sentinel Tysha Moonblade
     >>Accept "The Fall of Ameth'Aran" from Sentinel Tysha Moonblade 40.3, 59.7
 step
-    #completewith h449
+    #completewith h450
     .complete 2138,1
     >>SOFT STEP: kill Rabid Thistle Bears as you go for "Cleansing of the Infected" (20)
 step
@@ -2282,7 +2285,7 @@ step
     .accept 4727 >>Accept Beached Sea Turtle
     >>Click the Beached Sea Turtle on the north beach 44.2, 20.6 to start "Beached Sea Turtle"
 step
-    #completewith h504
+    #completewith h503
     .goto 1439,48.0,21.4
     .complete 1138,1
     >>SOFT STEP: kill Reef Crawlers as you go along the north shore 48.0, 21.4 for 6 Fine Crab Chunks for "Fruit of the Sea"
@@ -2315,19 +2318,19 @@ step
     .target Balthule Shadowstrike
     >>Accept "The Tower of Althalaxx" (the next part) from Balthule Shadowstrike 55.0, 24.9
 step
-    #label h447
+    #label h448
     .goto 1439,53.6,26.1
     .complete 1002,1
     .target Moonstalker
     >>HARD STEP: kill Moonstalkers 53.6, 26.1 for the last Moonstalker Fangs for "Buzzbox 323"
 step
-    #label h448
+    #label h449
     .goto 1439,53.6,26.1
     .complete 2178,1
     .target Meat
     >>HARD STEP: kill Foreststriders 53.6, 26.1 for the last Strider Meat for "Easy Strider Living"
 step
-    #label h449
+    #label h450
     .goto 1439,49.8,30.4
     .complete 2138,1
     >>HARD STEP: kill Rabid Thistle Bears 49.8, 30.4 for "Cleansing of the Infected" (20)
@@ -2339,11 +2342,6 @@ step
     .goto 1439,51.3,24.6
     .accept 1003 >>Accept Buzzbox 525
     >>Accept "Buzzbox 525" from Buzzbox 323 51.3, 24.6
-step
-    .goto 1439,55.0,33.4
-    .complete 6122,1
-    .isOnQuest 6122
-    >>Fill the Empty Cliffspring Falls Sampler at the cave entrance 55.0, 33.4 for "The Principal Source" (shows only if you have it)
 step
     .goto 1439,55.7,36.3
     .complete 947,1
@@ -2375,18 +2373,6 @@ step
     .turnin 2178 >>Turn in Easy Strider Living
     .target Alanndarian Nightsong
     >>Turn in "Easy Strider Living" to Alanndarian Nightsong 37.7, 40.7
-step
-    .goto 1439,37.7,40.7
-    .turnin 6122 >>Turn in The Principal Source
-    .target Alanndarian Nightsong
-    .isOnQuest 6122
-    >>Turn in "The Principal Source" to Alanndarian Nightsong 37.7, 40.7 (shows only if you have it)
-step
-    .goto 1439,37.7,40.7
-    .accept 6123 >>Accept Gathering the Cure
-    .target Alanndarian Nightsong
-    .isQuestTurnedIn 6122
-    >>Accept "Gathering the Cure" from Alanndarian Nightsong 37.7, 40.7 (shows only after that turn-in)
 step
     .goto 1439,37.4,41.8
     .accept 729 >>Accept The Absent Minded Prospector
@@ -2456,6 +2442,11 @@ step
     .target Mathrengyl Bearwalker
     >>Accept "A Lesson to Learn" from Mathrengyl Bearwalker 35.4, 8.4
 step
+    .goto 1457,35.4,8.4
+    .accept 6121 >>Accept Lessons Anew
+    .target Mathrengyl Bearwalker
+    >>Accept "Lessons Anew" from Mathrengyl Bearwalker 35.4, 8.4
+step
     .zone Moonglade >>Teleport to Moonglade
     >>Teleport to Moonglade
 step
@@ -2463,6 +2454,16 @@ step
     .turnin 94914 >>Turn in Moonglade
     .target Dendrite Starblaze
     >>Turn in "Moonglade" to Dendrite Starblaze 56.1, 30.7
+step
+    .goto 1450,56.1,30.7
+    .turnin 6121 >>Turn in Lessons Anew
+    .target Dendrite Starblaze
+    >>Turn in "Lessons Anew" to Dendrite Starblaze 56.1, 30.7
+step
+    .goto 1450,56.1,30.7
+    .accept 6122 >>Accept The Principal Source
+    .target Dendrite Starblaze
+    >>Accept "The Principal Source" from Dendrite Starblaze 56.1, 30.7
 step
     .goto 1450,56.1,30.7
     .turnin 26 >>Turn in A Lesson to Learn
@@ -2504,17 +2505,6 @@ S.RegisterGuide([[
 #next 17-18 Southern Beaches and Murkdeep - Druid
 << Skyborne Druid Alliance
 step
-    .complete 6123,1
-    .target Earthroot
-    .isOnQuest 6123
-    >>Collect 5 Earthroot for "Gathering the Cure" (shows only if you have it)
-step
-    .goto 1439,43.3,49.1
-    .complete 6123,2
-    .target Fungus
-    .isOnQuest 6123
-    >>Loot the Lunar Fungus in the moonkin caves 43.3, 49.1 for "Gathering the Cure" (shows only if you have it)
-step
     .goto 1439,43.6,76.3
     .turnin 948 >>Turn in Onu
     .target Onu
@@ -2525,12 +2515,12 @@ step
     .target Onu
     >>Accept "The Master's Glaive" from Onu 43.6, 76.3
 step
-    #completewith h531
+    #completewith h529
     .complete 986,1
     .target Moonstalker
     >>SOFT STEP: kill Moonstalker Sires as you go for 5 Fine Moonstalker Pelts for "A Lost Master"
 step
-    #completewith h499
+    #completewith h498
     .goto 1439,38.6,80.5
     .complete 1003,1
     >>SOFT STEP: kill Grizzled Thistle Bears as you go 38.6, 80.5 for 4 Grizzled Scalps for "Buzzbox 525"
@@ -2576,7 +2566,7 @@ step
     .target Glaive
     >>Kill Twilight Disciples and Twilight Thugs at the Glaive 38.9, 86.8 for a Peerless Eye for "It's All Fun and Games Until..."
 step
-    #label h499
+    #label h498
     .goto 1439,38.0,83.6
     .complete 1003,1
     >>HARD STEP: kill Grizzled Thistle Bears 38.0, 83.6 for the last Grizzled Scalps for "Buzzbox 525"
@@ -2605,7 +2595,7 @@ S.RegisterGuide([[
 #next 18-19 Blackwood Camp and Gelkak's Key - Druid
 << Skyborne Druid Alliance
 step
-    #label h504
+    #label h503
     .goto 1439,33.0,81.0
     .complete 1138,1
     >>HARD STEP: kill Encrusted Tide Crawlers and Reef Crawlers on the southern beach 33.0, 81.0 for the last Fine Crab Chunks for "Fruit of the Sea"
@@ -2674,12 +2664,6 @@ step
     .turnin 98042 >>Turn in It's All Fun and Games Until...
     .target Thundris Windweaver
     >>Turn in "It's All Fun and Games Until..." to Thundris Windweaver 37.4, 40.1
-step
-    .goto 1439,37.7,40.7
-    .turnin 6123 >>Turn in Gathering the Cure
-    .target Alanndarian Nightsong
-    .isOnQuest 6123
-    >>Turn in "Gathering the Cure" to Alanndarian Nightsong 37.7, 40.7 (shows only if you have it done)
 ]])
 
 S.RegisterGuide([[
@@ -2735,7 +2719,7 @@ step
     .complete 2098,1
     >>Kill Giant Foreststriders 61.4, 9.4 for the Top of Gelkak's Key for "Gyromast's Retrieval"
 step
-    #label h531
+    #label h529
     .goto 1439,62.4,7.7
     .complete 986,1
     .target Moonstalker
@@ -2755,16 +2739,20 @@ step
     .accept 4732 >>Accept Beached Sea Turtle
     >>Click the Beached Sea Turtle 53.1, 18.1 to start "Beached Sea Turtle"
 step
-    #completewith h547
+    #completewith h553
     .goto 1439,55.8,18.3
     .complete 2078,1
     .target Gelkak Gyromast
-    >>SOFT STEP: escort the Threshwackonator 4100 from 55.8, 18.3 back to Gelkak Gyromast 56.7, 13.5 and kill it when it turns hostile, for "Gyromast's Revenge" (a hard fight). Sits under the main step until it's done, or until its hard step comes up (#547, before the boat)
+    >>SOFT STEP: escort the Threshwackonator 4100 from 55.8, 18.3 back to Gelkak Gyromast 56.7, 13.5 and kill it when it turns hostile, for "Gyromast's Revenge" (a hard fight). Sits under the main step until it's done, or until its hard step comes up (#553, before the boat)
 step
     .goto 1439,56.7,13.5
     .turnin 2078 >>Turn in Gyromast's Revenge
     .target Gelkak Gyromast
     >>Turn in "Gyromast's Revenge" to Gelkak Gyromast 56.7, 13.5 (shows only once the escort is done)
+step
+    .goto 1439,55.0,33.4
+    .complete 6122,1
+    >>Fill the Empty Cliffspring Falls Sampler at the cave entrance 55.0, 33.4 for "The Principal Source"
 step
     .goto 1439,48.9,11.3
     .collect 15883,1,272
@@ -2818,15 +2806,47 @@ step
     .target Sindrayl
     >>Fly from Sindrayl 48.1, 67.3 to Auberdine
 step
+    .goto 1439,37.7,40.7
+    .turnin 6122 >>Turn in The Principal Source
+    .target Alanndarian Nightsong
+    >>Turn in "The Principal Source" to Alanndarian Nightsong 37.7, 40.7
+step
+    .goto 1439,37.7,40.7
+    .accept 6123 >>Accept Gathering the Cure
+    .target Alanndarian Nightsong
+    >>Accept "Gathering the Cure" from Alanndarian Nightsong 37.7, 40.7
+step
+    .complete 6123,1
+    >>Collect 5 Earthroot for "Gathering the Cure" (Herbalism, Battered Chests or the Auction House)
+step
+    .goto 1439,43.3,49.1
+    .complete 6123,2
+    >>Loot the Lunar Fungus in the moonkin cave 43.3, 49.1 for "Gathering the Cure"
+step
+    .goto 1439,37.7,40.7
+    .turnin 6123 >>Turn in Gathering the Cure
+    .target Alanndarian Nightsong
+    >>Turn in "Gathering the Cure" to Alanndarian Nightsong 37.7, 40.7
+step
+    .goto 1439,37.7,40.7
+    .accept 6124 >>Accept Curing the Sick
+    .target Alanndarian Nightsong
+    >>Accept "Curing the Sick" from Alanndarian Nightsong 37.7, 40.7
+step
+    .goto 1439,46.0,44.3
+    .complete 6124,1
+    .target Sickly Deer
+    >>Use the Curative Animal Salve on Sickly Deer east of Auberdine 46.0, 44.3 for "Curing the Sick"
+step
     .goto 1439,53.1,18.1
     .turnin 4727 >>Turn in Beached Sea Turtle
     .target Gwennyth Bly'Leggonde
     >>Turn in "Beached Sea Turtle" (the one at 53.1, 18.1) to Gwennyth Bly'Leggonde 36.6, 45.6
 step
-    #label h547
+    #label h553
     .abandon 2078 >>Abandon Gyromast's Revenge
     .isQuestNotComplete 2078
-    >>HARD STEP: abandon "Gyromast's Revenge" if you didn't finish the escort (shows only then; the soft step #535 drops off)
+    >>HARD STEP: abandon "Gyromast's Revenge" if you didn't finish the escort (shows only then; the soft step #533 drops off)
 step
     .goto 1439,30.8,41.0
     .zone Stormwind City >>Take the boat to Stormwind City from the dock 30.8, 41.0
@@ -2843,7 +2863,7 @@ step
     .target Manifest Clerk Philmor
     >>Accept "Philmor's Favor" from Manifest Clerk Philmor 30.5, 28.8
 step
-    #completewith h801
+    #completewith h809
     .complete 174,1
     .target Billibub Cogspinner
     >>SOFT STEP: buy a Bronze Tube for "Look to the Stars" (Darkshire) whenever a vendor has one: Billibub Cogspinner here 62.4, 29.9. Sits under the main step until you have one, or until its hard step comes up in Darkshire
@@ -2969,7 +2989,7 @@ step
     .complete 125,1
     >>Loot Oslow's Toolbox from the Sunken Chest in the lake 36.4, 54.7 for "The Lost Tools"
 step
-    #completewith h633
+    #completewith h642
     .complete 92,1
     .complete 92,2
     >>SOFT STEP: kill Great Goretusks, Tarantulas and Dire Condors as you go for "Redridge Goulash"
@@ -2990,7 +3010,7 @@ S.RegisterGuide([[
 #next 20 Lakeshire Turn-ins - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h580
+    #completewith h586
     .complete 246,1
     .complete 246,2
     >>SOFT STEP: kill Redridge Mongrels and Redridge Poachers as you go for "Assessing the Threat"
@@ -2999,7 +3019,7 @@ step
     .complete 98407,1
     >>Kill Redridge Thrashers in the south-west hills 16.1, 67.8 for 5 Spiked Collars for "Show of Force"
 step
-    #label h580
+    #label h586
     .goto 1433,24.4,82.8
     .complete 246,1
     .complete 246,2
@@ -3010,7 +3030,7 @@ step
     .target Murloc
     >>Kill Murloc Shorestrikers and Murloc Minor Tidecallers on the shore 43.9, 70.0 for 10 Spotted Sunfish for "Selling Fish" and 8 Murloc Fins
 step
-    #completewith h589
+    #completewith h595
     .goto 1433,71.5,83.5
     .complete 95999,1
     .target Incinerator Gar'im
@@ -3051,7 +3071,7 @@ step
     .target Foreman Oslow
     >>Accept "The Everstill Bridge" from Foreman Oslow 27.1, 48.6
 step
-    #label h589
+    #label h595
     .goto 1433,24.9,44.5
     .turnin 95999 >>Turn in WANTED: Incinerator Gar'im
     .target Magistrate Solomon
@@ -3144,6 +3164,16 @@ step
     >>Turn in "The Great Cat Spirit" to Dendrite Starblaze 56.2, 30.6
 step
     .goto 1450,56.2,30.6
+    .turnin 6124 >>Turn in Curing the Sick
+    .target Dendrite Starblaze
+    >>Turn in "Curing the Sick" to Dendrite Starblaze 56.2, 30.6
+step
+    .goto 1450,56.2,30.6
+    .accept 6125 >>Accept Power over Poison
+    .target Dendrite Starblaze
+    >>Accept "Power over Poison" from Dendrite Starblaze 56.2, 30.6
+step
+    .goto 1450,56.2,30.6
     .accept 98341 >>Accept The Great Windborne Cat Spirit
     .target Dendrite Starblaze
     >>Accept "The Great Windborne Cat Spirit" from Dendrite Starblaze 56.2, 30.6
@@ -3203,6 +3233,11 @@ step
     .turnin 98397 >>Turn in To Darnassus
     .target Mathrengyl Bearwalker
     >>Turn in "To Darnassus" to Mathrengyl Bearwalker 35.4, 8.4
+step
+    .goto 1457,35.4,8.4
+    .turnin 6125 >>Turn in Power over Poison
+    .target Mathrengyl Bearwalker
+    >>Turn in "Power over Poison" to Mathrengyl Bearwalker 35.4, 8.4
 step
     .hs >>Hearth to Lakeshire
     >>Hearth to Lakeshire
@@ -3280,11 +3315,11 @@ step
     .target Magistrate Solomon
     >>Turn in "Messenger to Stormwind" to Magistrate Solomon 24.9, 44.5
 step
-    #completewith h635
+    #completewith h644
     .complete 122,1
     >>SOFT STEP: kill Black Dragon Whelps as you go for 6 Underbelly Whelp Scales for "Underbelly Scales"
 step
-    #label h633
+    #label h642
     .goto 1433,10.6,52.8
     .complete 92,1
     .complete 92,2
@@ -3298,7 +3333,7 @@ step
     .complete 89,2
     >>Kill Redridge Brutes and Redridge Mystics in the northern hills 17.4, 35.7 for "A Baying of Gnolls" and for 5 Iron Pikes and 5 Iron Rivets for "The Everstill Bridge"
 step
-    #label h635
+    #label h644
     .goto 1433,31.5,73.9
     .complete 122,1
     >>HARD STEP: kill Black Dragon Whelps 31.5, 73.9 for the last Underbelly Whelp Scales for "Underbelly Scales"
@@ -3357,7 +3392,7 @@ step
     .target Prospector Remtravel
     >>Accept "The Absent Minded Prospector" (the next part) from Prospector Remtravel 35.7, 83.7
 step
-    #completewith h704
+    #completewith h713
     .goto 1439,35.7,83.7
     .complete 731,1
     .target Prospector Remtravel
@@ -3385,7 +3420,7 @@ step
     .complete 5321,1
     >>Open Kerlonian's Chest 44.4, 76.3 for the Horn of Awakening, for "The Sleeper Has Awakened"
 step
-    #completewith h656
+    #completewith h665
     .complete 5321,1
     .target Kerlonian Evershade
     >>SOFT STEP: keep Kerlonian Evershade with you and wake him with the Horn of Awakening whenever he falls asleep, for "The Sleeper Has Awakened"
@@ -3411,7 +3446,7 @@ S.RegisterGuide([[
 #next 21 Astranaar and the Zoram Strand - Druid
 << Skyborne Druid Alliance
 step
-    #label h656
+    #label h665
     .goto 1440,27.3,35.6
     .turnin 5321 >>Turn in The Sleeper Has Awakened
     .target Liladris Moonriver
@@ -3533,7 +3568,7 @@ step
     .dungeon !dungeons
     >>Loot Stardust Covered Bushes on the lake island 33.3, 67.8 for 5 Handfuls of Stardust for "The Ruins of Stardust"
 step
-    #completewith h1159
+    #completewith h1167
     .goto 1440,25.3,60.7
     .complete 973,1
     .target Ilkrud Magthrull
@@ -3558,7 +3593,7 @@ step
     .dungeon !dungeons
     >>Accept "The Ancient Statuette" from Talen 14.8, 31.3
 step
-    #completewith h688
+    #completewith h697
     .complete 1008,1
     .dungeon !dungeons
     >>SOFT STEP: kill Wrathtail nagas as you go for 20 Wrathtail Heads for "The Zoram Strand"
@@ -3586,7 +3621,7 @@ step
     .dungeon !dungeons
     >>Kill Ruuzel on the island 6.5, 13.4 for the Ring of Zoram for "Ruuzel"
 step
-    #label h688
+    #label h697
     .goto 1440,7.0,15.2
     .complete 1008,1
     .dungeon !dungeons
@@ -3694,11 +3729,11 @@ step
     .dungeon !dungeons
     >>Accept "The Absent Minded Prospector" (the next part) from Archaeologist Hollee 37.4, 41.8 (shows only after that turn-in)
 step
-    #label h704
+    #label h713
     .abandon 741 >>Abandon The Absent Minded Prospector
     .isQuestNotComplete 741
     .dungeon !dungeons
-    >>HARD STEP: abandon "The Absent Minded Prospector" if you didn't do the escort (shows only then; the soft step #646 drops off)
+    >>HARD STEP: abandon "The Absent Minded Prospector" if you didn't do the escort (shows only then; the soft step #655 drops off)
 step
     .goto 1439,33.2,40.2
     .zone Teldrassil >>Take the boat to Rut'theran Village from the dock 33.2, 40.2
@@ -3721,13 +3756,6 @@ step
     .zone Darnassus >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
     .dungeon !dungeons
     >>Take the portal to Darnassus in Rut'theran Village 55.9, 89.4
-step
-    .goto 1457,35.4,8.4
-    .turnin 6125 >>Turn in Power over Poison
-    .target Mathrengyl Bearwalker
-    .isOnQuest 6125
-    .dungeon !dungeons
-    >>Turn in "Power over Poison" to Mathrengyl Bearwalker 35.4, 8.4 (shows only if you have it)
 step
     .goto 1457,35.4,8.4
     .trainer >>Train at your class trainer
@@ -3764,7 +3792,7 @@ S.RegisterGuide([[
 #next 22-23 Eastern Ashenvale - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h726
+    #completewith h734
     .complete 1134,1
     .dungeon !dungeons
     >>SOFT STEP: kill Young Pridewings as you go for Pridewing Venom Sacs for "Pridewings of Stonetalon"
@@ -3835,7 +3863,7 @@ step
     .dungeon !dungeons
     >>Accept "Stonetalon Supply Run" from the Night Elf Courier 48.6, 39.8 (needs level 20)
 step
-    #label h726
+    #label h734
     .goto 1442,54.0,40.1
     .complete 1134,1
     .complete 86574,1
@@ -3878,7 +3906,7 @@ step
     .dungeon !dungeons
     >>Turn in "Pridewings of Stonetalon" to Shindrell Swiftfire 34.7, 48.8
 step
-    #completewith h737
+    #completewith h745
     .goto 1440,50.1,59.9
     .complete 1025,1
     .complete 1025,2
@@ -3908,7 +3936,7 @@ step
     .dungeon !dungeons
     >>Turn in "Elemental Bracers" to Sentinel Velene Starstrike 49.8, 67.2
 step
-    #label h737
+    #label h745
     .goto 1440,50.1,59.9
     .complete 1025,1
     .complete 1025,2
@@ -4041,7 +4069,7 @@ S.RegisterGuide([[
 #next 24 Back to Menethil - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h768
+    #completewith h776
     .complete 484,1
     .target Young Crocolisk
     .dungeon !dungeons
@@ -4106,7 +4134,7 @@ step
     .dungeon !dungeons
     >>Accept "Fire Taboo" from Rethiel the Greenwarden 56.4, 40.4
 step
-    #label h768
+    #label h776
     .goto 1437,58.5,50.8
     .complete 484,1
     .target Young Crocolisk
@@ -4224,7 +4252,7 @@ step
     .dungeon !dungeons
     >>Accept "Wolves at Our Heels" from Lars at Sven's farm 7.7, 33.3
 step
-    #completewith h822
+    #completewith h830
     .complete 226,1
     .complete 226,2
     .complete 90,1
@@ -4326,7 +4354,7 @@ step
     .dungeon !dungeons
     >>Get the flight path from Felicia Maline 77.5, 44.3
 step
-    #label h801
+    #label h809
     .goto 1431,78.0,48.3
     .complete 174,1
     .target Herble Baubbletump
@@ -4395,7 +4423,7 @@ step
     .dungeon !dungeons
     >>Use Ira's Dagger to start "Ira's Dagger" (shows only if you have it)
 step
-    #completewith h932
+    #completewith h940
     .complete 96137,1
     .complete 96137,2
     .isOnQuest 96137
@@ -4441,7 +4469,7 @@ step
     .dungeon !dungeons
     >>Go to the vendor, Bliztik upstairs 18.0, 54.3, to sell and stock up
 step
-    #completewith h827
+    #completewith h835
     .complete 245,1
     .dungeon !dungeons
     >>SOFT STEP: kill Pygmy Venom Web Spiders as you pass them for "Eight-Legged Menaces" (15)
@@ -4458,12 +4486,12 @@ step
     .dungeon !dungeons
     >>Accept "Supplies from Darkshire" from Abercrombie 28.1, 31.5
 step
-    #label h822
+    #label h830
     .goto 1431,13.4,29.1
     .complete 226,1
     .complete 226,2
     .dungeon !dungeons
-    >>HARD STEP: kill Starving Dire Wolves and Rabid Dire Wolves along the western hills 13.4, 29.1 for "Wolves at Our Heels". Skipped if the soft step (#784) is done
+    >>HARD STEP: kill Starving Dire Wolves and Rabid Dire Wolves along the western hills 13.4, 29.1 for "Wolves at Our Heels". Skipped if the soft step (#792) is done
 step
     .goto 1431,7.8,34.1
     .turnin 164 >>Turn in Deliveries to Sven
@@ -4488,11 +4516,11 @@ step
     .dungeon !dungeons
     >>Kill Pygmy Venom Web Spiders, Venom Web Spiders, Green Recluses and Black Widow Hatchlings 12.8, 55.6 for 6 Gooey Spider Legs, for "Dusky Crab Cakes" in Darkshire
 step
-    #label h827
+    #label h835
     .goto 1431,12.8,55.6
     .complete 245,1
     .dungeon !dungeons
-    >>HARD STEP: finish killing Pygmy Venom Web Spiders 12.8, 55.6 for "Eight-Legged Menaces" (15). Skipped if the soft step (#819) is done
+    >>HARD STEP: finish killing Pygmy Venom Web Spiders 12.8, 55.6 for "Eight-Legged Menaces" (15). Skipped if the soft step (#827) is done
 step
     .goto 1431,13.4,29.1
     .complete 90,1
@@ -4505,13 +4533,13 @@ S.RegisterGuide([[
 #next 25 Druid: Aquatic Form - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h832
+    #completewith h840
     .complete 1076,1
     .target Dust Devil
     .dungeon !dungeons
     >>SOFT STEP: kill Dust Devils as you pass them for Dust Devil Debris, for "Devils in Westfall"
 step
-    #completewith h833
+    #completewith h841
     .complete 103,1
     .dungeon !dungeons
     >>SOFT STEP: kill Harvest Watchers and Harvest Golems as you pass them for 5 Flasks of Oil, for "Keeper of the Flame"
@@ -4522,20 +4550,20 @@ step
     .dungeon !dungeons
     >>Get the flight path from Thor 56.5, 52.6
 step
-    #label h832
+    #label h840
     .goto 1436,45.4,49.6
     .complete 1076,1
     .target Dust Devil
     .dungeon !dungeons
-    >>HARD STEP: kill Dust Devils 45.4, 49.6 for Dust Devil Debris, for "Devils in Westfall". Skipped if the soft step (#829) is done
+    >>HARD STEP: kill Dust Devils 45.4, 49.6 for Dust Devil Debris, for "Devils in Westfall". Skipped if the soft step (#837) is done
 step
-    #label h833
+    #label h841
     .goto 1436,39.0,49.3
     .complete 92911,1
     .complete 92911,2
     .complete 103,1
     .dungeon !dungeons
-    >>HARD STEP: kill Harvest Watchers 39.0, 49.3 for the last Flasks of Oil. Skipped if the soft step (#830) is done
+    >>HARD STEP: kill Harvest Watchers 39.0, 49.3 for the last Flasks of Oil. Skipped if the soft step (#838) is done
 step
     .goto 1436,37.4,50.7
     .accept 79008 >>Accept ... and that note you found
@@ -4885,7 +4913,7 @@ step
     .dungeon !dungeons
     >>Use Silvia's Sword to start "Silvia's Sword" (shows only if you have it)
 step
-    #completewith h1266
+    #completewith h1274
     .complete 79363,1
     .complete 79363,2
     .isOnQuest 79363
@@ -4918,7 +4946,7 @@ step
     .dungeon !dungeons
     >>Use Merrick's Bow to start "Merrick's Bow" (shows only if you have it)
 step
-    #completewith h1275
+    #completewith h1283
     .complete 101,2
     .dungeon !dungeons
     >>SOFT STEP: kill Black Widow Hatchlings as you go for 5 Vials of Spider Venom for "The Totem of Infliction"
@@ -5164,13 +5192,13 @@ step
     .dungeon !dungeons
     >>Use Ira's Dagger to start "Ira's Dagger" (shows only if you have it)
 step
-    #label h932
+    #label h940
     .goto 1431,54.8,63.4
     .complete 96137,1
     .complete 96137,2
     .isOnQuest 96137
     .dungeon !dungeons
-    >>HARD STEP: kill Young Black Ravagers and Black Ravagers 54.8, 63.4 for "Ira's Dagger" (shows only if you have it). Skipped if the soft step (#811) is done
+    >>HARD STEP: kill Young Black Ravagers and Black Ravagers 54.8, 63.4 for "Ira's Dagger" (shows only if you have it). Skipped if the soft step (#819) is done
 step
     .goto 1431,16.4,60.8
     .target Lost Watcher
@@ -5213,7 +5241,7 @@ step
     .dungeon !dungeons
     >>Use Grant's Shield to start "Grant's Shield" (shows only if you have it)
 step
-    #completewith h1274
+    #completewith h1282
     .complete 79362,1
     .isOnQuest 79362
     .dungeon !dungeons
@@ -5578,7 +5606,7 @@ step
     .accept 943 >>Accept The Absent Minded Prospector
     .target Archaeologist Flagongut
     .dungeon !dungeons
-    >>Accept "The Absent Minded Prospector" (the next part) from Archaeologist Flagongut upstairs 10.8, 60.4 (shows only if you gave him the fossil at #753)
+    >>Accept "The Absent Minded Prospector" (the next part) from Archaeologist Flagongut upstairs 10.8, 60.4 (shows only if you gave him the fossil at #761)
 step
     .goto 1437,10.9,59.7
     .accept 289 >>Accept The Cursed Crew
@@ -5670,7 +5698,7 @@ step
     .dungeon !dungeons
     >>Accept "Return the Statuette" from the Half-buried Barrel 13.9, 34.8
 step
-    #completewith h1015
+    #completewith h1023
     .complete 471,1
     .dungeon !dungeons
     >>SOFT STEP: skin Giant Wetlands Crocolisks as you pass them for 6 Giant Crocolisk Skins for "Apprentice's Duties"
@@ -5687,13 +5715,13 @@ step
     .dungeon !dungeons
     >>Kill First Mate Snellig at the wreck camp 15.0, 24.0 for Snellig's Snuffbox, for "The Cursed Crew"
 step
-    #label h1015
+    #label h1023
     .goto 1437,21.0,24.8
     .complete 471,1
     .dungeon !dungeons
     >>HARD STEP: kill Giant Wetlands Crocolisks in the river loop 21.0, 24.8 for the last Giant Crocolisk Skins. Skipped if the soft step is done
 step
-    #completewith h1028
+    #completewith h1036
     .complete 277,1
     .dungeon !dungeons
     >>SOFT STEP: kill Mosshide gnolls as you go for 9 Crude Flints for "Fire Taboo"
@@ -5758,7 +5786,7 @@ step
     .dungeon !dungeons
     >>Pick up Flagongut's Fossil on the ground 38.9, 52.2 (shows only if you have "The Absent Minded Prospector")
 step
-    #label h1028
+    #label h1036
     .goto 1437,30.8,31.0
     .complete 277,1
     .dungeon !dungeons
@@ -5892,7 +5920,7 @@ S.RegisterGuide([[
 #next 29 Fen Creepers, the Cursed Ship and Nek'rosh - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h1059
+    #completewith h1067
     .complete 729,1
     .isOnQuest 729
     .dungeon !dungeons
@@ -5916,7 +5944,7 @@ step
     .dungeon !dungeons
     >>Accept "Ormer's Revenge" (the next part) from Ormer Ironbraid 38.2, 50.9
 step
-    #completewith h1058
+    #completewith h1066
     .complete 299,1
     .complete 299,2
     .complete 299,3
@@ -5948,7 +5976,7 @@ step
     .dungeon !dungeons
     >>Kill Sarltooth 33.3, 51.5 for his talon, for "Ormer's Revenge"
 step
-    #label h1058
+    #label h1066
     .goto 1437,35.7,49.1
     .complete 299,1
     .complete 299,2
@@ -5957,7 +5985,7 @@ step
     .dungeon !dungeons
     >>HARD STEP: open Ancient Relics and Loose Soil around the site 35.7, 49.1 for the last fragments for "Uncovering the Past". Skipped if the soft step is done
 step
-    #label h1059
+    #label h1067
     .complete 729,1
     .isOnQuest 729
     .dungeon !dungeons
@@ -5981,7 +6009,7 @@ step
     .dungeon !dungeons
     >>Accept "Understanding Our Present" from Prospector Whelgar 38.8, 52.4
 step
-    #completewith h1065
+    #completewith h1073
     .goto 1417,35.0,52.5
     .complete 98216,1
     .target Goaz Warder
@@ -5995,7 +6023,7 @@ step
     .dungeon !dungeons
     >>Turn in "Understanding Our Present" to Prospector Whelgar 38.8, 52.4 (shows only once you have the Titanic Keystone)
 step
-    #label h1065
+    #label h1073
     .abandon 98216 >>Abandon Understanding Our Present
     .isQuestNotComplete 98216
     .dungeon !dungeons
@@ -6007,7 +6035,7 @@ S.RegisterGuide([[
 #next 29 Raptor Ridge - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h1075
+    #completewith h1083
     .complete 275,1
     .dungeon !dungeons
     >>SOFT STEP: kill Fen Creepers as you go for "Blisters on the Land" (they hide stealthed in the streams)
@@ -6054,7 +6082,7 @@ step
     .dungeon !dungeons
     >>Click the Tattered Spellbook 53.5, 54.6 to start "Old Habits"
 step
-    #label h1075
+    #label h1083
     .goto 1437,56.1,46.9
     .complete 275,1
     .dungeon !dungeons
@@ -6078,7 +6106,7 @@ S.RegisterGuide([[
 #next 29 Dun Modr and the Thandol Span - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h1084
+    #completewith h1092
     .complete 98072,1
     .dungeon !dungeons
     >>SOFT STEP: kill Flamesnorting Whelps, Crimson Whelps and Red Whelps as you go for "Crocs of the Sky"
@@ -6114,7 +6142,7 @@ step
     .dungeon !dungeons
     >>Kill Carnage 69.8, 28.9 for its head, for "Carnage" (a level 30 elite)
 step
-    #label h1084
+    #label h1092
     .goto 1437,61.9,37.4
     .dungeon !dungeons
     >>HARD STEP: kill whelps on the slopes 61.9, 37.4 for the last scales for "Crocs of the Sky". Skipped if the soft step is done
@@ -6519,7 +6547,7 @@ step
     .dungeon !dungeons
     >>Accept "Reclaiming the Charred Vale" from Keeper Albagorm 37.1, 8.1
 step
-    #completewith h1152
+    #completewith h1160
     .complete 1078,1
     .isOnQuest 1078
     .dungeon !dungeons
@@ -6532,12 +6560,12 @@ step
     .dungeon !dungeons
     >>Kill Bloodfury Harpies, Ambushers, Slayers and Roguefeathers in the Charred Vale 36.0, 72.6 for "Reclaiming the Charred Vale"
 step
-    #label h1152
+    #label h1160
     .goto 1442,32.6,72.2
     .complete 1078,1
     .isOnQuest 1078
     .dungeon !dungeons
-    >>HARD STEP: kill Scorched Basilisks in the Charred Vale 32.6, 72.2 for the last Crystalized Scales for "Retrieval for Mauren" (shows only if you have it). Skipped if the soft step (#1150) is done
+    >>HARD STEP: kill Scorched Basilisks in the Charred Vale 32.6, 72.2 for the last Crystalized Scales for "Retrieval for Mauren" (shows only if you have it). Skipped if the soft step (#1158) is done
 step
     .goto 1443,64.7,10.5
     .fp Desolace >>Get the flight path
@@ -6581,12 +6609,12 @@ step
     .dungeon !dungeons
     >>Accept "Kayneth Stillwind" from Shindrell Swiftfire 34.7, 48.8
 step
-    #label h1159
+    #label h1167
     .goto 1440,25.3,60.7
     .complete 965,1
     .target Ilkrud Magthrull
     .dungeon !dungeons
-    >>HARD STEP: kill Ilkrud Magthrull 25.3, 60.7 for Ilkrud Magthrull's Tome, for "The Tower of Althalaxx" (shows only if you still need the tome). Skipped if the soft step (#679) is done
+    >>HARD STEP: kill Ilkrud Magthrull 25.3, 60.7 for Ilkrud Magthrull's Tome, for "The Tower of Althalaxx" (shows only if you still need the tome). Skipped if the soft step (#688) is done
 step
     .goto 1440,22.2,53.0
     .accept 1022 >>Accept The Howling Vale
@@ -6736,7 +6764,7 @@ step
     .dungeon !dungeons
     >>Kill the Shadethicket Oracle 66.6, 82.2 for the Fallen Moonstone, for "Fallen Sky Lake"
 step
-    #completewith h1185
+    #completewith h1193
     .complete 1027,1
     .dungeon !dungeons
     >>SOFT STEP: kill Rotting Slimes as you go and open the Rusty Chests they leave, for the Iron Pommel for "Raene's Cleansing"
@@ -6746,7 +6774,7 @@ step
     .dungeon !dungeons
     >>Pick up the Bottle of Disease from the table in the Forsaken camp 75.3, 72.0 for "Forsaken Diseases"
 step
-    #label h1185
+    #label h1193
     .goto 1440,72.6,71.6
     .complete 1027,1
     .dungeon !dungeons
@@ -6758,7 +6786,7 @@ step
     .dungeon !dungeons
     >>Turn in "Forsaken Diseases" to Kayneth Stillwind 85.2, 44.7
 step
-    #completewith h1190
+    #completewith h1198
     .complete 1032,1
     .dungeon !dungeons
     >>SOFT STEP: kill Felmusk satyrs as you go for 16 Satyr Horns for "Satyr Slaying!"
@@ -6775,7 +6803,7 @@ step
     .dungeon !dungeons
     >>Click the second Circle of Imprisonment in Night Run 66.6, 57.0 for "The Tower of Althalaxx"
 step
-    #label h1190
+    #label h1198
     .goto 1440,81.4,49.9
     .complete 1032,1
     .dungeon !dungeons
@@ -7265,13 +7293,13 @@ step
     .dungeon !dungeons
     >>Open the Defias Strongbox 23.9, 72.1 for the Defias Docket, for "The Missing Diplomat"
 step
-    #label h1266
+    #label h1274
     .goto 1431,21.8,69.9
     .complete 79363,1
     .complete 79363,2
     .isOnQuest 79363
     .dungeon !dungeons
-    >>HARD STEP: kill Defias Night Blades and Defias Enchanters 21.8, 69.9 for "Silvia's Sword" (shows only if you have it). Skipped if the soft step (#889) is done
+    >>HARD STEP: kill Defias Night Blades and Defias Enchanters 21.8, 69.9 for "Silvia's Sword" (shows only if you have it). Skipped if the soft step (#897) is done
 step
     .goto 1431,30.6,60.6
     .target Lost Watcher
@@ -7286,7 +7314,7 @@ step
     .dungeon !dungeons
     >>Use Merrick's Bow to start "Merrick's Bow" (shows only if you have it)
 step
-    #completewith h1272
+    #completewith h1280
     .complete 96138,1
     .complete 96138,2
     .isOnQuest 96138
@@ -7303,7 +7331,7 @@ step
     .dungeon !dungeons
     >>Kill Zzarc'Vul in the cave 36.8, 83.8 for his monocle, for "Look To The Stars"
 step
-    #label h1272
+    #label h1280
     .goto 1431,33.2,70.5
     .complete 96138,1
     .complete 96138,2
@@ -7316,18 +7344,18 @@ step
     .dungeon !dungeons
     >>Kill Skeletal Fiends and Skeletal Horrors at Raven Hill Cemetery 20.4, 47.0 for the Skeleton Fingers for "The Totem of Infliction"
 step
-    #label h1274
+    #label h1282
     .goto 1431,20.4,47.0
     .complete 79362,1
     .isOnQuest 79362
     .dungeon !dungeons
-    >>HARD STEP: kill skeletons at Raven Hill Cemetery 20.4, 47.0 until Grant's Mace drops, for "Grant's Shield" (shows only if you have it). Skipped if the soft step (#940) is done
+    >>HARD STEP: kill skeletons at Raven Hill Cemetery 20.4, 47.0 until Grant's Mace drops, for "Grant's Shield" (shows only if you have it). Skipped if the soft step (#948) is done
 step
-    #label h1275
+    #label h1283
     .goto 1431,32.8,35.2
     .complete 101,2
     .dungeon !dungeons
-    >>HARD STEP: kill Black Widow Hatchlings and Carrion Recluses 32.8, 35.2 for the last Vials of Spider Venom for "The Totem of Infliction". Skipped if the soft step (#895) is done
+    >>HARD STEP: kill Black Widow Hatchlings and Carrion Recluses 32.8, 35.2 for the last Vials of Spider Venom for "The Totem of Infliction". Skipped if the soft step (#903) is done
 step
     .goto 1431,28.1,31.5
     .turnin 134 >>Turn in Ogre Thieves
@@ -7607,14 +7635,14 @@ step
     .dungeon !dungeons
     >>Kill Eliza 28.9, 30.8 for the Embalmer's Heart, for "Bride of the Embalmer"
 step
-    #completewith h1702
+    #completewith h1710
     .goto 1431,16.9,33.4
     .complete 55,1
     .target Morbent Fel
     .dungeon !dungeons
     >>SOFT STEP: equip Morbent's Bane, use it on Morbent Fel on the second floor of the house 16.9, 33.4, and kill him, for "Morbent Fel" (a tough fight: the hard step comes at level 37)
 step
-    #completewith h1701
+    #completewith h1709
     .goto 1431,19.6,37.3
     .complete 228,1
     .target Mor'Ladim
@@ -7662,7 +7690,7 @@ step
     .dungeon !dungeons
     >>Accept "Panther Mastery" from Sir S. J. Erlgadin 35.6, 10.5
 step
-    #completewith h1331
+    #completewith h1339
     .complete 190,1
     .dungeon !dungeons
     >>SOFT STEP: kill Young Panthers as you go for "Panther Mastery"
@@ -7672,7 +7700,7 @@ step
     .dungeon !dungeons
     >>Kill Young Stranglethorn Tigers around the camp 33.3, 11.9 for "Tiger Mastery"
 step
-    #label h1331
+    #label h1339
     .goto 1434,41.5,12.0
     .complete 190,1
     .dungeon !dungeons
@@ -7943,7 +7971,7 @@ step
     .dungeon dungeons
     >>Loot Stardust Covered Bushes on the lake island 33.3, 67.8 for the Handfuls of Stardust, for "The Ruins of Stardust"
 step
-    #completewith h1159d
+    #completewith h1167d
     .goto 1440,25.3,60.7
     .complete 973,1
     .target Ilkrud Magthrull
@@ -8974,7 +9002,7 @@ step
     .dungeon dungeons
     >>Use Ira's Dagger to start "Ira's Dagger" (shows only if you have it)
 step
-    #completewith hD286d
+    #completewith hD287d
     .complete 96137,1
     .complete 96137,2
     .isOnQuest 96137
@@ -9098,6 +9126,11 @@ step
     .accept 68 >>Accept The Legend of Stalvan
     .dungeon dungeons
     >>Accept "The Legend of Stalvan" (the next part) from the Old Footlocker 41.5, 66.7
+step
+    .goto 1436,17.9,33.1
+    .collect 15882,1,272
+    .dungeon dungeons
+    >>Open the Strange Lockbox under water 17.9, 33.1 for 1 Half Pendant of Aquatic Endurance, for "Trial of the Sea Lion"
 step
     .hs >>Hearth to Darkshire
     .dungeon dungeons
@@ -9356,7 +9389,7 @@ step
     .dungeon dungeons
     >>Use Silvia's Sword to start "Silvia's Sword" (shows only if you have it)
 step
-    #completewith h1266d
+    #completewith h1274d
     .complete 79363,1
     .complete 79363,2
     .isOnQuest 79363
@@ -9389,7 +9422,7 @@ step
     .dungeon dungeons
     >>Use Merrick's Bow to start "Merrick's Bow" (shows only if you have it)
 step
-    #completewith h1275d
+    #completewith h1283d
     .complete 101,2
     .dungeon dungeons
     >>SOFT STEP: kill Black Widow Hatchlings as you go for 5 Vials of Spider Venom, for "The Totem of Infliction"
@@ -9880,7 +9913,7 @@ step
     .dungeon dungeons
     >>Use Ira's Dagger to start "Ira's Dagger" (shows only if you have it)
 step
-    #label hD286d
+    #label hD287d
     .goto 1431,54.8,63.4
     .complete 96137,1
     .complete 96137,2
@@ -9929,7 +9962,7 @@ step
     .dungeon dungeons
     >>Use Grant's Shield to start "Grant's Shield" (shows only if you have it)
 step
-    #completewith hD301d
+    #completewith hD302d
     .complete 79362,1
     .isOnQuest 79362
     .dungeon dungeons
@@ -9973,7 +10006,7 @@ step
     .dungeon dungeons
     >>Accept "Seeking Wisdom" from Sven Yorgen 7.8, 34.1
 step
-    #label hD301d
+    #label hD302d
     .goto 1431,23.0,44.8
     .complete 79362,1
     .isOnQuest 79362
@@ -10007,7 +10040,7 @@ step
     .target Chef Grual
     .itemcount 1015,10
     .dungeon dungeons
-    >>Turn in "Seasoned Wolf Kabobs" to Chef Grual 73.8, 44.1 (shows only once you have 10 Lean Wolf Flanks). Skipped if done at #D142 or #D281
+    >>Turn in "Seasoned Wolf Kabobs" to Chef Grual 73.8, 44.1 (shows only once you have 10 Lean Wolf Flanks). Skipped if done at #D142 or #D282
 step
     .goto 1431,73.6,46.9
     .turnin 56 >>Turn in The Night Watch
@@ -10304,7 +10337,7 @@ S.RegisterGuide([[
 #next 28 Darnassus - Druid, dungeons
 << Skyborne Druid Alliance
 step
-    #completewith hD360d
+    #completewith hD361d
     .complete 1275,1
     .dungeon dungeons
     >>SOFT STEP: kill Fallenroot Rogues, Fallenroot Satyrs, Blackfathom Oracles and Blackfathom Tide Priestesses around the dungeon's way in on the Zoram Strand for Corrupted Brain Stems, for "Researching the Corruption"
@@ -10328,7 +10361,7 @@ step
     .dungeon dungeons
     >>Accept "Blackfathom Villainy" from Argent Guard Thaelrid
 step
-    #completewith hD359d
+    #completewith hD360d
     .complete 1199,1
     .dungeon dungeons
     >>SOFT STEP: kill every Twilight's Hammer cultist you meet for Twilight Pendants, for "Twilight Falls"
@@ -10338,12 +10371,12 @@ step
     .dungeon dungeons
     >>Kill Twilight Lord Kelris for his head, for "Blackfathom Villainy"
 step
-    #label hD359d
+    #label hD360d
     .complete 1199,1
     .dungeon dungeons
     >>HARD STEP: kill the rest of the Twilight's Hammer cultists for the last Twilight Pendants, for "Twilight Falls". Skipped if done
 step
-    #label hD360d
+    #label hD361d
     .complete 1275,1
     .dungeon dungeons
     >>HARD STEP: kill naga and satyrs (inside, or outside by the way in) for the last Corrupted Brain Stems, for "Researching the Corruption". Skipped if done
@@ -10564,7 +10597,7 @@ step
     .dungeon dungeons
     >>Accept "Return the Statuette" from the Half-buried Barrel 13.9, 34.8
 step
-    #completewith hD396d
+    #completewith hD397d
     .complete 471,1
     .dungeon dungeons
     >>SOFT STEP: skin Giant Wetlands Crocolisks as you pass them for 6 Giant Crocolisk Skins, for "Apprentice's Duties"
@@ -10581,13 +10614,13 @@ step
     .dungeon dungeons
     >>Kill First Mate Snellig at the wreck camp 15.0, 24.0 for Snellig's Snuffbox, for "The Cursed Crew"
 step
-    #label hD396d
+    #label hD397d
     .goto 1437,21.0,24.8
     .complete 471,1
     .dungeon dungeons
     >>HARD STEP: kill Giant Wetlands Crocolisks in the river loop 21.0, 24.8 for the last Giant Crocolisk Skins. Skipped if done
 step
-    #completewith hD409d
+    #completewith hD410d
     .complete 277,1
     .dungeon dungeons
     >>SOFT STEP: kill Mosshide gnolls as you go for 9 Crude Flints, for "Fire Taboo"
@@ -10652,7 +10685,7 @@ step
     .dungeon dungeons
     >>Pick up Flagongut's Fossil on the ground 38.9, 52.2 (shows only if you have "The Absent Minded Prospector")
 step
-    #label hD409d
+    #label hD410d
     .goto 1437,30.8,31.0
     .complete 277,1
     .dungeon dungeons
@@ -10684,6 +10717,23 @@ step
     .target Loganaar
     .dungeon dungeons
     >>Go to your class trainer, Loganaar 52.5, 40.6
+step
+    .goto 1450,36.0,41.4
+    .complete 272,1
+    .dungeon dungeons
+    >>Use the Half Pendant of Aquatic Agility at the Shrine of Remulos 36.0, 41.4 for "Trial of the Sea Lion"
+step
+    .goto 1450,56.2,30.6
+    .turnin 272 >>Turn in Trial of the Sea Lion
+    .target Dendrite Starblaze
+    .dungeon dungeons
+    >>Turn in "Trial of the Sea Lion" to Dendrite Starblaze 56.2, 30.6
+step
+    .goto 1450,56.2,30.6
+    .accept 5061 >>Accept Aquatic Form
+    .target Dendrite Starblaze
+    .dungeon dungeons
+    >>Accept "Aquatic Form" from Dendrite Starblaze 56.2, 30.6
 step
     .hs >>Hearth to Menethil Harbor
     .dungeon dungeons
@@ -10786,7 +10836,7 @@ S.RegisterGuide([[
 #next 29 Fen Creepers, the Cursed Ship and Nek'rosh - Druid, dungeons
 << Skyborne Druid Alliance
 step
-    #completewith h1059d
+    #completewith h1067d
     .complete 729,1
     .isOnQuest 729
     .dungeon dungeons
@@ -10810,7 +10860,7 @@ step
     .dungeon dungeons
     >>Accept "Ormer's Revenge" (the next part) from Ormer Ironbraid 38.2, 50.9
 step
-    #completewith h1058d
+    #completewith h1066d
     .complete 299,1
     .complete 299,2
     .complete 299,3
@@ -10842,7 +10892,7 @@ step
     .dungeon dungeons
     >>Kill Sarltooth 33.3, 51.5 for his talon, for "Ormer's Revenge"
 step
-    #label h1058d
+    #label h1066d
     .goto 1437,35.7,49.1
     .complete 299,1
     .complete 299,2
@@ -10851,7 +10901,7 @@ step
     .dungeon dungeons
     >>HARD STEP: open Ancient Relics and Loose Soil around the site 35.7, 49.1 for the last fragments for "Uncovering the Past". Skipped if the soft step is done
 step
-    #label h1059d
+    #label h1067d
     .complete 729,1
     .isOnQuest 729
     .dungeon dungeons
@@ -10875,7 +10925,7 @@ step
     .dungeon dungeons
     >>Accept "Understanding Our Present" from Prospector Whelgar 38.8, 52.4
 step
-    #completewith h1065d
+    #completewith h1073d
     .goto 1417,35.0,52.5
     .complete 98216,1
     .target Goaz Warder
@@ -10889,7 +10939,7 @@ step
     .dungeon dungeons
     >>Turn in "Understanding Our Present" to Prospector Whelgar 38.8, 52.4 (shows only once you have the Titanic Keystone)
 step
-    #label h1065d
+    #label h1073d
     .abandon 98216 >>Abandon Understanding Our Present
     .isQuestNotComplete 98216
     .dungeon dungeons
@@ -10901,7 +10951,7 @@ S.RegisterGuide([[
 #next 29 Raptor Ridge - Druid, dungeons
 << Skyborne Druid Alliance
 step
-    #completewith hD440d
+    #completewith hD444d
     .complete 275,1
     .dungeon dungeons
     >>SOFT STEP: kill Fen Creepers as you go for "Blisters on the Land" (they hide stealthed in the streams)
@@ -10948,7 +10998,7 @@ step
     .dungeon dungeons
     >>Click the Tattered Spellbook 53.5, 54.6 to start "Old Habits"
 step
-    #label hD440d
+    #label hD444d
     .goto 1437,56.1,46.9
     .complete 275,1
     .dungeon dungeons
@@ -10978,7 +11028,7 @@ S.RegisterGuide([[
 #next 29 Wetlands Excavation - dungeon - Druid, dungeons
 << Skyborne Druid Alliance
 step
-    #completewith hD450d
+    #completewith hD454d
     .complete 98072,1
     .dungeon dungeons
     >>SOFT STEP: kill Flamesnorting Whelps, Crimson Whelps and Red Whelps as you go for "Crocs of the Sky"
@@ -11014,7 +11064,7 @@ step
     .dungeon dungeons
     >>Kill Carnage 69.8, 28.9 for its head, for "Carnage" (a level 30 elite)
 step
-    #label hD450d
+    #label hD454d
     .goto 1437,61.9,37.4
     .dungeon dungeons
     >>HARD STEP: kill whelps on the slopes 61.9, 37.4 for the last scales for "Crocs of the Sky". Skipped if the soft step is done
@@ -11556,12 +11606,12 @@ step
     .dungeon dungeons
     >>Accept "Kayneth Stillwind" from Shindrell Swiftfire 34.7, 48.8
 step
-    #label h1159d
+    #label h1167d
     .goto 1440,25.3,60.7
     .complete 965,1
     .target Ilkrud Magthrull
     .dungeon dungeons
-    >>HARD STEP: kill Ilkrud Magthrull 25.3, 60.7 for Ilkrud Magthrull's Tome, for "The Tower of Althalaxx" (shows only if you still need the tome). Skipped if the soft step (#679) is done
+    >>HARD STEP: kill Ilkrud Magthrull 25.3, 60.7 for Ilkrud Magthrull's Tome, for "The Tower of Althalaxx" (shows only if you still need the tome). Skipped if the soft step (#688) is done
 step
     .goto 1440,22.2,53.0
     .accept 1022 >>Accept The Howling Vale
@@ -11711,7 +11761,7 @@ step
     .dungeon dungeons
     >>Kill the Shadethicket Oracle 66.6, 82.2 for the Fallen Moonstone, for "Fallen Sky Lake"
 step
-    #completewith h1185d
+    #completewith h1193d
     .complete 1027,1
     .dungeon dungeons
     >>SOFT STEP: kill Rotting Slimes as you go and open the Rusty Chests they leave, for the Iron Pommel for "Raene's Cleansing"
@@ -11721,7 +11771,7 @@ step
     .dungeon dungeons
     >>Pick up the Bottle of Disease from the table in the Forsaken camp 75.3, 72.0 for "Forsaken Diseases"
 step
-    #label h1185d
+    #label h1193d
     .goto 1440,72.6,71.6
     .complete 1027,1
     .dungeon dungeons
@@ -11733,7 +11783,7 @@ step
     .dungeon dungeons
     >>Turn in "Forsaken Diseases" to Kayneth Stillwind 85.2, 44.7
 step
-    #completewith h1190d
+    #completewith h1198d
     .complete 1032,1
     .dungeon dungeons
     >>SOFT STEP: kill Felmusk satyrs as you go for 16 Satyr Horns for "Satyr Slaying!"
@@ -11750,7 +11800,7 @@ step
     .dungeon dungeons
     >>Click the second Circle of Imprisonment in Night Run 66.6, 57.0 for "The Tower of Althalaxx"
 step
-    #label h1190d
+    #label h1198d
     .goto 1440,81.4,49.9
     .complete 1032,1
     .dungeon dungeons
@@ -11924,6 +11974,12 @@ step
     .dungeon dungeons
     >>Put the Musquash Root in the bank 39.7, 42.1
 step
+    .goto 1457,35.4,8.4
+    .turnin 5061 >>Turn in Aquatic Form
+    .target Mathrengyl Bearwalker
+    .dungeon dungeons
+    >>Turn in "Aquatic Form" to Mathrengyl Bearwalker 35.4, 8.4
+step
     .goto 1457,34.8,7.4
     .trainer >>Train at your class trainer
     .target Denatharion
@@ -11956,7 +12012,7 @@ step
     .turnin 971 >>Turn in Knowledge in the Deeps
     .target Gerrig Bonegrip
     .dungeon dungeons
-    >>Turn in "Knowledge in the Deeps" to Gerrig Bonegrip 50.8, 5.6. Skipped if done at #D372
+    >>Turn in "Knowledge in the Deeps" to Gerrig Bonegrip 50.8, 5.6. Skipped if done at #D373
 step
     .goto 1455,63.5,67.3
     .turnin 637 >>Turn in Sully Balloo's Letter
@@ -12058,14 +12114,14 @@ step
     .target Milton Sheaf
     .isOnQuest 337
     .dungeon dungeons
-    >>Turn in "An Old History Book" to Milton Sheaf 77.1, 30.2 (shows only if you have it). Skipped if done at #D347
+    >>Turn in "An Old History Book" to Milton Sheaf 77.1, 30.2 (shows only if you have it). Skipped if done at #D348
 step
     .goto 1453,77.1,30.2
     .accept 538 >>Accept Southshore
     .target Milton Sheaf
     .isQuestTurnedIn 337
     .dungeon dungeons
-    >>Accept "Southshore" from Milton Sheaf 77.1, 30.2 (shows only after that turn-in). Skipped if done at #D348
+    >>Accept "Southshore" from Milton Sheaf 77.1, 30.2 (shows only after that turn-in). Skipped if done at #D349
 step
     .goto 1453,76.3,85.1
     .turnin 1241 >>Turn in The Missing Diplomat
@@ -12252,13 +12308,13 @@ step
     .dungeon dungeons
     >>Open the Defias Strongbox 23.9, 72.1 for the Defias Docket, for "The Missing Diplomat"
 step
-    #label h1266d
+    #label h1274d
     .goto 1431,21.8,69.9
     .complete 79363,1
     .complete 79363,2
     .isOnQuest 79363
     .dungeon dungeons
-    >>HARD STEP: kill Defias Night Blades and Defias Enchanters 21.8, 69.9 for "Silvia's Sword" (shows only if you have it). Skipped if the soft step (#889) is done
+    >>HARD STEP: kill Defias Night Blades and Defias Enchanters 21.8, 69.9 for "Silvia's Sword" (shows only if you have it). Skipped if the soft step (#897) is done
 step
     .goto 1431,30.6,60.6
     .target Lost Watcher
@@ -12273,7 +12329,7 @@ step
     .dungeon dungeons
     >>Use Merrick's Bow to start "Merrick's Bow" (shows only if you have it)
 step
-    #completewith h1272d
+    #completewith h1280d
     .complete 96138,1
     .complete 96138,2
     .isOnQuest 96138
@@ -12290,7 +12346,7 @@ step
     .dungeon dungeons
     >>Kill Zzarc'Vul in the cave 36.8, 83.8 for his monocle, for "Look To The Stars"
 step
-    #label h1272d
+    #label h1280d
     .goto 1431,33.2,70.5
     .complete 96138,1
     .complete 96138,2
@@ -12307,13 +12363,13 @@ step
     .complete 79362,1
     .isOnQuest 79362
     .dungeon dungeons
-    >>HARD STEP: kill skeletons at Raven Hill Cemetery 20.4, 47.0 until Grant's Mace drops, for "Grant's Shield" (shows only if you have it). Skipped if the soft step (#940) is done
+    >>HARD STEP: kill skeletons at Raven Hill Cemetery 20.4, 47.0 until Grant's Mace drops, for "Grant's Shield" (shows only if you have it). Skipped if the soft step (#948) is done
 step
-    #label h1275d
+    #label h1283d
     .goto 1431,32.8,35.2
     .complete 101,2
     .dungeon dungeons
-    >>HARD STEP: kill Black Widow Hatchlings and Carrion Recluses 32.8, 35.2 for the last Vials of Spider Venom for "The Totem of Infliction". Skipped if the soft step (#895) is done
+    >>HARD STEP: kill Black Widow Hatchlings and Carrion Recluses 32.8, 35.2 for the last Vials of Spider Venom for "The Totem of Infliction". Skipped if the soft step (#903) is done
 step
     .goto 1431,28.1,31.5
     .turnin 134 >>Turn in Ogre Thieves
@@ -12593,14 +12649,14 @@ step
     .dungeon dungeons
     >>Kill Eliza 28.9, 30.8 for the Embalmer's Heart, for "Bride of the Embalmer"
 step
-    #completewith h1702
+    #completewith h1710
     .goto 1431,16.9,33.4
     .complete 55,1
     .target Morbent Fel
     .dungeon dungeons
     >>SOFT STEP: equip Morbent's Bane, use it on Morbent Fel on the second floor of the house 16.9, 33.4, and kill him, for "Morbent Fel" (a tough fight: the hard step comes at level 37)
 step
-    #completewith h1701
+    #completewith h1709
     .goto 1431,19.6,37.3
     .complete 228,1
     .target Mor'Ladim
@@ -12648,7 +12704,7 @@ step
     .dungeon dungeons
     >>Accept "Panther Mastery" from Sir S. J. Erlgadin 35.6, 10.5
 step
-    #completewith h1331d
+    #completewith h1339d
     .complete 190,1
     .dungeon dungeons
     >>SOFT STEP: kill Young Panthers as you go for "Panther Mastery"
@@ -12658,7 +12714,7 @@ step
     .dungeon dungeons
     >>Kill Young Stranglethorn Tigers around the camp 33.3, 11.9 for "Tiger Mastery"
 step
-    #label h1331d
+    #label h1339d
     .goto 1434,41.5,12.0
     .complete 190,1
     .dungeon dungeons
@@ -13005,7 +13061,7 @@ S.RegisterGuide([[
 #next 32 Kharanos - Druid, dungeons
 << Skyborne Druid Alliance
 step
-    #completewith hD609d
+    #completewith hD614d
     .complete 2928,1
     .dungeon dungeons
     >>SOFT STEP: loot every mob in Gnomeregan for 24 Robo-mechanical Guts, for "Gyrodrillmatic Excavationators"
@@ -13029,7 +13085,7 @@ step
     .dungeon dungeons
     >>Use the Heavy Leaden Collection Phial on a living Irradiated Slime or Irradiated Horror for "The Only Cure is More Green Glow"
 step
-    #completewith hD608d
+    #completewith hD613d
     .complete 2924,1
     .dungeon dungeons
     >>SOFT STEP: open every Artificial Extrapolator you pass for 12 Essential Artificials, for "Essential Artificials"
@@ -13047,12 +13103,12 @@ step
     .dungeon dungeons
     >>Kill Mekgineer Thermaplugg for "The Grand Betrayal"
 step
-    #label hD608d
+    #label hD613d
     .complete 2924,1
     .dungeon dungeons
     >>HARD STEP: open Artificial Extrapolators for the last Essential Artificials, for "Essential Artificials". Skipped if done
 step
-    #label hD609d
+    #label hD614d
     .complete 2928,1
     .dungeon dungeons
     >>HARD STEP: kill mobs in Gnomeregan for the last Robo-mechanical Guts, for "Gyrodrillmatic Excavationators". Skipped if done
@@ -13319,7 +13375,7 @@ step
     .target Bartolo Ginsetti
     >>Accept "Bartolo's Yeti Fur Cloak" from Bartolo Ginsetti 49.4, 55.5
 step
-    #completewith h1412
+    #completewith h1420
     .complete 564,1
     .complete 564,2
     >>SOFT STEP: kill Mountain Lions and Hulking Mountain Lions as you go for "Costly Menace"
@@ -13363,7 +13419,7 @@ step
     .complete 505,1
     >>HARD STEP: kill Syndicate Footpads and Syndicate Thieves between the camp and the road 48.0, 82.0 for "Syndicate Assassins". Skipped if done
 step
-    #label h1412
+    #label h1420
     .goto 1416,38.8,91.1
     .complete 564,1
     >>HARD STEP: kill Mountain Lions on the southern hills 38.8, 91.1 for "Costly Menace". Skipped if done
@@ -13471,7 +13527,7 @@ step
     .target Quae
     >>Accept "Hints of a New Plague?" (the next part) from Quae 60.2, 53.8
 step
-    #completewith h1876
+    #completewith h1884
     .goto 1417,60.7,61.0
     .complete 658,1
     .target Forsaken Courier
@@ -13704,7 +13760,7 @@ step
     .target Trackmaster Zherin
     >>Accept "A Bump in the Road" from Trackmaster Zherin 81.6, 78.0
 step
-    #completewith h1486
+    #completewith h1494
     .complete 1110,1
     >>SOFT STEP: open Rocket Car Rubble as you go for 30 Rocket Car Parts, for "Rocket Car Parts"
 step
@@ -13750,7 +13806,7 @@ step
     .target Wizzle Brassbolts
     >>Turn in "Hardened Shells" to Wizzle Brassbolts 78.1, 77.1
 step
-    #label h1486
+    #label h1494
     .goto 1441,77.8,77.3
     .turnin 1110 >>Turn in Rocket Car Parts
     .target Kravel Koalbeard
@@ -13865,7 +13921,7 @@ step
     .target Captain Garran Vimes
     >>Turn in "The Black Shield" to Captain Garran Vimes 68.2, 48.6
 step
-    #completewith h1937
+    #completewith h1945
     .complete 1177,1
     >>SOFT STEP: loot Mirefin Heads from Mirefin murlocs as you go, for "Hungry!"
 ]])
@@ -14069,11 +14125,11 @@ step
     .isOnQuest 215
     >>Turn in "Jungle Secrets" to Lieutenant Doren 38.0, 3.0 (shows only if you have it)
 step
-    #completewith h1570
+    #completewith h1578
     .complete 605,1
     >>SOFT STEP: kill Stone Maw Basilisks and Crystal Spine Basilisks as you go for 10 Singing Crystal Shards, for "Singing Blue Shards"
 step
-    #completewith h1564
+    #completewith h1572
     .complete 575,1
     >>SOFT STEP: kill River Crocolisks as you go for 2 Large River Crocolisk Skins, for "Supply and Demand"
 step
@@ -14115,7 +14171,7 @@ step
     .complete 186,1
     >>Kill Stranglethorn Tigers east of the camp 46.7, 15.8 for "Tiger Mastery"
 step
-    #completewith h1556
+    #completewith h1564
     .complete 213,1
     >>SOFT STEP: kill Venture Co. Geologists as you go for 8 Tumbled Crystals, for "Hostile Takeover"
 step
@@ -14127,7 +14183,7 @@ step
     .complete 1182,1
     >>Open Cozzle's Footlocker 43.3, 20.3 for the Fuel Regulator Blueprints, for "Goblin Sponsorship"
 step
-    #label h1556
+    #label h1564
     .goto 1434,45.6,18.8
     .complete 213,1
     >>HARD STEP: kill Venture Co. Geologists around the rigs 45.6, 18.8 for the last Tumbled Crystals. Skipped if the soft step is done
@@ -14172,12 +14228,12 @@ step
     .accept 191 >>Accept Panther Mastery
     >>Accept "Panther Mastery" (the next part) from Sir S. J. Erlgadin 35.6, 10.5
 step
-    #label h1564
+    #label h1572
     .goto 1434,32.6,8.8
     .complete 575,1
-    >>HARD STEP: kill River Crocolisks along the river 32.6, 8.8 for the last Large River Crocolisk Skins. Skipped if the soft step (#1544) is done
+    >>HARD STEP: kill River Crocolisks along the river 32.6, 8.8 for the last Large River Crocolisk Skins. Skipped if the soft step (#1552) is done
 step
-    #completewith h1568
+    #completewith h1576
     .complete 191,1
     >>SOFT STEP: kill Panthers as you go for "Panther Mastery"
 step
@@ -14189,7 +14245,7 @@ step
     .accept 97328 >>Accept Anything of Value
     >>Click the Thoroughly Scavenged Supplies on the ground 31.5, 12.9 to start "Anything of Value"
 step
-    #label h1568
+    #label h1576
     .goto 1434,29.8,11.2
     .complete 191,1
     >>HARD STEP: kill Panthers west of the camp 29.8, 11.2 for "Panther Mastery". Skipped if the soft step is done
@@ -14198,10 +14254,10 @@ step
     .complete 194,1
     >>Kill Stranglethorn Raptors 27.2, 16.1 for "Raptor Mastery"
 step
-    #label h1570
+    #label h1578
     .goto 1434,25.5,17.7
     .complete 605,1
-    >>HARD STEP: kill Crystal Spine Basilisks 25.5, 17.7 for the last Singing Crystal Shards. Skipped if the soft step (#1543) is done
+    >>HARD STEP: kill Crystal Spine Basilisks 25.5, 17.7 for the last Singing Crystal Shards. Skipped if the soft step (#1551) is done
 step
     .goto 1434,21.6,21.8
     .complete 578,1
@@ -14493,7 +14549,7 @@ step
     .target Kreldig Ungor
     >>Accept "Reagents for Reclaimers Inc." (the next part) from Kreldig Ungor 66.2, 9.6
 step
-    #completewith h1670
+    #completewith h1678
     .complete 1459,1
     .complete 1459,2
     >>SOFT STEP: kill Scorpashi Snappers, Scorpashi Lashers and Aged Kodos as you go for the venom and hides for "Reagents for Reclaimers Inc."
@@ -14738,10 +14794,10 @@ step
     .target Meat
     >>Open the Sacks of Meat in the Magram village 70.9, 75.5 for "Stealing Supplies"
 step
-    #label h1670
+    #label h1678
     .goto 1443,52.2,57.5
     .complete 1459,2
-    >>HARD STEP: kill Aged Kodos 52.2, 57.5 for the last hides for "Reagents for Reclaimers Inc.". Skipped if the soft step (#1623) is done
+    >>HARD STEP: kill Aged Kodos 52.2, 57.5 for the last hides for "Reagents for Reclaimers Inc.". Skipped if the soft step (#1631) is done
 step
     .goto 1443,62.3,39.0
     .turnin 5501 >>Turn in Bone Collector
@@ -14750,7 +14806,7 @@ step
 step
     .goto 1443,58.6,50.0
     .complete 1459,1
-    >>HARD STEP: kill Scorpashi Snappers, Lashers and Venomlashes 58.6, 50.0 for the last Scorpashi Venom. Skipped if the soft step (#1623) is done
+    >>HARD STEP: kill Scorpashi Snappers, Lashers and Venomlashes 58.6, 50.0 for the last Scorpashi Venom. Skipped if the soft step (#1631) is done
 step
     .goto 1443,36.2,79.2
     .turnin 1370 >>Turn in Stealing Supplies
@@ -14905,21 +14961,21 @@ S.RegisterGuide([[
 #next 37 Rebel Camp and the Kurzen Compound - Druid
 << Skyborne Druid Alliance
 step
-    #label h1701
+    #label h1709
     .goto 1431,19.6,37.3
     .complete 228,1
     .target Mor'Ladim
-    >>HARD STEP: kill Mor'Ladim 19.6, 37.3 for his skull, for "Mor'Ladim". Skipped if the soft step (#1322) is done
+    >>HARD STEP: kill Mor'Ladim 19.6, 37.3 for his skull, for "Mor'Ladim". Skipped if the soft step (#1330) is done
 step
-    #label h1702
+    #label h1710
     .goto 1431,16.9,33.4
     .complete 55,1
     .target Morbent Fel
-    >>HARD STEP: equip Morbent's Bane, use it on Morbent Fel on the second floor of the house 16.9, 33.4, and kill him, for "Morbent Fel". Skipped if the soft step (#1321) is done
+    >>HARD STEP: equip Morbent's Bane, use it on Morbent Fel on the second floor of the house 16.9, 33.4, and kill him, for "Morbent Fel". Skipped if the soft step (#1329) is done
 step
     .turnin 55 >>Turn in Morbent Fel
     .target Sven Yorgen
-    >>Turn in "Morbent Fel" to Sven Yorgen 7.8, 34.1. Skipped if done at #1323
+    >>Turn in "Morbent Fel" to Sven Yorgen 7.8, 34.1. Skipped if done at #1331
 ]])
 
 S.RegisterGuide([[
@@ -14988,7 +15044,7 @@ step
     .complete 192,1
     >>Kill Shadowmaw Panthers 48.8, 20.0 for "Panther Mastery"
 step
-    #completewith h1718
+    #completewith h1726
     .complete 195,1
     >>SOFT STEP: kill Lashtail Raptors as you go for "Raptor Mastery"
 step
@@ -14996,7 +15052,7 @@ step
     .complete 577,1
     >>Kill Snapjaw Crocolisks along the river 40.0, 15.7 for their skins, for "Some Assembly Required"
 step
-    #label h1718
+    #label h1726
     .goto 1434,31.4,22.3
     .complete 195,1
     >>HARD STEP: kill Lashtail Raptors to the west 31.4, 22.3 for "Raptor Mastery". Skipped if the soft step is done
@@ -15006,7 +15062,7 @@ step
     .target Sin'Dall
     >>Kill Sin'Dall 32.2, 17.2 for her paw, for "Tiger Mastery"
 step
-    #completewith h1727
+    #completewith h1735
     .goto 1434,25.5,9.4
     .complete 189,1
     >>SOFT STEP: kill Bloodscalp trolls 25.5, 9.4 for their ears, for "Bloodscalp Ears"
@@ -15020,12 +15076,12 @@ step
     .target Zimmix Sputterspark
     >>Accept "Where's the Key?" from Zimmix Sputterspark in the Ruins of Zul'Kunda 23.5, 12.8
 step
-    #completewith h1729
+    #completewith h1737
     .goto 1434,23.5,12.8
     .complete 97328,1
     >>SOFT STEP: loot the Stolen Shipments lying around the Ruins of Zul'Kunda 23.5, 12.8 for "Anything of Value"
 step
-    #completewith h1728
+    #completewith h1736
     .goto 1434,23.5,12.8
     .complete 97329,1
     >>SOFT STEP: kill trolls in the Ruins of Zul'Kunda 23.5, 12.8 for the Primitive Key, for "Where's the Key?"
@@ -15038,17 +15094,17 @@ step
     .complete 207,4
     >>Click The Emperor's Tomb 24.7, 8.9 for the Fourth Troll Legend, for "Kurzen's Mystery"
 step
-    #label h1727
+    #label h1735
     .goto 1434,25.5,9.4
     .complete 189,1
     >>HARD STEP: kill Bloodscalp trolls 25.5, 9.4 for the rest of the ears, for "Bloodscalp Ears". Skipped if done
 step
-    #label h1728
+    #label h1736
     .goto 1434,23.5,12.8
     .complete 97329,1
     >>HARD STEP: kill trolls in the Ruins of Zul'Kunda 23.5, 12.8 for the Primitive Key. Skipped if done
 step
-    #label h1729
+    #label h1737
     .goto 1434,23.5,12.8
     .complete 97328,1
     >>HARD STEP: loot the last Stolen Shipments in the Ruins of Zul'Kunda 23.5, 12.8 for "Anything of Value". Skipped if done
@@ -15258,19 +15314,19 @@ S.RegisterGuide([[
 step
     .turnin 228 >>Turn in Mor'Ladim
     .target Commander Althea Ebonlocke
-    >>Turn in "Mor'Ladim" to Commander Althea Ebonlocke 73.6, 46.9. Skipped if done at #1338
+    >>Turn in "Mor'Ladim" to Commander Althea Ebonlocke 73.6, 46.9. Skipped if done at #1346
 step
     .accept 229 >>Accept The Daughter Who Lived
     .target Commander Althea Ebonlocke
-    >>Accept "The Daughter Who Lived" from Commander Althea Ebonlocke 73.6, 46.9. Skipped if done at #1339
+    >>Accept "The Daughter Who Lived" from Commander Althea Ebonlocke 73.6, 46.9. Skipped if done at #1347
 step
     .turnin 229 >>Turn in The Daughter Who Lived
     .target Watcher Ladimore
-    >>Turn in "The Daughter Who Lived" to Watcher Ladimore, who walks around the main square 74.5, 46.1. Skipped if done at #1341
+    >>Turn in "The Daughter Who Lived" to Watcher Ladimore, who walks around the main square 74.5, 46.1. Skipped if done at #1349
 step
     .accept 231 >>Accept A Daughter's Love
     .target Watcher Ladimore
-    >>Accept "A Daughter's Love" from Watcher Ladimore 74.5, 46.1. Skipped if done at #1342
+    >>Accept "A Daughter's Love" from Watcher Ladimore 74.5, 46.1. Skipped if done at #1350
 ]])
 
 S.RegisterGuide([[
@@ -15278,7 +15334,7 @@ S.RegisterGuide([[
 #next 39 Blasted Lands - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h1781
+    #completewith h1789
     .goto 1435,14.0,61.7
     .complete 1116,1
     >>SOFT STEP: kill Adolescent Whelps and Dreaming Whelps at the zone entrance 14.0, 61.7 for Specks of Dream Dust, for "Dream Dust in the Swamp"
@@ -15288,12 +15344,12 @@ step
     .target Watcher Biggs
     >>Accept "Encroaching Wildlife" from Watcher Biggs 26.7, 59.8
 step
-    #completewith h2125
+    #completewith h2133
     .complete 1364,1
     .target Swampwalker
     >>SOFT STEP: loot Swampwalkers, Swampwalker Elders, Tangled Horrors and Mire Lords as you go for Khadgar's Essays on Dimensional Convergence, for "Mazen's Behest" (a rare drop)
 step
-    #completewith h1782
+    #completewith h1790
     .goto 1435,28.2,43.8
     .complete 1396,1
     .complete 1396,2
@@ -15317,12 +15373,12 @@ step
     .target Magtoor
     >>Accept "Draenethyst Crystals" from Magtoor 26.0, 31.4
 step
-    #label h1781
+    #label h1789
     .goto 1435,14.2,58.8
     .complete 1116,1
     >>HARD STEP: kill Adolescent Whelps and Dreaming Whelps 14.2, 58.8 for the rest of the Specks of Dream Dust. Skipped if done
 step
-    #label h1782
+    #label h1790
     .goto 1435,26.6,36.2
     .complete 1396,1
     .complete 1396,2
@@ -15339,13 +15395,13 @@ step
     .target Watcher Biggs
     >>Accept "The Lost Caravan" from Watcher Biggs 26.7, 59.8
 step
-    #completewith h1790
+    #completewith h1798
     .goto 1435,60.5,23.2
     .complete 1373,1
     .target Ongeku
     >>SOFT STEP: kill Ongeku, who roams Fallow Sanctuary 60.5, 23.2, for the Draenethyst Shard, for "Ongeku"
 step
-    #completewith h1791
+    #completewith h1799
     .goto 1435,63.3,22.3
     .complete 1389,1
     >>SOFT STEP: pick up Draenethyst Crystals from the ground 63.3, 22.3 for "Draenethyst Crystals"
@@ -15364,13 +15420,13 @@ step
     .target Galen Goodward
     >>Escort Galen Goodward out of the camp to 53.0, 29.6 for "Galen's Escape"
 step
-    #label h1790
+    #label h1798
     .goto 1435,60.5,23.2
     .complete 1373,1
     .target Ongeku
     >>HARD STEP: kill Ongeku in Fallow Sanctuary 60.5, 23.2 for the Draenethyst Shard. Skipped if done
 step
-    #label h1791
+    #label h1799
     .complete 1389,1
     >>HARD STEP: pick up the last Draenethyst Crystals 63.3, 22.3. Skipped if done
 step
@@ -15561,7 +15617,7 @@ step
     .turnin 658 >>Turn in Hints of a New Plague?
     .target Quae
     .itemcount 4482,1
-    >>Turn in "Hints of a New Plague?" to Quae 60.2, 53.8 (shows only if you have the Sealed Folder). Skipped if done at #1434
+    >>Turn in "Hints of a New Plague?" to Quae 60.2, 53.8 (shows only if you have the Sealed Folder). Skipped if done at #1442
 step
     .goto 1417,60.2,53.8
     .accept 657 >>Accept Hints of a New Plague?
@@ -15697,7 +15753,7 @@ step
     .complete 540,2
     >>Open the Weathered Bookcase in the town hall 38.4, 46.4 for the Worn Leather Book, for "Preserving Knowledge"
 step
-    #completewith h1854
+    #completewith h1862
     .complete 512,1
     >>SOFT STEP: kill Syndicate as you go for Syndicate Signet Rings, for "Noble Deaths"
 step
@@ -15710,7 +15766,7 @@ step
     .goto 1416,39.2,14.7
     >>Open the Worn Wooden Chest 39.2, 14.7 for the Ensorcelled Parchment
 step
-    #completewith h1854
+    #completewith h1862
     .goto 1416,47.8,17.4
     .complete 537,1
     >>SOFT STEP: kill the Argus Shadow Mages in the small Syndicate camps 47.8, 17.4 for "Dark Council"
@@ -15720,7 +15776,7 @@ step
     .target Baron Vardus
     >>Kill Baron Vardus 59.7, 43.9 for his head, for "Baron's Demise" (he can also be in the basement of the Strahnbrad inn; shows only if you have the quest)
 step
-    #label h1854
+    #label h1862
     .goto 1416,62.3,40.6
     .complete 537,1
     .complete 512,1
@@ -15842,39 +15898,39 @@ step
     .turnin 79976 >>Turn in This Must Be The Place
     >>Click the satchel on the ground there 22.5, 24.1 to turn in "This Must Be The Place"
 step
-    #label h1876
+    #label h1884
     .goto 1417,60.7,61.0
     .complete 657,1
     .target Forsaken Courier
-    >>HARD STEP: kill the Forsaken Courier on the road from Go'shek Farm 60.7, 61.0 to Tarren Mill for the Sealed Folder, for "Hints of a New Plague?". Skipped if the soft step (#1431) is done
+    >>HARD STEP: kill the Forsaken Courier on the road from Go'shek Farm 60.7, 61.0 to Tarren Mill for the Sealed Folder, for "Hints of a New Plague?". Skipped if the soft step (#1439) is done
 step
     .turnin 659 >>Turn in Hints of a New Plague?
     .target Quae
-    >>Turn in "Hints of a New Plague?" to Quae 60.2, 53.8. Skipped if done at #1434 or #1824
+    >>Turn in "Hints of a New Plague?" to Quae 60.2, 53.8. Skipped if done at #1442 or #1832
 step
     .accept 658 >>Accept Hints of a New Plague?
     .target Quae
-    >>Accept "Hints of a New Plague?" (the next part) from Quae 60.2, 53.8. Skipped if done at #1825
+    >>Accept "Hints of a New Plague?" (the next part) from Quae 60.2, 53.8. Skipped if done at #1833
 step
     .turnin 658 >>Turn in Hints of a New Plague?
     .target Kinelory
-    >>Turn in "Hints of a New Plague?" to Kinelory 60.2, 53.8. Skipped if done at #1826
+    >>Turn in "Hints of a New Plague?" to Kinelory 60.2, 53.8. Skipped if done at #1834
 step
     .accept 660 >>Accept Hints of a New Plague?
     .target Kinelory
-    >>Accept "Hints of a New Plague?" (the escort) from Kinelory 60.2, 53.8. Skipped if done at #1827
+    >>Accept "Hints of a New Plague?" (the escort) from Kinelory 60.2, 53.8. Skipped if done at #1835
 step
     .complete 660,1
     .target Kinelory
-    >>Escort Kinelory through Go'Shek Farm for "Hints of a New Plague?". Skipped if done at #1828
+    >>Escort Kinelory through Go'Shek Farm for "Hints of a New Plague?". Skipped if done at #1836
 step
     .turnin 660 >>Turn in Hints of a New Plague?
     .target Quae
-    >>Turn in "Hints of a New Plague?" to Quae 60.2, 53.8. Skipped if done at #1829
+    >>Turn in "Hints of a New Plague?" to Quae 60.2, 53.8. Skipped if done at #1837
 step
     .accept 658 >>Accept Hints of a New Plague?
     .target Quae
-    >>Accept "Hints of a New Plague?" (the last part) from Quae 60.2, 53.8. Skipped if done at #1830
+    >>Accept "Hints of a New Plague?" (the last part) from Quae 60.2, 53.8. Skipped if done at #1838
 step
     .goto 1417,46.7,47.0
     .accept 693 >>Accept Wand over Fist
@@ -15934,19 +15990,19 @@ step
     .accept 653 >>Accept Myzrael's Allies
     >>Accept "Myzrael's Allies" from the Keystone 36.1, 58.1
 step
-    #completewith h1921
+    #completewith h1929
     .goto 1417,29.6,63.7
     .complete 684,1
     .target Marez Cowl
     >>SOFT STEP: kill Marez Cowl 29.6, 63.7 for her head, for "Wanted! Marez Cowl" (when you have a group)
 step
-    #completewith h1922
+    #completewith h1930
     .goto 1417,26.0,65.7
     .complete 685,2
     .target Otto
     >>SOFT STEP: kill Otto and Lord Falconcrest 26.0, 65.7 for their heads, for "Wanted! Otto and Falconcrest" (when you have a group)
 step
-    #completewith h1921
+    #completewith h1929
     .goto 1417,29.6,63.7
     .complete 684,1
     .target Marez Cowl
@@ -15999,7 +16055,7 @@ step
     .complete 666,1
     >>Equip the Goggles of Gem Hunting so the Elven Gems show on your minimap, for "Sunken Treasure"
 step
-    #completewith h1913
+    #completewith h1921
     .complete 664,1
     .complete 664,2
     >>SOFT STEP: kill Daggerspine Raiders and Daggerspine Sorceresses as you go for "Drowned Sorrows"
@@ -16020,7 +16076,7 @@ step
     .complete 662,4
     >>Pick up the Spirit of Silverpine Log from the sea floor under the ship 20.6, 85.1, for "Deep Sea Salvage"
 step
-    #label h1913
+    #label h1921
     .goto 1417,19.3,84.1
     .complete 664,1
     .complete 664,2
@@ -16060,13 +16116,13 @@ step
     .target Shakes O'Breen
     >>Accept "Sunken Treasure" (the next part) from Shakes O'Breen 32.3, 81.4
 step
-    #label h1921
+    #label h1929
     .goto 1417,45.8,47.5
     .turnin 684 >>Turn in WANTED: Marez Cowl
     .target Captain Nials
     >>Turn in "Wanted! Marez Cowl" to Captain Nials in Refuge Pointe 45.8, 47.5 (shows only once it's done)
 step
-    #label h1922
+    #label h1930
     .goto 1417,45.8,47.5
     .turnin 685 >>Turn in WANTED: Otto and Falconcrest
     .target Captain Nials
@@ -16108,7 +16164,7 @@ S.RegisterGuide([[
 step
     .turnin 661 >>Turn in Hints of a New Plague?
     .target Phin Odelic
-    >>Turn in "Hints of a New Plague?" to Phin Odelic 50.3, 59.0. Skipped if done at #1835
+    >>Turn in "Hints of a New Plague?" to Phin Odelic 50.3, 59.0. Skipped if done at #1843
 step
     .goto 1424,50.6,57.1
     .accept 554 >>Accept Stormpike's Deciphering
@@ -16150,17 +16206,17 @@ step
     .target Morgan Stern
     >>Accept "Mudrock Soup and Bugs" from Morgan Stern 66.3, 45.5
 step
-    #completewith h1938
+    #completewith h1946
     .goto 1445,63.1,37.0
     .complete 1204,1
     >>SOFT STEP: kill Mudrock Spikeshells and Mudrock Tortoises 63.1, 37.0 as you go for their tongues, for "Mudrock Soup and Bugs"
 step
-    #label h1937
+    #label h1945
     .goto 1445,57.6,16.4
     .complete 1177,1
-    >>HARD STEP: kill Mirefin murlocs on the northern shore 57.6, 16.4 for the rest of the Mirefin Heads, for "Hungry!". Skipped if the soft step (#1508) is done
+    >>HARD STEP: kill Mirefin murlocs on the northern shore 57.6, 16.4 for the rest of the Mirefin Heads, for "Hungry!". Skipped if the soft step (#1516) is done
 step
-    #label h1938
+    #label h1946
     .goto 1445,61.8,26.4
     .complete 1204,1
     >>HARD STEP: kill Mudrock Spikeshells and Mudrock Tortoises 61.8, 26.4 for the rest of the tongues. Skipped if done
@@ -16475,7 +16531,7 @@ S.RegisterGuide([[
 #next 41 Badlands: Agmond and the Troggs - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h2030
+    #completewith h2038
     .complete 2500,1
     .complete 2500,2
     .complete 703,1
@@ -16549,7 +16605,7 @@ step
     .target Garek
     >>Accept "Tremors of the Earth" from Garek 61.9, 54.3 (shows once you're level 40)
 step
-    #completewith h2034
+    #completewith h2042
     .complete 732,1
     .target Boss Tho'grun
     >>SOFT STEP: kill Boss Tho'grun if you cross his path (he walks a route across the whole zone) for the Sign of the Earth, for "Tremors of the Earth"
@@ -16568,7 +16624,7 @@ step
     .accept 739 >>Accept Murdaloc
     >>Accept "Murdaloc" from the Battered Dwarven Skeleton 50.9, 62.4
 step
-    #completewith h2017
+    #completewith h2025
     .complete 1108,1
     >>SOFT STEP: kill Stonevault troggs as you go for Indurium Flakes, for "Indurium"
 step
@@ -16599,7 +16655,7 @@ step
     .target Theldurin the Lost
     >>Turn in "The Lost Fragments" to Theldurin the Lost 51.4, 76.9
 step
-    #label h2017
+    #label h2025
     .goto 1418,50.3,69.1
     .complete 1108,1
     .complete 739,2
@@ -16654,7 +16710,7 @@ step
     .target Lotwil Veriatus
     >>Accept "Study of the Elements: Rock" (the next part) from Lotwil Veriatus 25.9, 44.9
 step
-    #completewith h2029
+    #completewith h2037
     .goto 1418,11.0,80.0
     .complete 733,1
     >>SOFT STEP: kill Dustbelcher Wyrmhunters, Maulers and Shamans around the ogre camp 11.0, 80.0 for Scrap Metal, for "Scrounging"
@@ -16663,12 +16719,12 @@ step
     .complete 712,1
     >>Kill Greater Rock Elementals 2.7, 81.3 for the bracers, for "Study of the Elements: Rock"
 step
-    #label h2029
+    #label h2037
     .goto 1418,8.0,83.6
     .complete 733,1
     >>HARD STEP: kill Dustbelcher ogres 8.0, 83.6 for the rest of the Scrap Metal. Skipped if done
 step
-    #label h2030
+    #label h2038
     .goto 1418,55.8,60.2
     .complete 2500,1
     .complete 2500,2
@@ -16696,7 +16752,7 @@ step
     .target Sigrun Ironhew
     >>Turn in "Scrounging" to Sigrun Ironhew 53.8, 43.3
 step
-    #label h2034
+    #label h2042
     .goto 1418,41.0,55.0
     .complete 732,1
     .target Boss Tho'grun
@@ -17062,7 +17118,7 @@ step
     .complete 604,3
     >>Kill Bloodsail Swashbucklers at the Bloodsail camps 29.6, 81.5 and loot the Bloodsail Charts and Bloodsail Orders, for "The Bloodsail Buccaneers" (they can also be in the small rowboat)
 step
-    #completewith h2105
+    #completewith h2113
     .complete 587,1
     .complete 576,1
     >>SOFT STEP: kill Bloodsail Mages, Raiders and Warlocks as you go for snuff, for "Up to Snuff", and Dizzy's Eye, for "Keep An Eye Out"
@@ -17073,7 +17129,7 @@ step
     .accept 624 >>Accept Cortello's Riddle
     >>Use Cortello's Riddle to start "Cortello's Riddle"
 step
-    #label h2105
+    #label h2113
     .goto 1434,29.6,81.5
     .complete 587,1
     .complete 576,1
@@ -17083,7 +17139,7 @@ step
     .complete 609,3
     >>Kill Chucky "Ten Thumbs" in the Ruins of Aboraz 40.0, 58.2 for his ring, for "Voodoo Dues"
 step
-    #completewith h2109
+    #completewith h2117
     .complete 621,1
     >>SOFT STEP: kill Zanzil Witch Doctors, Zombies, Hunters and Naga as you go for Zanzil's Mixture, for "Zanzil's Secret"
 step
@@ -17093,7 +17149,7 @@ step
     .target Jon-Jon the Crow
     >>Kill Maury "Club Foot" Wilkins and Jon-Jon the Crow in the Ruins of Jubuwal 34.9, 51.8, for "Voodoo Dues"
 step
-    #label h2109
+    #label h2117
     .goto 1434,35.3,51.3
     .complete 621,1
     >>HARD STEP: kill Zanzil trolls 35.3, 51.3 for the rest of Zanzil's Mixture. Skipped if done
@@ -17181,7 +17237,7 @@ S.RegisterGuide([[
 #next 43 Booty Bay - Druid
 << Skyborne Druid Alliance
 step
-    #label h2125
+    #label h2133
     .goto 1419,67.6,19.2
     .turnin 1364 >>Turn in Mazen's Behest
     .target Watcher Mahar Ba
@@ -17430,12 +17486,12 @@ S.RegisterGuide([[
 #next 44-45 Feathermoon Stronghold - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h2228
+    #completewith h2236
     .complete 1452,1
     .target Roc
     >>SOFT STEP: keep any Roc Gizzards you loot from Rocs (for a later quest)
 step
-    #completewith h2178
+    #completewith h2186
     .goto 1446,60.4,24.6
     .complete 1690,1
     .complete 1707,1
@@ -17466,7 +17522,7 @@ step
     .target Stoley
     >>Accept "Stoley's Shipment" from Stoley 67.1, 24.0
 step
-    #label h2178
+    #label h2186
     .goto 1446,63.6,31.7
     .complete 1690,1
     >>HARD STEP: kill Wastewander Bandits and Thieves at the camps 63.6, 31.7 for the rest of "Wastewander Justice" and the Water Pouches. Skipped if done
@@ -17667,12 +17723,12 @@ step
     .target Vestia Moonspear
     >>Turn in "Delivering the Relic" to Vestia Moonspear 30.1, 45.1
 step
-    #completewith h2229
+    #completewith h2237
     .complete 3520,1
     .target Screecher Spirit
     >>SOFT STEP: kill Vale Screechers and Rogue Vale Screechers as you go, use Yeh'kinya's Bramble on each corpse and talk to the Screecher Spirit, for "Screecher Spirits"
 step
-    #completewith h2228
+    #completewith h2236
     .complete 1452,2
     .complete 1452,3
     >>SOFT STEP: kill Ironfur Bears, Grizzled Ironfur Bears and Groddoc Apes as you go for their livers, for "Rhapsody's Kalimdor Kocktail"
@@ -17707,13 +17763,13 @@ step
     .complete 2982,2
     >>Kill Gordunni Shamans, Warlocks and Brutes at the ogre camps 59.5, 66.8 for "The High Wilderness"
 step
-    #label h2228
+    #label h2236
     .goto 1444,57.3,54.1
     .complete 1452,2
     .complete 1452,3
     >>HARD STEP: kill Ironfur Bears, Grizzled Ironfur Bears and Groddoc Apes 57.3, 54.1 for the rest of the livers. Skipped if done
 step
-    #label h2229
+    #label h2237
     .goto 1444,53.2,47.2
     .complete 3520,1
     >>HARD STEP: kill Vale Screechers 53.2, 47.2 and capture the rest of the Screecher Spirits. Skipped if done
@@ -17966,7 +18022,7 @@ step
     .target Senior Surveyor Fizzledowser
     >>Accept "Gadgetzan Water Survey" from Senior Surveyor Fizzledowser 50.2, 27.5
 step
-    #completewith h2282
+    #completewith h2290
     .complete 1452,1
     .target Roc
     >>SOFT STEP: kill Rocs and Fire Rocs as you go for Roc Gizzards
@@ -17989,7 +18045,7 @@ step
     .complete 82,1
     >>Kill Centipaar Sandreavers, Swarmers, Stingers, Tunnelers and Wasps 35.7, 39.8 for Centipaar Insect Parts, for "Noxious Lair Investigation"
 step
-    #label h2282
+    #label h2290
     .goto 1446,49.5,35.9
     .complete 1452,1
     >>HARD STEP: kill Rocs and Fire Rocs 49.5, 35.9 for the rest of the Roc Gizzards. Skipped if done
@@ -18023,7 +18079,7 @@ step
     .target Gryphon Master Talonaxe
     >>Accept "Witherbark Cages" from Gryphon Master Talonaxe 9.8, 44.5
 step
-    #completewith h2302
+    #completewith h2310
     .complete 3661,1
     >>SOFT STEP: pick up every Wildkin Feather you see on the ground, for "Favored of Elune?"
 step
@@ -18087,7 +18143,7 @@ step
     .complete 2877,2
     >>Kill Green Sludges and Jade Oozes at Skulk Rock 57.7, 42.8 for "Skulk Rock Clean-up"
 step
-    #label h2302
+    #label h2310
     .complete 3661,1
     >>HARD STEP: pick up the rest of the Wildkin Feathers in the western half of the zone 33.5, 58.1. Skipped if done
 step
@@ -18172,7 +18228,7 @@ step
     .target Marvon Rivetseeker
     >>Accept "Gahz'ridian" from Marvon Rivetseeker 52.7, 45.9
 step
-    #completewith h2321
+    #completewith h2329
     .goto 1446,58.7,36.5
     .complete 1691,1
     .complete 1691,2
@@ -18183,7 +18239,7 @@ step
     .target Caliph Scorpidsting
     >>Kill Caliph Scorpidsting, who patrols the field with two Rogues 60.8, 37.8, for his head, for "WANTED: Caliph Scorpidsting"
 step
-    #label h2321
+    #label h2329
     .goto 1446,65.0,39.5
     .complete 1691,1
     .complete 1691,2
@@ -18195,7 +18251,7 @@ S.RegisterGuide([[
 #next 49-50 Gadgetzan and Thistleshrub Valley - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h2326
+    #completewith h2334
     .goto 1446,69.0,41.6
     .complete 8366,1
     .complete 8366,2
@@ -18216,7 +18272,7 @@ step
     .target Andre Firebeard
     >>Kill Andre Firebeard 73.4, 47.1 for his head, for "WANTED: Andre Firebeard"
 step
-    #label h2326
+    #label h2334
     .goto 1446,71.9,44.9
     .complete 8365,1
     .complete 8366,1
@@ -18231,7 +18287,7 @@ step
     .complete 3161,1
     >>Pick up Gahz'ridian from the ground in the ruins 46.0, 65.1 (the detector shows it on your minimap), for "Gahz'ridian"
 step
-    #completewith h2360
+    #completewith h2368
     .complete 5863,1
     .complete 5863,2
     >>SOFT STEP: kill Dunemaul Brutes and Dunemaul Enforcers that are in the way, for "The Dunemaul Compound"
@@ -18380,7 +18436,7 @@ step
     .target Gor'marok the Ravager
     >>Kill Gor'marok the Ravager at the Dunemaul Compound 41.5, 57.8 for "The Dunemaul Compound"
 step
-    #label h2360
+    #label h2368
     .goto 1446,38.6,51.8
     .complete 5863,1
     .complete 5863,2
@@ -18793,13 +18849,13 @@ step
     .accept 3442 >>Accept The Flawless Flame
     >>Accept "The Flawless Flame" from Velarok Windblade 39.1, 39.0
 step
-    #completewith h2461
+    #completewith h2469
     .goto 1427,33.2,43.6
     .complete 7723,1
     .complete 7724,1
     >>SOFT STEP: kill Heavy War Golems 33.2, 43.6 and Greater Lava Spiders as you go, for "Curse These Fat Fingers" and "Fiery Menace!"
 step
-    #completewith h2460
+    #completewith h2468
     .goto 1427,39.1,50.2
     .complete 7728,1
     .complete 7728,2
@@ -18889,13 +18945,13 @@ step
     .target Squire Maltrake
     >>Accept "Set Them Ablaze!" from Squire Maltrake 39.2, 39.0
 step
-    #label h2460
+    #label h2468
     .goto 1427,39.1,50.2
     .complete 7728,1
     .complete 7728,2
     >>HARD STEP: kill Dark Iron Steamsmiths 39.1, 50.2 and Dark Iron Lookouts for the Tuyere and the Spyglass. Skipped if done
 step
-    #label h2461
+    #label h2469
     .goto 1427,27.4,45.6
     .complete 7724,1
     >>HARD STEP: kill Greater Lava Spiders 27.4, 45.6 for the rest of "Fiery Menace!". Skipped if done
@@ -19175,7 +19231,7 @@ S.RegisterGuide([[
 #next 51 Loch Modan and The Hinterlands - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h2525
+    #completewith h2533
     .complete 5090,1
     .target Courier Hammerfall
     >>SOFT STEP: accept "A Call to Arms: The Plaguelands!" from Courier Hammerfall if you run into him (he walks laps around the city)
@@ -19252,7 +19308,7 @@ step
     .target Xiggs Fuselighter
     >>Accept and turn in "Signal for Pickup" at Xiggs Fuselighter 70.9, 94.6
 step
-    #label h2525
+    #label h2533
     .goto 1455,33.0,22.4
     .complete 5090,1
     .target Courier Hammerfall
@@ -19581,7 +19637,7 @@ step
     .complete 4512,1
     >>Kill Cursed Oozes in the pools 40.8, 66.9 and use an empty cursed jar on each corpse, for "A Little Slime Goes a Long Way"
 step
-    #completewith h2587
+    #completewith h2595
     .goto 1448,40.5,59.1
     .complete 4512,2
     >>SOFT STEP: kill Tainted Oozes 40.5, 59.1 and fill the tainted jars from their corpses, for "A Little Slime Goes a Long Way"
@@ -19593,7 +19649,7 @@ step
     .complete 5155,4
     >>Kill Jaedenar Hounds, Guardians, Adepts and Cultists at Jaedenar 38.6, 59.1 for "Forces of Jaedenar"
 step
-    #label h2587
+    #label h2595
     .goto 1448,40.5,59.1
     .complete 4512,2
     >>HARD STEP: kill Tainted Oozes 40.5, 59.1 for the rest of the tainted jars. Skipped if done
@@ -19620,7 +19676,7 @@ step
 step
     .accept 5156 >>Accept Verifying the Corruption
     .target Taronn Redfeather
-    >>Accept "Verifying the Corruption" from Taronn Redfeather 50.9, 81.6. Skipped if done at #2580
+    >>Accept "Verifying the Corruption" from Taronn Redfeather 50.9, 81.6. Skipped if done at #2588
 ]])
 
 S.RegisterGuide([[
@@ -20135,7 +20191,7 @@ step
     .goto 1449,41.9,2.7
     .accept 4284 >>Accept Crystals of Power
     .turnin 4284 >>Turn in Crystals of Power
-    >>Accept and turn in "Crystals of Power" at J.D. Collie 41.9, 2.7 (shows only once you have 7 of each colour). Skipped if done at #2381
+    >>Accept and turn in "Crystals of Power" at J.D. Collie 41.9, 2.7 (shows only once you have 7 of each colour). Skipped if done at #2389
 step
     .goto 1449,41.9,2.7
     .accept 4285 >>Accept The Northern Pylon
@@ -20186,7 +20242,7 @@ S.RegisterGuide([[
 #next 53-54 Southern and Western Un'Goro - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h2715
+    #completewith h2723
     .complete 3882,1
     .complete 4503,1
     .complete 4503,2
@@ -20248,7 +20304,7 @@ S.RegisterGuide([[
 #next 54 Marshal's Refuge Turn-ins - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h2714
+    #completewith h2722
     .goto 1449,44.3,90.4
     .complete 4501,1
     .target Pterrordax
@@ -20275,14 +20331,14 @@ step
     .complete 4288,1
     >>Click the Western Crystal Pylon 23.8, 59.2 for "The Western Pylon"
 step
-    #label h2714
+    #label h2722
     .goto 1449,22.2,41.0
     .complete 4501,1
     .complete 4501,2
     .target Frenzied Pterrordax
     >>HARD STEP: kill Frenzied Pterrordax in the west 22.2, 41.0 for the rest of "Beware of Pterrordax" and the pterrordax scales. Skipped if done
 step
-    #label h2715
+    #label h2723
     .goto 1449,28.4,60.8
     .complete 3882,1
     .complete 4503,1
@@ -20430,7 +20486,7 @@ step
 step
     .accept 5159 >>Accept Cleansed Water Returns to Felwood
     .target Islen Waterseer
-    >>Accept "Cleansed Water Returns to Felwood" from Islen Waterseer 65.8, 43.8. Skipped if done at #2672
+    >>Accept "Cleansed Water Returns to Felwood" from Islen Waterseer 65.8, 43.8. Skipped if done at #2680
 step
     .zone Moonglade >>Teleport to Moonglade
     >>Teleport to Moonglade
@@ -20471,11 +20527,11 @@ step
 step
     .accept 3763 >>Accept Assisting Arch Druid Staghelm
     .target Innkeeper Saelienne
-    >>Accept "Assisting Arch Druid Staghelm" from Innkeeper Saelienne 67.4, 15.7. Skipped if done at #2560
+    >>Accept "Assisting Arch Druid Staghelm" from Innkeeper Saelienne 67.4, 15.7. Skipped if done at #2568
 step
     .turnin 3763 >>Turn in Assisting Arch Druid Staghelm
     .target Arch Druid Fandral Staghelm
-    >>Turn in "Assisting Arch Druid Staghelm" to Arch Druid Fandral Staghelm on the top floor of the tree 34.8, 9.3. Skipped if done at #2561
+    >>Turn in "Assisting Arch Druid Staghelm" to Arch Druid Fandral Staghelm on the top floor of the tree 34.8, 9.3. Skipped if done at #2569
 step
     .goto 1457,34.8,9.3
     .turnin 1047 >>Turn in The New Frontier
@@ -20484,7 +20540,7 @@ step
 step
     .accept 3764 >>Accept Un'Goro Soil
     .target Arch Druid Fandral Staghelm
-    >>Accept "Un'Goro Soil" from Arch Druid Fandral Staghelm 34.8, 9.3. Skipped if done at #2562
+    >>Accept "Un'Goro Soil" from Arch Druid Fandral Staghelm 34.8, 9.3. Skipped if done at #2570
 step
     .goto 1457,34.8,9.3
     .accept 6761 >>Accept The New Frontier
@@ -20493,7 +20549,7 @@ step
 step
     .turnin 3764 >>Turn in Un'Goro Soil
     .target Jenal
-    >>Turn in "Un'Goro Soil" to Jenal 31.5, 8.2. Skipped if done at #2563
+    >>Turn in "Un'Goro Soil" to Jenal 31.5, 8.2. Skipped if done at #2571
 step
     .goto 1457,34.8,9.3
     .accept 3781 >>Accept Morrowgrain Research
@@ -20532,7 +20588,7 @@ S.RegisterGuide([[
 step
     .accept 978 >>Accept Moontouched Wildkin
     .target Erelas Ambersky
-    >>Accept "Moontouched Wildkin" from Erelas Ambersky 55.5, 92.0. Skipped if done at #2553
+    >>Accept "Moontouched Wildkin" from Erelas Ambersky 55.5, 92.0. Skipped if done at #2561
 step
     .goto 1438,55.5,92.0
     .turnin 978 >>Turn in Moontouched Wildkin
@@ -20561,7 +20617,7 @@ S.RegisterGuide([[
 #next 54 Felwood north: the Deadwood camps - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h2771
+    #completewith h2779
     .complete 4103,1
     >>SOFT STEP: loot Corrupted Soul Shards from anything you kill on the way south through Felwood, until you have 6, for "Salve via Hunting"
 step
@@ -20586,7 +20642,7 @@ step
     .target Eridan Bluewind
     >>Accept and turn in "Purified!" at Eridan Bluewind 51.4, 81.5 (wait for his short scene first)
 step
-    #label h2771
+    #label h2779
     .goto 1448,48.2,93.8
     .complete 5882,1
     .complete 4103,1
@@ -20747,7 +20803,7 @@ step
 step
     .turnin 3908 >>Turn in It's a Secret to Everybody
     .target Donova Snowden
-    >>Turn in "It's a Secret to Everybody" to Donova Snowden 31.3, 45.2. Skipped if done at #2601
+    >>Turn in "It's a Secret to Everybody" to Donova Snowden 31.3, 45.2. Skipped if done at #2609
 step
     .goto 1452,31.3,45.2
     .accept 5082 >>Accept Threat of the Winterfall
@@ -20917,7 +20973,7 @@ step
     .target Eridan Bluewind
     >>Accept "Silver Heart" from Eridan Bluewind 51.4, 81.5
 step
-    #completewith h2841
+    #completewith h2849
     .complete 4084,1
     .target Angerclaw Bear
     >>SOFT STEP: loot Silvery Claws from every Angerclaw Bear, Angerclaw Mauler, Felpaw Wolf and Felpaw Scavenger you kill, for "Silver Heart"
@@ -20961,7 +21017,7 @@ step
     .complete 4084,2
     >>Kill Irontree Stompers or Irontree Wanderers 51.8, 25.5 for the Irontree Heart, for "Silver Heart"
 step
-    #label h2841
+    #label h2849
     .goto 1448,55.6,23.4
     .complete 4084,1
     >>HARD STEP: kill Angerclaw Bears, Maulers and Felpaw Wolves 55.6, 23.4 until you have 11 Silvery Claws, for "Silver Heart". Skipped if you have 11
@@ -20982,7 +21038,7 @@ step
     .target Donova Snowden
     >>Accept "Winterfall Runners" from Donova Snowden 31.3, 45.2
 step
-    #completewith h2871
+    #completewith h2879
     .complete 5087,1
     >>SOFT STEP: kill the Winterfall Runners for the Winterfall Crate when you see them; they start near the Timbermaw tunnel and walk the road east, for "Winterfall Runners"
 step
@@ -21073,7 +21129,7 @@ step
     .complete 4864,1
     >>Pick up Jaron's Supplies next to the wagon 61.4, 60.7, for "Enraged Wildkin"
 step
-    #completewith h2864
+    #completewith h2872
     .complete 4864,2
     >>SOFT STEP: kill Crazed, Moontouched and Berserk Owlbeasts as you go until one drops the Blue-feathered Amulet, for "Enraged Wildkin"
 step
@@ -21083,12 +21139,12 @@ step
     .isOnQuest 979
     >>Turn in "Find Ranshalla" to Ranshalla 63.1, 59.5 (shows only if you have it)
 step
-    #label h2864
+    #label h2872
     .goto 1452,65.5,60.3
     .complete 4864,2
     >>HARD STEP: kill Crazed, Moontouched and Berserk Owlbeasts 65.5, 60.3 until one drops the Blue-feathered Amulet, for "Enraged Wildkin". Skipped if you have it
 step
-    #completewith h2869
+    #completewith h2877
     .goto 1452,59.1,68.3
     .complete 969,1
     >>SOFT STEP: pick up 4 Frostmaul Shards in Frostwhisper Gorge 59.1, 68.3, for "Luck Be With You" (a hard area: when you have a group)
@@ -21105,7 +21161,7 @@ step
     .target Innkeeper Vizzie
     >>Go to the vendor, Innkeeper Vizzie 61.4, 38.8, to sell and stock up
 step
-    #label h2869
+    #label h2877
     .goto 1452,61.9,38.3
     .turnin 969 >>Turn in Luck Be With You
     .target Witch Doctor Mau'ari
@@ -21116,7 +21172,7 @@ step
     .target Jaron Stoneshaper
     >>Turn in "Enraged Wildkin" to Jaron Stoneshaper in Starfall Village 52.1, 30.4
 step
-    #label h2871
+    #label h2879
     .goto 1452,28.0,34.5
     .complete 5087,1
     .target Salfa
@@ -21274,7 +21330,7 @@ step
     .isQuestTurnedIn 3371
     >>Accept "Release Them" from the Dying Archaeologist 41.2, 25.5 (shows only after that turn-in)
 step
-    #completewith h2900
+    #completewith h2908
     .goto 1427,29.1,25.8
     .complete 3372,1
     >>SOFT STEP: jump onto the Twilight Artifact 29.1, 25.8 and loot the Mysterious Artifact, for "Release Them" (guarded: when you have a group)
@@ -21290,12 +21346,12 @@ step
     .target Zamael Lunthistle
     >>Accept "Prayer to Elune" (the next part) from Zamael Lunthistle 29.5, 26.3
 step
-    #completewith h3258
+    #completewith h3266
     .goto 1427,23.0,37.8
     .complete 3378,1
     >>SOFT STEP: kill Twilight Dark Shamans, Fire Guards, Geomancers and Idolaters 23.0, 37.8 until one drops the Prayer to Elune, for "Prayer to Elune" (when you have a group)
 step
-    #label h2900
+    #label h2908
     .goto 1427,41.3,25.4
     .turnin 3372 >>Turn in Release Them
     .itemcount 10442,1
@@ -21307,7 +21363,7 @@ step
     .isQuestTurnedIn 3372
     >>Accept "Rise, Obsidion!" from the Dying Archaeologist 41.2, 25.5 (shows only after that turn-in)
 step
-    #completewith h2964
+    #completewith h2972
     .goto 1427,41.3,25.4
     .complete 3566,1
     .target Lathoric the Black
@@ -21345,7 +21401,7 @@ step
     .target Maxwort Uberglint
     >>Accept "Tablet of the Seven" from Maxwort Uberglint 65.2, 23.9
 step
-    #completewith h2919
+    #completewith h2927
     .goto 1428,81.8,27.8
     .complete 4182,1
     .complete 4182,2
@@ -21354,7 +21410,7 @@ step
     .target Black Dragonspawn
     >>SOFT STEP: kill Black Broodlings, Black Dragonspawn, Black Wyrmkin and one Black Drake along the eastern ridge 81.8, 27.8, for "Dragonkin Menace" (elites: when you have a group)
 step
-    #completewith h2911
+    #completewith h2919
     .complete 4726,1
     >>SOFT STEP: use the Draco-Incarcinatrix 900 on Black Broodlings, kill them and loot the Broodling Essence they leave, for "Broodling Essence" (taking damage stops the cast)
 step
@@ -21364,7 +21420,7 @@ step
     .target Cyrus Therepentous
     >>Accept and turn in "A Taste of Flame" at Cyrus Therepentous at the far east edge 95.1, 31.6 (pick "proof of my deeds")
 step
-    #label h2911
+    #label h2919
     .goto 1428,91.4,32.6
     .complete 4726,1
     >>HARD STEP: use the Draco-Incarcinatrix 900 on Black Broodlings 91.4, 32.6, kill them and loot the rest of the Broodling Essences, for "Broodling Essence". Skipped if done
@@ -21377,7 +21433,7 @@ step
     .complete 3701,1
     >>Pick up Thaurissan Relics from the ground around 57.4, 36.4, for "The Smoldering Ruins of Thaurissan"
 step
-    #completewith h2916
+    #completewith h2924
     .complete 4283,1
     >>SOFT STEP: loot Blackrock Medallions from every Blackrock orc and worg from here on, for "FIFTY! YEP!"
 step
@@ -21386,7 +21442,7 @@ step
     .target Gor'tesh
     >>Kill Gor'tesh 39.2, 55.3 for his head, for "Gor'tesh the Brute Lord"
 step
-    #label h2916
+    #label h2924
     .goto 1428,48.8,59.6
     .complete 4283,1
     >>HARD STEP: kill Blackrock orcs and worgs around 48.8, 59.6 until you have 50 Blackrock Medallions, for "FIFTY! YEP!". Skipped if you have 50
@@ -21402,7 +21458,7 @@ step
     .target Oralius
     >>Accept "Ogre Head On A Stick = Party" from Oralius 84.6, 68.7
 step
-    #label h2919
+    #label h2927
     .goto 1428,85.8,69.0
     .turnin 4182 >>Turn in Dragonkin Menace
     .target Helendis Riverhorn
@@ -21447,7 +21503,7 @@ step
     #optional
     .goto 1453,54.0,81.7
     .target Clavicus Knavingham
-    >>Optional: accept and turn in the four cloth donations at Clavicus Knavingham upstairs 54.0, 81.7 (shows only if you have 3 stacks of each cloth). Skipped if done at #2493
+    >>Optional: accept and turn in the four cloth donations at Clavicus Knavingham upstairs 54.0, 81.7 (shows only if you have 3 stacks of each cloth). Skipped if done at #2501
 step
     .goto 1453,57.2,48.1
     .turnin 5022 >>Turn in Better Late Than Never
@@ -21614,22 +21670,22 @@ step
     .goto 1453,80.2,38.4
     .accept 6182 >>Accept The First and the Last
     .target Highlord Bolvar Fordragon
-    >>Accept "The First and the Last" from Highlord Bolvar Fordragon 80.2, 38.4 (shows once you're level 56). Skipped if done at #2932
+    >>Accept "The First and the Last" from Highlord Bolvar Fordragon 80.2, 38.4 (shows once you're level 56). Skipped if done at #2940
 step
     .goto 1453,78.3,70.7
     .turnin 6182 >>Turn in The First and the Last
     .target Master Mathias Shaw
     .isOnQuest 6182
-    >>Turn in "The First and the Last" to Master Mathias Shaw 78.3, 70.7 (shows only if you have it). Skipped if done at #2936
+    >>Turn in "The First and the Last" to Master Mathias Shaw 78.3, 70.7 (shows only if you have it). Skipped if done at #2944
 step
     .accept 6183 >>Accept Honor the Dead
     .turnin 6183 >>Turn in Honor the Dead
     .target Master Mathias Shaw
-    >>Accept and turn in "Honor the Dead" at Master Mathias Shaw 78.3, 70.7. Skipped if done at #2937
+    >>Accept and turn in "Honor the Dead" at Master Mathias Shaw 78.3, 70.7. Skipped if done at #2945
 step
     .accept 6184 >>Accept Flint Shadowmore
     .target Master Mathias Shaw
-    >>Accept "Flint Shadowmore" from Master Mathias Shaw 78.3, 70.7. Skipped if done at #2938
+    >>Accept "Flint Shadowmore" from Master Mathias Shaw 78.3, 70.7. Skipped if done at #2946
 step
     .zone Moonglade >>Teleport to Moonglade
     >>Teleport to Moonglade
@@ -21653,14 +21709,14 @@ step
     #optional
     .goto 1455,74.1,48.2
     .target Bubulo Acerbus
-    >>Optional: accept and turn in the four cloth donations at Bubulo Acerbus 74.1, 48.2 (shows only if you have 3 stacks of each cloth). Skipped if done at #2521
+    >>Optional: accept and turn in the four cloth donations at Bubulo Acerbus 74.1, 48.2 (shows only if you have 3 stacks of each cloth). Skipped if done at #2529
 step
     #optional
     .goto 1455,43.2,31.6
     .target Mistina Steelshield
-    >>Optional: accept and turn in the four cloth donations at Mistina Steelshield 43.2, 31.6 (shows only if you have 3 stacks of each cloth). Skipped if done at #2522
+    >>Optional: accept and turn in the four cloth donations at Mistina Steelshield 43.2, 31.6 (shows only if you have 3 stacks of each cloth). Skipped if done at #2530
 step
-    #label h2964
+    #label h2972
     .goto 1455,71.8,16.1
     .turnin 3566 >>Turn in Rise, Obsidion!
     .target Curator Thorius
@@ -21749,7 +21805,7 @@ step
     .target Mulgris Deepriver
     >>Accept "The Wildlife Suffers Too" from Mulgris Deepriver 53.7, 64.7
 step
-    #completewith h2993
+    #completewith h3001
     .complete 4984,1
     .target Diseased Wolf
     >>SOFT STEP: kill every Diseased Wolf you see from here on, for "The Wildlife Suffers Too" (killing Carrion Lurkers makes more wolves appear)
@@ -21821,7 +21877,7 @@ step
     .target Janice Felstone
     >>Turn in "Two Halves Become One" to Janice Felstone 38.4, 54.1
 step
-    #label h2993
+    #label h3001
     .goto 1422,43.4,57.8
     .complete 4984,1
     >>HARD STEP: kill Diseased Wolves 43.4, 57.8 for the rest of "The Wildlife Suffers Too". Skipped if done
@@ -21890,7 +21946,7 @@ step
     .target Mulgris Deepriver
     >>Accept "The Wildlife Suffers Too" (the next part) from Mulgris Deepriver 53.7, 64.7
 step
-    #completewith h3084
+    #completewith h3092
     .complete 4985,1
     .target Diseased Grizzly
     >>SOFT STEP: kill every Diseased Grizzly you see on the way east, for "The Wildlife Suffers Too"
@@ -21908,7 +21964,7 @@ step
     .target Tirion Fordring
     >>Accept "Demon Dogs", "Blood Tinged Skies" and "Carrion Grubbage" from Tirion Fordring at his hut across the river 7.5, 43.6
 step
-    #completewith h3019
+    #completewith h3027
     .complete 5543,1
     .complete 5542,1
     .complete 5542,2
@@ -21965,12 +22021,12 @@ step
     .target Pamela Redpath
     >>Accept "Auntie Marlene" and "Uncle Carlin" from Pamela Redpath 24.4, 86.8
 step
-    #completewith h3032
+    #completewith h3040
     .complete 5544,1
     .target Meat
     >>SOFT STEP: loot Worm Meat from every Carrion Grub and Carrion Devourer you kill, for "Carrion Grubbage"
 step
-    #label h3019
+    #label h3027
     .goto 1423,14.6,59.3
     .complete 5543,1
     .complete 5542,1
@@ -22013,12 +22069,12 @@ S.RegisterGuide([[
 #next 58-59 Western Plaguelands: Andorhal - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h3031
+    #completewith h3039
     .complete 5211,1
     .target Darrowshire Spirit
     >>SOFT STEP: kill Diseased Flayers, Gibbering Ghouls and Cannibal Ghouls everywhere you go and talk to the Darrowshire Spirit that comes out of them, for "Defenders of Darrowshire"
 step
-    #completewith h3031
+    #completewith h3039
     .goto 1423,36.8,32.9
     .complete 5542,2
     .complete 5542,3
@@ -22038,14 +22094,14 @@ step
     .target Egan
     >>Turn in "The Restless Souls" to Egan in the hut on the far west edge of the zone 11.4, 26.6
 step
-    #label h3031
+    #label h3039
     .goto 1423,54.0,33.6
     .complete 5542,2
     .complete 5542,3
     .complete 5211,1
     >>HARD STEP: kill Diseased Flayers and Ghouls 61.9, 41.5 for the rest of the Darrowshire spirits, and Frenzied Plaguehounds 42.7, 40.7. Skipped if done
 step
-    #label h3032
+    #label h3040
     .complete 5544,1
     .target Meat
     >>HARD STEP: kill Carrion Grubs and Carrion Devourers until you have all the Worm Meat, for "Carrion Grubbage". Skipped if done
@@ -22166,7 +22222,7 @@ step
     .complete 5153,1
     >>Click Joseph Redpath's Monument 49.7, 76.8 for Joseph's Wedding Ring, for "A Strange Historian"
 step
-    #completewith h3064
+    #completewith h3072
     .complete 5537,1
     >>SOFT STEP: loot Skeletal Fragments from Skeletal Executioners and Skeletal Acolytes in Andorhal from here on, for "Skeletal Fragments"
 step
@@ -22210,7 +22266,7 @@ step
     .target Chromie
     >>Turn in "Counting Out Time" to Chromie 39.5, 66.8
 step
-    #label h3064
+    #label h3072
     .goto 1422,39.8,67.4
     .complete 5537,1
     >>HARD STEP: kill Skeletal Executioners and Acolytes 39.8, 67.4 for the rest of the Skeletal Fragments. Skipped if done
@@ -22293,7 +22349,7 @@ S.RegisterGuide([[
 #next 59 Wrapping up the Plaguelands - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h3084
+    #completewith h3092
     .complete 4985,1
     .target Diseased Grizzly
     >>SOFT STEP: kill every Diseased Grizzly you see, for "The Wildlife Suffers Too" (they share spawns with Plague Lurkers)
@@ -22317,7 +22373,7 @@ step
     .target the Scourge Cauldron
     >>Accept "Return to Chillwind Camp" from the Scourge Cauldron 62.6, 58.6
 step
-    #label h3084
+    #label h3092
     .goto 1422,60.8,50.8
     .complete 4985,1
     >>HARD STEP: kill Diseased Grizzlies 60.8, 50.8 for the rest of "The Wildlife Suffers Too". Skipped if done
@@ -22489,7 +22545,7 @@ step
     #optional
     .goto 1453,54.0,81.7
     .target Clavicus Knavingham
-    >>Optional: accept and turn in the four cloth donations at Clavicus Knavingham upstairs 54.0, 81.7 (shows only if you have 3 stacks of each cloth). Skipped if done at #2493 or #2925
+    >>Optional: accept and turn in the four cloth donations at Clavicus Knavingham upstairs 54.0, 81.7 (shows only if you have 3 stacks of each cloth). Skipped if done at #2501 or #2933
 ]])
 
 S.RegisterGuide([[
@@ -22536,7 +22592,7 @@ step
 step
     .accept 969 >>Accept Luck Be With You
     .target Witch Doctor Mau'ari
-    >>Accept "Luck Be With You" from Witch Doctor Mau'ari 61.9, 38.3. Skipped if done at #2855
+    >>Accept "Luck Be With You" from Witch Doctor Mau'ari 61.9, 38.3. Skipped if done at #2863
 step
     .goto 1452,60.9,37.6
     .accept 3783 >>Accept Are We There, Yeti?
@@ -22549,7 +22605,7 @@ S.RegisterGuide([[
 #next 59 Everlook and the Western Road - Druid
 << Skyborne Druid Alliance
 step
-    #completewith h3246
+    #completewith h3254
     .complete 4809,1
     .target Fledgling Chillwind
     >>SOFT STEP: kill any Fledgling Chillwind, Chillwind Chimaera or Chillwind Ravager in your way for Uncracked Chillwind Horns, for "Chillwind Horns"
@@ -22574,7 +22630,7 @@ step
     .complete 8464,3
     >>Kill Winterfall Shamans, Den Watchers and Ursa in Winterfall Village 68.0, 37.7 for "Winterfall Activity"
 step
-    #completewith h3148
+    #completewith h3156
     .goto 1452,69.8,38.2
     .complete 5121,1
     .target High Chief Winterfall
@@ -22596,7 +22652,7 @@ step
     .turnin 979 >>Turn in Find Ranshalla
     .target Ranshalla
     .isOnQuest 979
-    >>Turn in "Find Ranshalla" to Ranshalla 63.1, 59.5 (shows only if you have it). Skipped if done at #2863
+    >>Turn in "Find Ranshalla" to Ranshalla 63.1, 59.5 (shows only if you have it). Skipped if done at #2871
 step
     .goto 1452,63.1,59.5
     .accept 4901 >>Accept Guardians of the Altar
@@ -22616,10 +22672,10 @@ step
     .isOnQuest 4901
     >>Click the Altar of Elune 64.8, 63.8 at the end, for "Guardians of the Altar" (shows only if you have it)
 step
-    #completewith h3146
+    #completewith h3154
     .goto 1452,59.1,68.3
     .complete 969,1
-    >>SOFT STEP: pick up 4 Frostmaul Shards in Frostwhisper Gorge 59.1, 68.3, for "Luck Be With You" (a hard area: when you have a group). Skipped if done at #2865
+    >>SOFT STEP: pick up 4 Frostmaul Shards in Frostwhisper Gorge 59.1, 68.3, for "Luck Be With You" (a hard area: when you have a group). Skipped if done at #2873
 step
     .hs >>Hearth to Everlook
     >>Hearth to Everlook
@@ -22655,11 +22711,11 @@ step
     .target Felnok Steelspring
     >>Turn in "Chillwind Horns" to Felnok Steelspring 61.6, 38.6 (shows only if you have all the horns)
 step
-    #label h3146
+    #label h3154
     .goto 1452,61.9,38.3
     .turnin 969 >>Turn in Luck Be With You
     .target Witch Doctor Mau'ari
-    >>Turn in "Luck Be With You" to Witch Doctor Mau'ari 61.9, 38.3 (shows only if you have the 4 shards). Skipped if done at #2869
+    >>Turn in "Luck Be With You" to Witch Doctor Mau'ari 61.9, 38.3 (shows only if you have the 4 shards). Skipped if done at #2877
 step
     .goto 1452,61.5,37.0
     .complete 4103,1
@@ -22669,7 +22725,7 @@ step
     .target Remains of Trey Lightforge
     >>Take Rabine's Letter, the Silvery Claws, the Irontree Heart, the Remains of Trey Lightforge and Shadow Lord Fel'dan's Head out of the bank at Izzy Coppergrab 61.5, 37.0
 step
-    #label h3148
+    #label h3156
     .goto 1452,31.3,45.2
     .turnin 5121 >>Turn in High Chief Winterfall
     .turnin 5123 >>Turn in The Final Piece
@@ -22823,7 +22879,7 @@ step
     .complete 4504,1
     >>Kill Tar Beasts, Creepers, Lurkers and Lords at the tar pits 51.6, 24.8 for Super Sticky Tar, for "Super Sticky"
 step
-    #completewith h3234
+    #completewith h3242
     .goto 1449,49.4,49.3
     .complete 3962,1
     .target Aquementas
@@ -22893,7 +22949,7 @@ step
     .target Bor Wildmane
     >>Accept "Secret Communication" from Bor Wildmane 48.6, 37.8
 step
-    #completewith h3198
+    #completewith h3206
     .complete 8280,1
     .complete 8277,1
     .complete 8277,2
@@ -22944,7 +23000,7 @@ step
     .complete 8284,1
     >>Pick up Twilight Tablet Fragments from the ground in The Crystal Vale 21.8, 10.4, for "The Twilight Mystery" (keep clear of the Hive'Ashi elites)
 step
-    #label h3198
+    #label h3206
     .goto 1451,58.2,23.8
     .complete 8277,1
     .complete 8277,2
@@ -22992,7 +23048,7 @@ step
     .target Beetix Ficklespragg
     >>Accept "Noggle's Last Hope" from Beetix Ficklespragg 51.7, 38.5
 step
-    #completewith h3213
+    #completewith h3221
     .complete 8278,1
     .complete 8278,2
     .complete 8278,3
@@ -23017,7 +23073,7 @@ step
     .isOnQuest 8304
     >>Talk to Frankal Stonebridge 40.8, 88.9, for "Dearest Natalia" (shows only if you have it)
 step
-    #completewith h3220
+    #completewith h3228
     .goto 1451,45.0,92.5
     .complete 8283,1
     .target Deathclasp
@@ -23033,7 +23089,7 @@ step
     .target Hermit Ortell
     >>Accept "The Twilight Lexicon" from Hermit Ortell 67.2, 69.8
 step
-    #label h3213
+    #label h3221
     .goto 1451,41.4,80.8
     .complete 8278,1
     .complete 8278,2
@@ -23074,14 +23130,14 @@ step
     .isOnQuest 8304
     >>Turn in "Dearest Natalia" to Commander Mar'alith 49.2, 34.2 (shows only if you have it)
 step
-    #label h3220
+    #label h3228
     .goto 1451,50.8,33.7
     .turnin 8283 >>Turn in Wanted - Deathclasp, Terror of the Sands
     .target Vish Kozus
     .isOnQuest 8283
     >>Turn in "Wanted - Deathclasp, Terror of the Sands" to Vish Kozus on top of the tower 50.8, 33.7 (shows only if you have it done)
 step
-    #completewith h3225
+    #completewith h3233
     .complete 8318,1
     .complete 8323,1
     .target Twilight Avenger
@@ -23108,7 +23164,7 @@ step
     .target Twilight Keeper Exeter
     >>Kill Twilight Keeper Exeter in the far south-west 16.1, 86.5 for his Lexicon chapter, for "The Twilight Lexicon"
 step
-    #label h3225
+    #label h3233
     .goto 1451,19.8,87.0
     .complete 8318,1
     .complete 8323,1
@@ -23161,7 +23217,7 @@ step
     .target Cloud Skydancer
     >>Fly from Cloud Skydancer 50.6, 34.5 to Marshal's Refuge
 step
-    #label h3234
+    #label h3242
     .goto 1449,44.7,8.1
     .turnin 3962 >>Turn in It's Dangerous to Go Alone
     .target Linken
@@ -23205,7 +23261,7 @@ step
     .goto 1452,61.6,38.6
     .turnin 4809 >>Turn in Chillwind Horns
     .target Felnok Steelspring
-    >>Turn in "Chillwind Horns" to Felnok Steelspring 61.6, 38.6 (shows only if you have all the horns). Skipped if done at #3145
+    >>Turn in "Chillwind Horns" to Felnok Steelspring 61.6, 38.6 (shows only if you have all the horns). Skipped if done at #3153
 step
     .goto 1452,60.9,37.6
     .turnin 5163 >>Turn in Are We There, Yeti?
@@ -23216,22 +23272,22 @@ step
     .turnin 979 >>Turn in Find Ranshalla
     .target Ranshalla
     .isOnQuest 979
-    >>Turn in "Find Ranshalla" to Ranshalla 63.1, 59.5 (shows only if you have it). Skipped if done at #2863 or #3135
+    >>Turn in "Find Ranshalla" to Ranshalla 63.1, 59.5 (shows only if you have it). Skipped if done at #2871 or #3143
 step
     .goto 1452,63.1,59.5
     .accept 4901 >>Accept Guardians of the Altar
     .accept 979 >>Accept Find Ranshalla
     .target Ranshalla
     .isQuestTurnedIn 979
-    >>Accept "Guardians of the Altar" from Ranshalla 63.1, 59.5 (shows only once "Find Ranshalla" is done). Skipped if done at #3136
+    >>Accept "Guardians of the Altar" from Ranshalla 63.1, 59.5 (shows only once "Find Ranshalla" is done). Skipped if done at #3144
 step
     .goto 1452,64.8,63.8
     .complete 4901,1
     .target Ranshalla
     .isOnQuest 4901
-    >>Escort Ranshalla through Owl Wing Thicket 64.8, 63.8, clicking each Fire of Elune torch and then the Altar of Elune, for "Guardians of the Altar" (shows only if you have it). Skipped if done at #3137-#3138
+    >>Escort Ranshalla through Owl Wing Thicket 64.8, 63.8, clicking each Fire of Elune torch and then the Altar of Elune, for "Guardians of the Altar" (shows only if you have it). Skipped if done at #3145-#3146
 step
-    #label h3246
+    #label h3254
     .goto 1452,47.2,43.6
     .complete 4809,1
     >>HARD STEP: kill Fledgling Chillwinds, Chillwind Chimaeras and Chillwind Ravagers along the road 47.2, 43.6 until you have all the Uncracked Chillwind Horns, for "Chillwind Horns". Skipped if done
@@ -23313,7 +23369,7 @@ S.RegisterGuide([[
 #name 60 Darnassus - Druid
 << Skyborne Druid Alliance
 step
-    #label h3258
+    #label h3266
     .goto 1457,38.3,81.0
     .turnin 3378 >>Turn in Prayer to Elune
     .target Astarii Starseeker
