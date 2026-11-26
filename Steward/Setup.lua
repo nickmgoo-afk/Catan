@@ -56,6 +56,7 @@ local PAGES = {
         { "check", "guideReplacesQuests", "The guide takes the quest list's place in the tracker", "Your quest log itself is unchanged.", parent = "guideShow" },
         { "check", "guideReplace", "Hide the quest list while the guide shows", nil, parent = "guideShow" },
         { "check", "guideDungeons", "Include dungeons", "The guide's dungeon route, where it has one: dungeons and their quests. Off: the solo route." },
+        { "check", "rxpRoute", "Route to RestedXP's waypoint", "With RestedXP Guides running: the way to where its arrow points (flights, boats, hearth)." },
         { "check", "guideDynamic", "Smart routing", "Do the guide's steps in the order that walks the least.", when = smartMode },
         { "check", "fillerQuests", "Extra quests instead of grinding", "When you're behind the guide's level.", when = smartMode },
         { "check", "guideTraining", "Fit class training in", "A trainer visit when you have new spells to learn.", when = smartMode },
@@ -81,7 +82,7 @@ local PAGES = {
           options = { { "box", "A box with both words" }, { "round", "A round button" } } },
     } },
     { title = "Combat and the rest", rows = {
-        { "check", "rotationHelper", "Show what to press next in combat", "It never presses anything for you." },
+        { "check", "rotationHelper", "Rotation helper: show what to press next in combat", "It never presses anything for you. Off if you use Hekili." },
         { "check", "rotationStrip", "A strip of icons above your bars", nil, parent = "rotationHelper" },
         { "check", "rotationGlow", "Light up the button on your bars", nil, parent = "rotationHelper" },
         { "amount", nil, "Strip size", nil, parent = "rotationHelper", key2 = "rotationSize", min = 50, max = 200, step = 10, pct = true },

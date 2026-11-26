@@ -53,6 +53,7 @@ S.defaults = {
     guideDungeons = false, -- the guide's dungeon route (Skyborne mage: their chapters 40-92 with dungeons); off = solo route
     guideDynamic = true,   -- smart routing: do the guide's tasks in the order that walks the least
     guideArrow = true,     -- on-screen arrow pointing to the next waypoint
+    rxpRoute = false,      -- plan the trip to RestedXP's waypoint (its arrow's spot) when RestedXP Guides is running
     mapStepSpots = true,   -- gold dots on the world map (0.90.0) and minimap (0.90.1) for the step's other spots still to do
     arrowStyle = "navigation", -- which of the game's arrows to use
     guideTravel = true,    -- plan the fastest route when the next spot is far away

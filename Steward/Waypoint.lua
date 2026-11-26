@@ -960,6 +960,45 @@ function S:UserPin()
 end
 S.PIN_ARRIVED = 15            -- yards: you're there, the pin comes off
 
+-- RestedXP's waypoint (1.0.2, Nick 2026-11-25: "a routing mode that will show the route to rested xp's waypoints"):
+-- with the switch on and the RestedXP Guides add-on running, the spot RestedXP's own arrow points at is where you're
+-- going, and Steward's trip planner plans the way there as for your map pin. Steward reads only that one spot from
+-- RestedXP's arrow (the frame RXPG_ARROW and its .element: zone = map, x/y in percent), the same spot RestedXP shows
+-- you; it never reads, keeps or sends RestedXP's guides. RestedXP moves its arrow on by itself: Steward follows.
+local rxpEl
+local function rxpElement()
+    local af = _G.RXPG_ARROW
+    local e = type(af) == "table" and rawget(af, "element")
+    if type(e) ~= "table" then return nil end
+    local step = rawget(e, "step")
+    if type(step) ~= "table" or not rawget(step, "active") then return nil end      -- RestedXP's dead-body spot has no step: Steward does its own
+    if rawget(e, "skip") or rawget(e, "hidden") then return nil end
+    local par = rawget(e, "parent")
+    if type(par) == "table" and (rawget(par, "completed") or rawget(par, "skip")) and not rawget(par, "textOnly") then return nil end
+    local m, x, y = rawget(e, "zone"), rawget(e, "x"), rawget(e, "y")
+    if type(m) ~= "number" or type(x) ~= "number" or type(y) ~= "number" then return nil end
+    if S.Secret(m, x, y) then return nil end
+    return m, x, y
+end
+function S:RxpOn() return self:Get("rxpRoute") == true and _G.RXPG_ARROW ~= nil end
+function S:RxpTarget()
+    if not self:RxpOn() then rxpEl = nil return nil end
+    local ok, m, x, y = pcall(rxpElement)
+    if not (ok and m) then rxpEl = nil return nil end
+    if not (rxpEl and rxpEl.pinMap == m and math.abs(rxpEl.pinX - x) < 0.05 and math.abs(rxpEl.pinY - y) < 0.05) then
+        rxpEl = { go = { mapID = m, x = x, y = y }, pin = true, rxp = true, friendName = "RestedXP's waypoint",
+                  sideLabel = "Go to RestedXP's waypoint", pinMap = m, pinX = x, pinY = y }
+    end
+    return rxpEl
+end
+local rxpKey
+function S:RxpChanged()
+    local el = self:RxpTarget()
+    local k = el and (el.pinMap .. ":" .. string.format("%.2f:%.2f", el.pinX, el.pinY)) or false
+    if k ~= rxpKey then rxpKey = k return true end
+    return false
+end
+
 -- 0.90.2: no changes to the game's map pin in a fight while the world map is open. Blizzard's waypoint and quest pin
 -- providers listen for USER_WAYPOINT_UPDATED / SUPER_TRACKING_CHANGED only while the map is shown, and redraw at once
 -- from inside Steward's call: AcquirePin -> CheckMouseButtonPassthrough -> SetPassThroughButtons, protected in combat,
@@ -994,6 +1033,7 @@ function S:UpdateWaypoint()
             pinEl, pin = nil, nil
         end
     end
+    if not pin then pin = self:RxpTarget() end   -- RestedXP's waypoint: it stays until RestedXP moves its arrow on
     if pin then
         G.stepGoto = pin
         lastTarget = nil                           -- Steward's own pin goes back on once yours is gone
@@ -1286,6 +1326,8 @@ end)
 ---------------------------------------------------------------- position ticker
 C_Timer.NewTicker(0.5, function()
     if UnitOnTaxi("player") or S.InInstance() then return end
+    -- RestedXP moved its arrow on (or its switch, or RestedXP itself, came or went): plan the new trip
+    if (S:Get("rxpRoute") or (G.stepGoto and G.stepGoto.rxp)) and S:RxpChanged() then pcall(S.UpdateWaypoint, S) end
     local guideOn = G.guide and S:Get("guideShow")
     local pinTrip = G.stepGoto and G.stepGoto.pin and G.stepGoto
     if not (guideOn or pinTrip) then return end   -- your map pin's trip runs with the guide off too
@@ -1325,7 +1367,7 @@ C_Timer.NewTicker(0.5, function()
         end
     end
     -- at your map pin: it comes off (UpdateWaypoint) and the guide, if shown, carries on
-    if pinTrip then
+    if pinTrip and not pinTrip.rxp then
         local d = S:DistanceTo(pinTrip.go)
         if d and d < S.PIN_ARRIVED then changed = true end
     end

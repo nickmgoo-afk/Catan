@@ -1356,7 +1356,8 @@ local function refresh()
             s.icons[3]:Hide()
             s.note:SetText(miss.name)
             s.note:Show()
-            if not stripOn() then s:Hide() elseif not s:IsShown() then placeStrip() s:Show() end
+            -- the strip is the rotation helper's: with the helper off, a missing buff only lights its button
+            if not stripOn() or not S:Get("rotationHelper") then s:Hide() elseif not s:IsShown() then placeStrip() s:Show() end
             setGlow(miss.name, "proc")
         else
             if s:IsShown() then s:Hide() end

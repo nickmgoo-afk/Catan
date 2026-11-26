@@ -85,7 +85,7 @@ function S:InitOptions()
         end)
     end
 
-    local rotSet, rotInit = addCheckbox(main, "rotationHelper", "Show what to press next in combat",
+    local rotSet, rotInit = addCheckbox(main, "rotationHelper", "Rotation helper: show what to press next in combat",
         "A small strip of icons above your bars, and the button on your bars lights up. It never presses anything for you.")
     local function rotOn() return rotSet:GetValue() end
     local _, rsInit = addCheckbox(main, "rotationStrip", "The strip of icons above your bars",
@@ -151,6 +151,8 @@ function S:InitOptions()
     if ssInit and ssInit.SetParentInitializer then
         ssInit:SetParentInitializer(gInit, function() return gShow:GetValue() end)
     end
+    addCheckbox(guidePage, "rxpRoute", "Route to RestedXP's waypoint",
+        "With the RestedXP Guides add-on running, Steward plans the way to the spot RestedXP's arrow points at (flight paths, boats, the tram, your hearthstone, running) and follows it as RestedXP moves on. Steward's own guide waits meanwhile. Steward reads only that one spot from RestedXP.")
     addCheckbox(guidePage, "guideDungeons", "Include dungeons",
         "The guide's dungeon route: where a guide has one (the Skyborne mage's, levels 21-32), it sends you into the dungeons with their quests. Off: the solo route.")
     local function arrowOn() return gShow:GetValue() and aShow:GetValue() end
