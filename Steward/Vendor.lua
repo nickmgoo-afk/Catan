@@ -701,6 +701,9 @@ end
 local lastOffer = 0
 S:On("UI_ERROR_MESSAGE", function(_, message)
     if message ~= ERR_INV_FULL and message ~= ERR_BAG_FULL then return end
+    -- 1.0.4: retired. The game refuses an add-on's delete without a click (Nick's log 11-25), and a one-click
+    -- prompt is not wanted (Nick 2026-11-27: "I don't ever want to one click delete"): full bags are yours to sort.
+    if true then return end
     if not S:Get("bagsDeleteJunk") or InCombatLockdown() then return end
     if GetTime() - lastOffer < 2 then return end
     local looting = lootOpen()
