@@ -53,6 +53,7 @@ S.defaults = {
     guideDungeons = false, -- the guide's dungeon route (Skyborne mage: their chapters 40-92 with dungeons); off = solo route
     guideDynamic = true,   -- smart routing: do the guide's tasks in the order that walks the least
     guideArrow = true,     -- on-screen arrow pointing to the next waypoint
+    chatNotes = false,     -- 1.1.2: Steward's notes in chat (off: Nick 11-27 "I don't want steward to be making notes in chat")
     profGuide = true,      -- 1.1.0: your professions' next steps (Wowhead's Forever guides) in the tracker
     profBuy = true,        -- 1.1.0: buy the recipe, rank book and vendor materials for your profession step at merchants
     rxpRoute = false,      -- plan the trip to RestedXP's waypoint (its arrow's spot) when RestedXP Guides is running
@@ -132,7 +133,10 @@ function S:LogError(where, err)
     end
 end
 
+-- 1.1.2 (Nick 2026-11-27: "I don't want steward to be making notes in chat"): Steward's notes stay out of chat
+-- (they still go in its saved logs); the answers to your own /steward commands still show. Switch: chatNotes.
 function S:Print(msg)
+    if not (S.inSlash or S:Get("chatNotes")) then return end
     print("|cffffd100Steward:|r " .. tostring(msg))
 end
 
@@ -315,7 +319,14 @@ local TOGGLES = {
 }
 
 SLASH_STEWARD1 = "/steward"
+local slashCommand
 SlashCmdList.STEWARD = function(msg)
+    S.inSlash = true
+    local ok, err = pcall(slashCommand, msg)
+    S.inSlash = nil
+    if not ok then S:LogError("slash", err) end
+end
+slashCommand = function(msg)
     local cmd, rest = (msg or ""):lower():match("^%s*(%S*)%s*(.-)%s*$")
     if TOGGLES[cmd] then
         local key, label = TOGGLES[cmd][1], TOGGLES[cmd][2]

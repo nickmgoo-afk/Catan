@@ -85,6 +85,8 @@ function S:InitOptions()
         end)
     end
 
+    addCheckbox(main, "chatNotes", "Notes in chat",
+        "Off to start with. On: Steward writes a line in chat when it does something for you (a delete to make room, what it bought, why your gear stayed or went back). Off, those go only in its saved logs; the answers to your own /steward commands always show.")
     local rotSet, rotInit = addCheckbox(main, "rotationHelper", "Rotation helper: show what to press next in combat",
         "A small strip of icons above your bars, and the button on your bars lights up. It never presses anything for you.")
     local function rotOn() return rotSet:GetValue() end

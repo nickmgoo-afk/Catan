@@ -56,6 +56,7 @@ local PAGES = {
         { "check", "guideReplacesQuests", "The guide takes the quest list's place in the tracker", "Your quest log itself is unchanged.", parent = "guideShow" },
         { "check", "guideReplace", "Hide the quest list while the guide shows", nil, parent = "guideShow" },
         { "check", "guideDungeons", "Include dungeons", "The guide's dungeon route, where it has one: dungeons and their quests. Off: the solo route." },
+        { "check", "chatNotes", "Notes in chat", "A chat line when Steward does something for you (off: only in its saved logs)." },
         { "check", "profGuide", "Profession guide", "Wowhead's leveling steps for your professions in the tracker, and node loops for Mining and Herbalism." },
         { "check", "profBuy", "Buy for your professions", "Recipes, rank books and vendor materials for your profession step." },
         { "check", "rxpRoute", "Route to RestedXP's waypoint", "With RestedXP Guides running: the way to where its arrow points (flights, boats, hearth)." },
