@@ -369,6 +369,8 @@ function S:InitOptions()
         "A mage who knows a Teleport spell keeps Runes of Teleportation, and one who knows a Portal spell keeps Runes of Portals, when the merchant sells them.")
     local _, rkInit = addSlider(vendor, "runeKeep", "How many of each rune", "Buys up to this many.", 5, 20, 5, tostring)
     under(rkInit, rnInit, function() return rSet:GetValue() end)
+    addCheckbox(vendor, "bagsDeleteJunk", "Delete junk when your bags are full",
+        "When your bags are full, Steward deletes your cheapest grey item, no asking, but only if it's worth it: when looting, only for a quest item or something that sells for more than that grey (then it loots it for you); when a quest hands you an item, always (then it takes the quest again). The game only lets an add-on delete during a key press or click, so it happens on your very next one (moving counts). A chat line says what went; each one is noted in your saved data.")
     addCheckbox(vendor, "vendorTrain", "Learn new spells at your class trainer",
         "Learns every spell you can afford as soon as you talk to your trainer.")
     addCheckbox(vendor, "trainProfessions", "Learn new recipes at your profession trainers",

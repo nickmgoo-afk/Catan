@@ -586,12 +586,12 @@ S:On("TRAINER_CLOSED", function() training = false end)
 S.ShowReceipt = showReceipt
 
 ---------------------------------------------------------------- bags full
--- When the game says your bags are full, Steward offers to delete your cheapest grey item, but only
+-- When the game says your bags are full, Steward deletes your cheapest grey item (no asking: on your next key press or click), but only
 -- when that's worth it:
 --   looting: only when something still in the loot window is a quest item, or sells for more than
 --            that grey; after the delete it loots that item for you
 --   a quest window (a quest that hands you an item, or a reward): always; then it takes the quest again
---   anything else (buying, mail...): no offer
+--   anything else (buying, mail...): no delete
 local function cheapestJunk()
     local best
     eachBagItem(function(bag, slot, info)
@@ -668,25 +668,17 @@ local function deleteJunk(junk)
     return true
 end
 
-if StaticPopupDialogs then
-    StaticPopupDialogs.STEWARD_DELETE_JUNK = {
-        text = "%s",
-        button1 = DELETE or "Delete",
-        button2 = CANCEL or "Cancel",
-        OnAccept = function(self, data) S.MakeRoomClicked(data or (self and self.data)) end,
-        timeout = 0, whileDead = 1, hideOnEscape = 1, showAlert = 1,
-    }
-end
 -- delete the cheapest grey, then pick up the loot that didn't fit (or take the quest again)
 function S.MakeRoom(data)
     local junk = cheapestJunk()
     if not (junk and deleteJunk(junk)) then return false end
     if data and data.lootSlot then
-        -- the loot that didn't fit: pick it up in the same click (the game may refuse a loot from a timer, which has
-        -- no click behind it; the server takes the delete first, then the loot)
+        -- the loot that didn't fit: pick it up in the same key press or click (the server takes the delete first)
         if lootOpen() and LootSlot then
-            S.step = "loot (LootSlot in the click)"
+            S.step = "loot (LootSlot in the key press)"
+            S.makingRoom = true
             pcall(LootSlot, data.lootSlot)
+            S.makingRoom = nil
             S.step = nil
         end
     elseif QuestFrameDetailPanel and QuestFrameDetailPanel:IsShown() and AcceptQuest then
@@ -698,53 +690,107 @@ function S.MakeRoom(data)
     return true
 end
 
-local lastOffer = 0
+-- what to make room for right now: data for S.MakeRoom, or nil (nothing worth a delete)
+local function planRoom(looting)
+    local junk = cheapestJunk()
+    if not junk then return nil end
+    local data
+    if looting then
+        local it = lootWorthRoom(junk)
+        if not it then return nil end -- nothing left to loot is worth more than your cheapest junk
+        data = { lootSlot = it.slot, why = it.link .. (it.count > 1 and (" x" .. it.count) or "") .. (it.quest and " (quest item)" or "") }
+    else
+        data = { why = "the quest's item" }
+    end
+    data.gone = junk.link .. (junk.count > 1 and (" x" .. junk.count) or "")
+    data.worth = junk.worth
+    return data
+end
+
+-- 1.0.5: no asking (Nick 2026-11-27: "it should be deleting junk ... I don't want a button for confirmation").
+-- The game lets an add-on delete only inside a key press or a click (Nick's log 11-25: "ADDON_ACTION_BLOCKED
+-- DeleteCursorItem()" when 0.88.1 deleted straight from the error). So a full bag arms the delete, and the very
+-- next key you press (moving, a spell) or click you make (an action button, the world, the loot window) does it.
+local armed -- { looting = bool, at = GetTime() }
+local keyCatcher
+local function disarm()
+    armed = nil
+    if keyCatcher then keyCatcher:Hide() end
+end
+local function fire(how)
+    if not armed or S.makingRoom then return end
+    local a = armed
+    disarm()
+    if GetTime() - a.at > 60 then return end
+    if a.looting and not lootOpen() then return end
+    if not a.looting and not (_G.QuestFrame and QuestFrame:IsShown()) then return end
+    local data = planRoom(a.looting)
+    if not data then return end
+    data.how = how
+    S.MakeRoomClicked(data)
+end
+S.MakeRoomFire = fire
+S.MakeRoomArmed = function() return armed ~= nil end
+
+local function hookHardware()
+    if keyCatcher or not CreateFrame then return end
+    keyCatcher = CreateFrame("Frame", nil, UIParent)
+    keyCatcher:Hide()
+    pcall(keyCatcher.EnableKeyboard, keyCatcher, true)
+    -- every key still reaches the game (movement, spells, chat): this frame only watches
+    if not InCombatLockdown() then pcall(keyCatcher.SetPropagateKeyboardInput, keyCatcher, true) end
+    keyCatcher:SetScript("OnKeyDown", function() fire("key") end)
+    if hooksecurefunc then
+        if type(UseAction) == "function" then hooksecurefunc("UseAction", function() fire("button") end) end
+        if type(LootSlot) == "function" then hooksecurefunc("LootSlot", function() fire("loot click") end) end
+        if type(AcceptQuest) == "function" then hooksecurefunc("AcceptQuest", function() fire("accept click") end) end
+    end
+    if WorldFrame and WorldFrame.HookScript then
+        pcall(WorldFrame.HookScript, WorldFrame, "OnMouseDown", function() fire("click") end)
+    end
+end
+S:On("PLAYER_LOGIN", hookHardware)
+S:On("LOOT_CLOSED", function() if armed and armed.looting then disarm() end end)
+S:On("QUEST_FINISHED", function() if armed and not armed.looting then disarm() end end)
+
 S:On("UI_ERROR_MESSAGE", function(_, message)
     if message ~= ERR_INV_FULL and message ~= ERR_BAG_FULL then return end
-    -- 1.0.4: retired. The game refuses an add-on's delete without a click (Nick's log 11-25), and a one-click
-    -- prompt is not wanted (Nick 2026-11-27: "I don't ever want to one click delete"): full bags are yours to sort.
-    if true then return end
-    if not S:Get("bagsDeleteJunk") or InCombatLockdown() then return end
-    if GetTime() - lastOffer < 2 then return end
+    if not S:Get("bagsDeleteJunk") or InCombatLockdown() or S.makingRoom then return end
     local looting = lootOpen()
     local questing = not looting and _G.QuestFrame and QuestFrame:IsShown()
     if not (looting or questing) then return end -- buying, mail...: not worth a delete
-    local junk = cheapestJunk()
-    if not junk then
+    if not cheapestJunk() then
         if questing and S.ShowReceipt then
             S.ShowReceipt(QuestFrame, { "Your bags are full, and there's no grey junk to delete." })
         end
         return
     end
-    -- 1.0.2: one click. 0.88.1 deleted without asking (Nick 2026-11-22: "it doesn't need permission"), but the game
-    -- refuses a delete with no click behind it (Nick's log 11-25 18:25 and 18:35: "ADDON_ACTION_BLOCKED
-    -- DeleteCursorItem()"; the junk stayed and the loot with it), so Steward asks once, and the Delete button does it
-    local data, why
-    if looting then
-        local it = lootWorthRoom(junk)
-        if not it then return end -- nothing left to loot is worth more than your cheapest junk
-        data = { lootSlot = it.slot }
-        why = it.link .. (it.count > 1 and (" x" .. it.count) or "") .. (it.quest and " (quest item)" or "")
-    else
-        data = {}
-        why = "the quest's item"
+    if not planRoom(looting) then return end
+    hookHardware()
+    armed = { looting = looting and true or false, at = GetTime() }
+    if keyCatcher then
+        -- keys must still reach the game: show the watcher only once pass-through is confirmed
+        pcall(keyCatcher.SetPropagateKeyboardInput, keyCatcher, true)
+        local okP, passes = pcall(keyCatcher.GetPropagateKeyboardInput, keyCatcher)
+        if not keyCatcher.GetPropagateKeyboardInput or (okP and passes) then keyCatcher:Show() end
     end
-    lastOffer = GetTime()
-    local gone = junk.link .. (junk.count > 1 and (" x" .. junk.count) or "")
-    data.gone, data.worth, data.why = gone, junk.worth, why
-    local text = "Your bags are full.\n\nDelete " .. gone .. " (" .. money(junk.worth) .. ", your cheapest grey) to make room for "
-        .. why .. "?"
-    if StaticPopup_Show then StaticPopup_Show("STEWARD_DELETE_JUNK", text, nil, data) end
 end)
 
--- the Delete button: the delete, the loot (or the quest again), and a line in StewardCharDB.junkLog
+-- the delete, the loot (or the quest again), a chat line, and a line in StewardCharDB.junkLog
 function S.MakeRoomClicked(data)
     data = data or {}
     local ok, done = pcall(S.MakeRoom, data)
     local log = StewardCharDB.junkLog or {}
     StewardCharDB.junkLog = log
     table.insert(log, 1, date("%m-%d %H:%M") .. (ok and done and " deleted " or " could not delete ") .. tostring(data.gone or "junk")
-        .. " (" .. money(data.worth or 0) .. ") for " .. tostring(data.why or "?") .. (ok and "" or (": " .. tostring(done))))
+        .. " (" .. money(data.worth or 0) .. ") for " .. tostring(data.why or "?") .. " [" .. tostring(data.how or "?") .. "]"
+        .. (ok and "" or (": " .. tostring(done))))
     log[31] = nil
+    if ok and done then
+        S:Print("bags full: deleted " .. tostring(data.gone) .. " (" .. money(data.worth or 0) .. ", your cheapest grey) to make room for "
+            .. tostring(data.why) .. ".")
+    elseif ok then
+        S:Print("bags full: the game wouldn't let Steward delete " .. tostring(data.gone) .. ".")
+    end
     if not ok then S:LogError("bagsfull", done) end
 end

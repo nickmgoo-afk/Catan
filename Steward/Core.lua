@@ -36,6 +36,7 @@ S.defaults = {
     buttonPrompts = "auto", -- the button prompts the console look shows: auto, keyboard, xbox, playstation
     levelupPoster = true,  -- the LEVEL UP poster when you level up (Human Paladin, Human Warrior, Orc Warrior, Gnome Priest)
     levelupSound = true,   -- the poster plays the game's own sounds with it
+    bagsDeleteJunk = true, -- bags full: delete the cheapest grey, no asking (1.0.5), on your next key press or click, if what you are looting is worth more (or a quest item)
     arrowSize = 100,       -- the guide arrow's size, in percent
     arrowLocked = false,   -- the guide arrow can't be dragged
     rotationStrip = true,  -- the rotation helper's strip of icons above the bars
