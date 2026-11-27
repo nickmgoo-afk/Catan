@@ -125,13 +125,88 @@ P.restoDruid = W(P.healerNoWand, { heal = 1, crit = 8, spellcrit = 8, spi = 0.7,
 P.frost = W(P.caster, { hit = 14, spellhit = 14, crit = 12, spellcrit = 12, sp = 1.0, ["sp:Frost"] = 0.67,
     ["sp:Arcane"] = 0.67, int = 0.8, spi = 0.5, sta = 0.4, mp5 = 0.3 })
 
+-- MythicSim (mythicsim.com/wow-forever/stat-priority, their Forever simulator; read 2026-11-27; Nick 11-27 15:53 sent
+-- the pages, 16:09 "do the gear scoring"). Their EP per point, put on this file's scale (Strength 1 for strength
+-- specs, Agility 1 for agility specs, spell damage 1 for casters); ratings are per 1% here, as Forever's gear shows
+-- them: hit, spell hit and expertise x10 rating, crit and spell crit x14. Their sims are level-60 raid fights where
+-- staying alive counts for nothing, so stamina, armor, defense, dodge, parry, block and spirit/mp5 they did not
+-- measure keep the leveling values above. Weapon damage per second: 14 attack power each (their tables leave weapons
+-- out). Haste is not read from gear yet. School-only spell damage counts 0.6 as spell damage plus 0.6 x "sp:School",
+-- so "sp:School" = (their school EP / 0.6) - their spell damage EP. Healers (no MythicSim pages) keep the Wowhead
+-- weights above.
+local function ms(base, over) return W(base, over) end
+-- Warriors (ref Strength). Fury: Expertise 1.53, Hit 1.33, Crit 1.02, Str 1, Agi 0.80, AP 0.45.
+P.fury = ms(P.fury, { expertise = 15.3, hit = 13.3, crit = 14.3, str = 1, agi = 0.8, ap = 0.45, dps = 6.3 })
+-- Arms: Hit 1.12, Crit 1.08, Expertise 1.04, Str 1, Agi 0.84, AP 0.45.
+P.arms = ms(P.arms, { hit = 11.2, crit = 15.1, expertise = 10.4, str = 1, agi = 0.84, ap = 0.45, dps = 6.3 })
+-- Protection (their sim measures damage): Expertise 4.14, Str 1, Crit 0.85, Block value 0.78, Agi 0.56, AP 0.43,
+-- Stamina 0.07. Taken at 0.4 (a tank's damage counts less than staying alive); the survival weights above stay.
+P.protWarrior = ms(P.protWarrior, { expertise = 16.6, str = 0.4, crit = 4.8, blockval = 0.31, agi = 0.7, ap = 0.17 })
+-- Paladins. Retribution (ref Strength): Expertise 2.86, Spell damage 2.11, Crit 1.73, Int 1.60, Agi 1.36, Str 1,
+-- AP 0.41. Their reference build sits at the hit cap (hit measured 0); while leveling you're under it, so hit counts
+-- about as crit. Holy-only damage (the seals) counts as full spell damage.
+P.retribution = ms(P.retribution, { expertise = 28.6, sp = 2.11, ["sp:Holy"] = 1.41, crit = 24.2, int = 1.6, agi = 1.36,
+    str = 1, ap = 0.41, hit = 22 })
+-- Protection paladin (damage): Expertise 4.46, Block rating 1.72, Spell damage 1.56, Crit 1.27, Str 1, Agi 0.90,
+-- Spell hit 0.87, AP 0.42, Int 0.05. At 0.4, survival weights above stay.
+P.protPaladin = ms(P.protPaladin, { expertise = 17.8, sp = 0.62, crit = 7.1, str = 0.4, agi = 0.7, hit = 3.5, ap = 0.17 })
+-- Hunters (ref Agility). Beast Mastery: Hit 1.41, Agi 1, Crit 0.91, Expertise 0.73, Int 0.59, RAP 0.29, mp5 0.26,
+-- Str 0.10, AP 0.09. Marksmanship: Hit 1.11, Crit 0.84, Int 0.58, Expertise 0.31, RAP 0.30, mp5 0.21, Str 0.11, AP 0.10.
+-- Survival: Agi 1, Crit 0.77, Int 0.67, Expertise 0.62, mp5 0.39, RAP 0.20, Str 0.17, AP 0.16 (no hit: at the cap;
+-- counted as crit while leveling).
+P.beastMastery = ms(P.hunterWH, { hit = 14.1, agi = 1, crit = 12.7, expertise = 7.3, int = 0.59, rap = 0.29, mp5 = 0.26,
+    str = 0.1, ap = 0.09, rdps = 4.1 })
+P.marksmanship = ms(P.hunterWH, { hit = 11.1, agi = 1, crit = 11.8, expertise = 3.1, int = 0.58, rap = 0.3, mp5 = 0.21,
+    str = 0.11, ap = 0.1, rdps = 4.2 })
+P.survival = ms(P.survival, { agi = 1, crit = 10.8, hit = 10.8, int = 0.67, expertise = 6.2, mp5 = 0.39, rap = 0.2,
+    str = 0.17, ap = 0.16, dps = 2.2, rdps = 2.8 })
+-- Rogues (their ref is attack power; here Agility = 1). Assassination: Expertise 2.99, Agi 2.05, Hit 1.90, Crit 1.83,
+-- Str 1.10, AP 1. Combat: Expertise 2.80, Hit 2.28, Agi 1.81, Crit 1.34. Subtlety: Expertise 2.56, Hit 2.15,
+-- Agi 1.93, Crit 1.55.
+P.assassination = ms(P.rogueWH, { expertise = 14.6, agi = 1, hit = 9.3, crit = 12.5, str = 0.54, ap = 0.49, dps = 6.8 })
+P.combat = ms(P.rogueWH, { expertise = 15.5, hit = 12.6, agi = 1, crit = 10.4, str = 0.61, ap = 0.55, dps = 7.7 })
+P.subtlety = ms(P.rogueWH, { expertise = 13.3, hit = 11.1, agi = 1, crit = 11.2, str = 0.57, ap = 0.52, dps = 7.3 })
+-- Shamans. Enhancement (their ref AP; here Strength = 1): Expertise 4.06, Str 2.20, (Spell) hit 2.08, Int 1.96,
+-- Crit 1.84, Agi 1.43, Spell damage 1.37, AP 1, Nature damage 0.63. Elemental (ref spell damage): Spell hit 1.32,
+-- Spell crit 0.69, Int 0.19, Nature damage 0.88.
+P.enhanceWH = ms(P.enhanceWH, { expertise = 18.5, str = 1, hit = 9.5, spellhit = 9.5, int = 0.89, crit = 11.7,
+    spellcrit = 11.7, agi = 0.65, sp = 0.62, ["sp:Nature"] = -0.14, ap = 0.45, dps = 6.4 })
+P.elementalWH = ms(P.elementalWH, { hit = 13.2, spellhit = 13.2, sp = 1, crit = 9.7, spellcrit = 9.7, int = 0.19,
+    ["sp:Nature"] = 0.47, ["sp:Fire"] = 0, str = 0 })
+-- Priest. Shadow: Spell hit 1.19, Spell damage 1, Spell crit 0.91, Int 0.26, Shadow damage 1.
+P.shadowWH = ms(P.shadowWH, { hit = 11.9, spellhit = 11.9, sp = 1, crit = 12.7, spellcrit = 12.7, int = 0.26,
+    ["sp:Shadow"] = 0.67 })
+-- Mages. Arcane: Spell hit 1.79, Int 0.99, Spell crit 0.80, mp5 0.43, Spirit 0.27, Arcane 0.56, Fire 0.44.
+-- Fire: Spell hit 1.53, Spell crit 0.76, Int 0.47, mp5 0.25, Spirit 0.11, Fire 0.88, Arcane 0.12.
+-- Frost: Spell hit 1.64, Spell crit 0.65, Int 0.18, mp5 0.02, Spirit 0.01, Frost 0.85, Arcane 0.15, Fire 0.
+P.arcane = ms(P.arcane, { hit = 17.9, spellhit = 17.9, sp = 1, int = 0.99, crit = 11.2, spellcrit = 11.2, mp5 = 0.43,
+    spi = 0.27, ["sp:Arcane"] = -0.07, ["sp:Fire"] = -0.27 })
+P.fire = ms(P.fire, { hit = 15.3, spellhit = 15.3, sp = 1, crit = 10.6, spellcrit = 10.6, int = 0.47, mp5 = 0.25,
+    spi = 0.11, ["sp:Fire"] = 0.47, ["sp:Arcane"] = -0.8 })
+P.frost = ms(P.frost, { hit = 16.4, spellhit = 16.4, sp = 1, crit = 9.1, spellcrit = 9.1, int = 0.18, mp5 = 0.02,
+    spi = 0.01, ["sp:Frost"] = 0.42, ["sp:Arcane"] = -0.75, ["sp:Fire"] = -1 })
+-- Warlocks. Affliction: Spell crit 0.69, Spell hit 0.52, Int 0.17, Shadow 1. Demonology: Spell hit 1.29, Spell crit
+-- 0.77, Int 0.45, mp5 0.28, Shadow 0.79, Fire 0.18. Destruction: Spell hit 1.14, Spell crit 0.84, Int 0.50, mp5 0.30,
+-- Shadow 0.77, Fire 0.21 (Forever's Destruction leans on Shadow).
+P.affliction = ms(P.affliction, { sp = 1, crit = 9.7, spellcrit = 9.7, hit = 5.2, spellhit = 5.2, int = 0.17, mp5 = 0,
+    ["sp:Shadow"] = 0.67, ["sp:Fire"] = -1 })
+P.demonology = ms(P.demonology, { hit = 12.9, spellhit = 12.9, sp = 1, crit = 10.8, spellcrit = 10.8, int = 0.45,
+    mp5 = 0.28, ["sp:Shadow"] = 0.32, ["sp:Fire"] = -0.7 })
+P.destruction = ms(P.destruction, { hit = 11.4, spellhit = 11.4, sp = 1, crit = 11.8, spellcrit = 11.8, int = 0.5,
+    mp5 = 0.3, ["sp:Shadow"] = 0.28, ["sp:Fire"] = -0.65 })
+-- Druids. Balance: Spell hit 1.12, Spell crit 0.67, Int 0.28, mp5 0.14, Arcane 0.64, Nature 0.36.
+-- Feral (cat; ref Agility): Agi 1, Str 0.89, Crit 0.78, Hit 0.69, Expertise 0.67, AP 0.36.
+P.balanceWH = ms(P.balanceWH, { hit = 11.2, spellhit = 11.2, sp = 1, crit = 9.4, spellcrit = 9.4, int = 0.28, mp5 = 0.14,
+    ["sp:Arcane"] = 0.07, ["sp:Nature"] = -0.4 })
+P.feralWH = ms(P.feralWH, { agi = 1, str = 0.89, crit = 10.9, hit = 6.9, expertise = 6.7, ap = 0.36 })
+
 S.PROFILES = P
 
 S.SPEC_PROFILE = {
     WARRIOR = { Arms = P.arms, Fury = P.fury, Protection = P.protWarrior },
     PALADIN = { Holy = P.holyPaladin, Protection = P.protPaladin, Retribution = P.retribution },
-    HUNTER = { ["Beast Mastery"] = P.hunterWH, Marksmanship = P.hunterWH, Survival = P.survival },
-    ROGUE = { Assassination = P.rogueWH, Combat = P.rogueWH, Subtlety = P.rogueWH },
+    HUNTER = { ["Beast Mastery"] = P.beastMastery, Marksmanship = P.marksmanship, Survival = P.survival },
+    ROGUE = { Assassination = P.assassination, Combat = P.combat, Subtlety = P.subtlety },
     PRIEST = { Discipline = P.discipline, Holy = P.holyPriest, Shadow = P.shadowWH },
     SHAMAN = { Elemental = P.elementalWH, Enhancement = P.enhanceWH, Restoration = P.restoShaman },
     MAGE = { Arcane = P.arcane, Fire = P.fire, Frost = P.frost },
