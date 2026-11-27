@@ -67,6 +67,9 @@ function S:PlanGear()
         local entry = { bag = bag, slot = slot, info = info }
         all[#all + 1] = entry
         if not info.usable then entry.reason = "can't use" return end
+        -- tools (a Mining Pick, a Blacksmith Hammer) and fishing poles are never "weapons" to Steward: it put the
+        -- Mining Pick on whenever the main hand was empty, then took it off again (Nick's log, 11-22 to 11-26)
+        if info.classID == 2 and (info.subClassID == 14 or info.subClassID == 20) then entry.reason = "a tool" return end
         local cmp = self:Compare(info, bag, slot)
         entry.cmp = cmp
         if not self:IsUpgrade(cmp) then entry.reason = "not an upgrade" return end
@@ -92,9 +95,29 @@ function S:CanEquipNow()
     return true
 end
 
+-- a fishing pole in your hands (1.0.2, Nick 2026-11-25: "I don't want steward unequipping fishing poles when i'm
+-- trying to fish"): Steward leaves all your gear alone until you put your weapon back on yourself
+local function fishingPoleInHand()
+    local link = GetInventoryItemLink("player", 16)
+    if not link then return false end
+    local get = (C_Item and C_Item.GetItemInfoInstant) or _G.GetItemInfoInstant
+    if not get then return false end
+    local _, _, _, _, _, classID, subClassID = get(link)
+    return classID == 2 and subClassID == 20
+end
+S.FishingPoleInHand = fishingPoleInHand
+
 function S:RunGear()
     scheduled = false
     if not self:Get("gearAuto") or self:Get("gearTest") then return end
+    if fishingPoleInHand() then
+        if not self.fishingNoted then
+            self.fishingNoted = true
+            self:Print("fishing pole in your hands: your gear stays as it is until you put your weapon back on.")
+        end
+        return
+    end
+    self.fishingNoted = nil
     local ok, why = self:CanEquipNow()
     if not ok then
         if why == "combat" then self.queuedForCombat = true else self:ScheduleGear(1) end
@@ -143,10 +166,58 @@ end
 S:On("EQUIP_BIND_CONFIRM", confirmBind)
 S:On("EQUIP_BIND_TRADEABLE_CONFIRM", confirmBind)
 
+-- you changed a piece yourself (1.0.2, Nick 2026-11-25: "it didn't switch, so steward was considering them equal? Or
+-- not? I don't understand"): one line says what Steward makes of it, by your spec's score. Steward puts the old
+-- piece back only when it's clearly better (Items.lua S:IsUpgrade: at least 1% and 0.5 points, or 10%); otherwise
+-- your choice stays on.
+local worn = {}
+local function snapshot() for slot = 1, 18 do worn[slot] = GetInventoryItemLink("player", slot) end end
+local function nameOf(link) return link and (link:match("%[(.-)%]") or link) or "nothing" end
+local function explainYourChange(slot, before)
+    if not (S:Get("gearAuto") and not S:Get("gearTest")) or fishingPoleInHand() then return end
+    local now = GetInventoryItemLink("player", slot)
+    if not (now and before) or now == before or slot == 4 or slot == 19 then return end   -- shirt, tabard
+    local info = S:ReadItem(before)
+    if not (info and info.equippable and info.usable ~= false) then return end
+    local cmp = S:Compare(info, nil, nil)
+    if not cmp then return end
+    local spec = (S:SpecLabel() or "your spec"):gsub("^Auto%-detect %((.*)%)$", "%1")
+    local yours, theirs = cmp.old, cmp.new
+    if slot >= 11 and slot <= 14 then   -- rings and trinkets: this slot's two, not the weaker of the pair
+        local w, nowInfo = S:Weights(), S:ReadItem(now)
+        if nowInfo then yours, theirs = S:Score(nowInfo, slot, w), S:Score(info, slot, w) end
+    end
+    local nums = string.format("%.1f for %s vs %.1f", yours, nameOf(now), theirs)
+    local msg
+    -- the other way round: is yours clearly better than the old one, by the same margin?
+    local back = { old = cmp.new, new = cmp.old, delta = -cmp.delta }
+    back.pct = (back.old > 0) and (back.delta / back.old * 100) or (back.new > 0 and 100 or 0)
+    if S:IsUpgrade(cmp) then
+        msg = string.format("%s scores higher for %s (%s): Steward puts it back on.", nameOf(before), spec, nums)
+    elseif S:IsUpgrade(back) then
+        msg = string.format("%s scores higher than %s for %s (%s): good pick, it stays on.", nameOf(now), nameOf(before), spec, nums)
+    else
+        msg = string.format("%s and %s score about the same for %s (%s): too close to swap either way, so yours stays on.",
+            nameOf(now), nameOf(before), spec, nums)
+    end
+    S:Print(msg)
+    S:Log("youEquipLog", { when = date("%Y-%m-%d %H:%M"), level = UnitLevel("player"), spec = spec, slot = cmp.slot,
+        item = now, replaced = before, yours = yours, theirs = theirs, pct = cmp.pct, said = msg })
+end
+S:On("PLAYER_EQUIPMENT_CHANGED", function(slot)
+    local before = slot and worn[slot]
+    if slot then worn[slot] = GetInventoryItemLink("player", slot) end
+    if not slot or GetTime() <= pendingUntil then return end   -- Steward's own change
+    C_Timer.After(0.2, function()
+        local ok, err = pcall(explainYourChange, slot, before)
+        if not ok then S:LogError("gear (your change)", err) end
+    end)
+end)
+
 local function kick() S:ScheduleGear(0.4) end
 S:On("BAG_UPDATE_DELAYED", kick)
 S:On("PLAYER_LEVEL_UP", function() wipe(failed) end)
-S:On("PLAYER_ENTERING_WORLD", function() S:ClearItemCache() S:ScheduleGear(3) end)
+S:On("PLAYER_ENTERING_WORLD", function() S:ClearItemCache() S:ScheduleGear(3) pcall(snapshot) end)
 S:On("PLAYER_LEVEL_UP", function() S:ClearItemCache() C_Timer.After(1, kick) end)
 S:On("SKILL_LINES_CHANGED", function() S:ClearItemCache() kick() end)
 S:On("CHARACTER_POINTS_CHANGED", kick)

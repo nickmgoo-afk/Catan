@@ -46,7 +46,7 @@ local PAGES = {
         { "amount", "vendorDrink", "Keep drinks", "If your class uses mana.", key2 = "drinkKeep", min = 5, max = 60, step = 5 },
         { "check", "vendorAmmo", "Keep arrows or bullets", "For the bow, crossbow or gun you have on." },
         { "amount", "vendorRunes", "Keep runes (mage)", "For the Teleport and Portal spells you know.", key2 = "runeKeep", min = 5, max = 20, step = 5 },
-        { "check", "bagsDeleteJunk", "Make room when your bags are full", "Deletes your cheapest grey item, without asking, to make room for something worth more." },
+        { "check", "bagsDeleteJunk", "Make room when your bags are full", "Offers to delete your cheapest grey item (one click) to make room for something worth more." },
         { "check", "vendorTrain", "Learn new spells at your trainer", "Everything you can afford, as soon as you talk to them." },
         { "check", "trainProfessions", "Learn new recipes at your profession trainers", "For the professions you have; it never starts a new one." },
         { "check", "demonBooks", "Buy your demons' spell books (warlock)", "At the Demon Trainer; a button by your demon's portrait teaches each one." },

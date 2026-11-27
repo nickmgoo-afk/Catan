@@ -757,7 +757,7 @@ local function sweepFrom(p, roads)
         return pts, doors
     end
     for _, q in ipairs(queue) do
-        if q.p.instance == p.instance and q.roads == roads and (q.p.world.x - p.world.x) ^ 2 + (q.p.world.y - p.world.y) ^ 2 < 250 * 250 then return nil, nil, true end
+        if not q.lift and q.p.world and q.p.instance == p.instance and q.roads == roads and (q.p.world.x - p.world.x) ^ 2 + (q.p.world.y - p.world.y) ^ 2 < 250 * 250 then return nil, nil, true end
     end
     local n = 0
     for _, q in ipairs(queue) do if not q.lift then n = n + 1 end end

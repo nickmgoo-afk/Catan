@@ -663,6 +663,8 @@ local function deleteJunk(junk)
     S.step = "delete (DeleteCursorItem)"
     DeleteCursorItem()
     S.step = nil
+    -- the game refused the delete (it does without a click behind it): the junk is still on the cursor
+    if CursorHasItem and CursorHasItem() then ClearCursor() return false end
     return true
 end
 
@@ -671,7 +673,7 @@ if StaticPopupDialogs then
         text = "%s",
         button1 = DELETE or "Delete",
         button2 = CANCEL or "Cancel",
-        OnAccept = function(self, data) S.MakeRoom(data or (self and self.data)) end,
+        OnAccept = function(self, data) S.MakeRoomClicked(data or (self and self.data)) end,
         timeout = 0, whileDead = 1, hideOnEscape = 1, showAlert = 1,
     }
 end
@@ -711,8 +713,9 @@ S:On("UI_ERROR_MESSAGE", function(_, message)
         end
         return
     end
-    -- no asking (Nick 2026-11-22: "it's simply asking for permission to delete junk, it doesn't need permission"):
-    -- the cheapest grey goes and the loot that didn't fit is taken (or the quest taken again), when it's worth it
+    -- 1.0.2: one click. 0.88.1 deleted without asking (Nick 2026-11-22: "it doesn't need permission"), but the game
+    -- refuses a delete with no click behind it (Nick's log 11-25 18:25 and 18:35: "ADDON_ACTION_BLOCKED
+    -- DeleteCursorItem()"; the junk stayed and the loot with it), so Steward asks once, and the Delete button does it
     local data, why
     if looting then
         local it = lootWorthRoom(junk)
@@ -720,16 +723,25 @@ S:On("UI_ERROR_MESSAGE", function(_, message)
         data = { lootSlot = it.slot }
         why = it.link .. (it.count > 1 and (" x" .. it.count) or "") .. (it.quest and " (quest item)" or "")
     else
+        data = {}
         why = "the quest's item"
     end
     lastOffer = GetTime()
     local gone = junk.link .. (junk.count > 1 and (" x" .. junk.count) or "")
+    data.gone, data.worth, data.why = gone, junk.worth, why
+    local text = "Your bags are full.\n\nDelete " .. gone .. " (" .. money(junk.worth) .. ", your cheapest grey) to make room for "
+        .. why .. "?"
+    if StaticPopup_Show then StaticPopup_Show("STEWARD_DELETE_JUNK", text, nil, data) end
+end)
+
+-- the Delete button: the delete, the loot (or the quest again), and a line in StewardCharDB.junkLog
+function S.MakeRoomClicked(data)
+    data = data or {}
     local ok, done = pcall(S.MakeRoom, data)
     local log = StewardCharDB.junkLog or {}
     StewardCharDB.junkLog = log
-    table.insert(log, 1, date("%m-%d %H:%M") .. (ok and done and " deleted " or " could not delete ") .. gone
-        .. " (" .. money(junk.worth) .. ") for " .. why .. (ok and "" or (": " .. tostring(done))))
-    local err = done
+    table.insert(log, 1, date("%m-%d %H:%M") .. (ok and done and " deleted " or " could not delete ") .. tostring(data.gone or "junk")
+        .. " (" .. money(data.worth or 0) .. ") for " .. tostring(data.why or "?") .. (ok and "" or (": " .. tostring(done))))
     log[31] = nil
-    if not ok then S:LogError("bagsfull", err) end
-end)
+    if not ok then S:LogError("bagsfull", done) end
+end

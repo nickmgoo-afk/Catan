@@ -36,7 +36,7 @@ S.defaults = {
     buttonPrompts = "auto", -- the button prompts the console look shows: auto, keyboard, xbox, playstation
     levelupPoster = true,  -- the LEVEL UP poster when you level up (Human Paladin, Human Warrior, Orc Warrior, Gnome Priest)
     levelupSound = true,   -- the poster plays the game's own sounds with it
-    bagsDeleteJunk = false, -- bags full: delete the cheapest grey (no asking, 0.88.1), if what you're looting is worth more (or a quest item)
+    bagsDeleteJunk = false, -- bags full: offer to delete the cheapest grey (one click, 1.0.2), if what you're looting is worth more (or a quest item)
     arrowSize = 100,       -- the guide arrow's size, in percent
     arrowLocked = false,   -- the guide arrow can't be dragged
     rotationStrip = true,  -- the rotation helper's strip of icons above the bars
@@ -104,10 +104,13 @@ end
 frame:SetScript("OnEvent", function(_, event, ...)
     local list = S.handlers[event]
     if not list then return end
+    local outer = S.curEvent
+    S.curEvent, S.outerEvent = event, outer   -- which of Steward's handlers is running (for the blocked-action note)
     for i = 1, #list do
         local ok, err = pcall(list[i], ...)
         if not ok then S:LogError(event, err) end
     end
+    S.curEvent, S.outerEvent = outer, nil
 end)
 
 -- keep the last few errors in the saved data so they can be read after a reload
@@ -247,9 +250,33 @@ end
 for _, ev in ipairs({ "ADDON_ACTION_BLOCKED", "ADDON_ACTION_FORBIDDEN" }) do
     S:On(ev, function(addon, func)
         if addon ~= ADDON then return end
-        S:LogError("blocked", ev .. " " .. tostring(func) .. (S.step and (" during " .. S.step) or ""))
+        S:LogError("blocked", ev .. " " .. tostring(func) .. (S.step and (" during " .. S.step) or "")
+            .. (S.outerEvent and (" in " .. S.outerEvent) or ""))
+        -- 1.0.3: where it came from. The game tells add-ons right away, so the Lua stack still holds the code that
+        -- made the call (the SetPassThroughButtons bursts with the map open in a fight: 11-22, 11-23, 11-26).
+        -- One per minute, the last 8, in StewardCharDB.blockedStacks.
+        local now = GetTime()
+        if StewardCharDB and (not S.lastBlockedStack or now - S.lastBlockedStack > 60) and debugstack then
+            S.lastBlockedStack = now
+            local list = StewardCharDB.blockedStacks or {}
+            StewardCharDB.blockedStacks = list
+            local wm = _G.WorldMapFrame
+            table.insert(list, 1, {
+                when = date("%m-%d %H:%M:%S"), what = ev .. " " .. tostring(func), event = S.outerEvent,
+                fight = InCombatLockdown and InCombatLockdown() or false, map = wm and wm.IsShown and wm:IsShown() or false,
+                stack = tostring(debugstack(2, 14, 0)):sub(1, 2500),
+            })
+            list[9] = nil
+        end
     end)
 end
+-- the game's own taint log (Logs\taint.log), level 1: what an add-on touched before a blocked action. Turned on
+-- once (1.0.3) to find the map's SetPassThroughButtons bursts; StewardDB.taintLogOn notes that Steward did it.
+S:On("PLAYER_LOGIN", function()
+    if StewardDB and not StewardDB.taintLogOn and GetCVar and SetCVar and GetCVar("taintLog") == "0" then
+        if pcall(SetCVar, "taintLog", "1") then StewardDB.taintLogOn = true end
+    end
+end)
 
 S:On("ADDON_LOADED", function(name)
     if name ~= ADDON then return end
@@ -304,6 +331,14 @@ SlashCmdList.STEWARD = function(msg)
             S:Set("gearSpec", found)
         end
         S:Print("stat priority: " .. S:SpecLabel())
+    elseif cmd == "travel" then
+        -- "/steward travel Name": travel to that group member; "/steward travel" alone stops
+        local who = (msg or ""):match("^%s*%S+%s+(%S+)")
+        if not who then S:FollowMember(nil) return end
+        for _, m in ipairs(S.GroupMembers and S:GroupMembers() or {}) do
+            if m.name:lower() == who:lower() then S:FollowMember(m.name) return end
+        end
+        S:Print(who .. " isn't in your group.")
     elseif cmd == "status" then
         S:Print("v" .. S.version .. " | spec: " .. S:SpecLabel())
         for _, k in ipairs({ "auto", "boe", "test", "rewards", "sell" }) do

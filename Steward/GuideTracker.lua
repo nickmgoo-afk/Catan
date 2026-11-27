@@ -104,7 +104,16 @@ local Mixin_ = {}
 -- and a click to stop
 local function partyBlock(self)
     local name, lost = S:FollowName()
-    if not name then return true end
+    if not name then
+        -- in a group: one line to pick someone to travel to (1.0.3; it was on their right-click menu)
+        if IsInGroup and IsInGroup() and S.GroupMembers and #S:GroupMembers() > 0 then
+            local pick = self:GetBlock("grouppick")
+            pick.stewardCurrent = false
+            pick:SetHeader("Travel to someone in your group")
+            if not self:LayoutBlock(pick) then return false end
+        end
+        return true
+    end
     local block = self:GetBlock("party")
     block.stewardCurrent = false
     -- the trip there (Travel.lua's planner): flights, the tram, boats, your hearthstone, in order
@@ -159,7 +168,8 @@ function layout(self)
     -- only the guide's steps go (Nick 11-22: "They should work when the guide is off").
     local guideOn = S:Get("guideShow") and (G.guide or free) and true or false
     local pinTrip = G.stepGoto and G.stepGoto.pin and true or false
-    if not (guideOn or pinTrip or S:FollowName()) then return end
+    local grouped = IsInGroup and IsInGroup() or false
+    if not (guideOn or pinTrip or S:FollowName() or grouped) then return end
     local cur = guideOn and G.current or nil
     S.trackerShownIndex = cur and cur.index or 0
     if not partyBlock(self) then return end
@@ -268,6 +278,7 @@ end
 
 function Mixin_:OnBlockHeaderClick(block, mouseButton)
     if block.id == "party" then S:FollowMember(nil) return end
+    if block.id == "grouppick" then S:PickGroupMember(block) return end
     if mouseButton == "RightButton" and block.id == "travel" and G.travel and G.travel.training then
         S:SnoozeTraining()
     elseif mouseButton == "RightButton" and block.stewardCurrent then
@@ -279,6 +290,13 @@ function Mixin_:OnBlockHeaderClick(block, mouseButton)
 end
 
 function Mixin_:OnBlockHeaderEnter(block)
+    if block.id == "grouppick" then
+        GameTooltip:SetOwner(block, "ANCHOR_LEFT")
+        GameTooltip:SetText("Steward: your group")
+        GameTooltip:AddLine("Click to pick someone: Steward plans the way to them (flights, boats, your hearthstone) and keeps up as they move.", 1, 1, 1, true)
+        GameTooltip:Show()
+        return
+    end
     if block.id == "party" then
         GameTooltip:SetOwner(block, "ANCHOR_LEFT")
         GameTooltip:SetText("Steward: your group")
@@ -670,3 +688,6 @@ function S:NativeTrackerDistance()
     end
     return module ~= nil
 end
+
+-- someone joins or leaves your group: the "Travel to someone in your group" line comes or goes
+S:On("GROUP_ROSTER_UPDATE", function() if S.RefreshGuideUI then pcall(S.RefreshGuideUI, S) end end)

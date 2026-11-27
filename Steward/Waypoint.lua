@@ -667,31 +667,24 @@ local function addTravelTo(name)
     end
 end
 S.menuDiag = S.menuDiag or {}
-if Menu and Menu.ModifyMenu then
-    local function modify(_, root, ctx)
-        local name = menuName(ctx and ctx.unit, ctx and ctx.name)
-        if not name then return end
-        local text, fn = addTravelTo(name)
-        root:CreateDivider()
-        root:CreateButton(text, fn)
-    end
-    for _, tag in ipairs({ "MENU_UNIT_PARTY", "MENU_UNIT_RAID_PLAYER", "MENU_UNIT_RAID", "MENU_UNIT_PLAYER", "MENU_UNIT_FRIEND" }) do
-        local ok = pcall(Menu.ModifyMenu, tag, modify)
-        S.menuDiag[tag] = ok
-    end
-    S.menuDiag.kind = "Menu"
-elseif hooksecurefunc and UnitPopup_ShowMenu and UIDropDownMenu_AddButton then
-    hooksecurefunc("UnitPopup_ShowMenu", function(_, which, unit, name)
-        if (UIDROPDOWNMENU_MENU_LEVEL or 1) ~= 1 then return end
-        if which ~= "PARTY" and which ~= "RAID_PLAYER" and which ~= "RAID" and which ~= "PLAYER" and which ~= "FRIEND" then return end
-        local who = menuName(unit, name)
-        if not who then return end
-        local text, fn = addTravelTo(who)
-        UIDropDownMenu_AddButton({ text = text, notCheckable = true, func = fn }, 1)
+-- 1.0.3: no longer on the game's right-click menus. Any add-on line on a unit's menu (Menu.ModifyMenu) leaves that
+-- menu's code tainted, and its Discord buttons' C_Discord.IsUserOAuthed (a restricted call) then came out as
+-- "ADDON_ACTION_FORBIDDEN ... Steward" with the game's "blocked" pop-up (Nick's logs: 11-25 20:41:26 x8 on Sterik,
+-- 11-26 12:57 x20 on Thoraic, both in a group with a friend). Now: the tracker's "Travel to someone in your group"
+-- line opens Steward's own little menu (S:PickGroupMember), and "/steward travel <name>".
+S.menuDiag.kind = "tracker"
+function S:PickGroupMember(owner)
+    local list = {}
+    for _, m in ipairs(self:GroupMembers()) do list[#list + 1] = m end
+    if #list == 0 then return end
+    if #list == 1 or not (MenuUtil and MenuUtil.CreateContextMenu) then self:FollowMember(list[1].name) return end
+    MenuUtil.CreateContextMenu(owner, function(_, root)
+        root:CreateTitle("Travel to")
+        for _, m in ipairs(list) do
+            local label = m.name .. (m.dist and string.format("  (%d yards)", m.dist) or "")
+            root:CreateButton(label, function() S:FollowMember(m.name) end)
+        end
     end)
-    S.menuDiag.kind = "UnitPopup"
-else
-    S.menuDiag.kind = "none"
 end
 S:On("PLAYER_ENTERING_WORLD", function() if StewardDB then StewardDB.menuDiag = S.menuDiag end end)
 function S:FollowMember(name)
