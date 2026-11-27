@@ -151,6 +151,8 @@ function S:InitOptions()
     if ssInit and ssInit.SetParentInitializer then
         ssInit:SetParentInitializer(gInit, function() return gShow:GetValue() end)
     end
+    addCheckbox(guidePage, "profGuide", "Profession guide",
+        "For each profession you have: Wowhead's WoW Forever leveling steps in the tracker (what to make, how many, what you still need, where to learn the recipe or next rank). Click a block for the trip there; the button beside it makes the item. Mining and Herbalism: a loop through the best zone's nodes for your skill.")
     addCheckbox(guidePage, "rxpRoute", "Route to RestedXP's waypoint",
         "With the RestedXP Guides add-on running, Steward plans the way to the spot RestedXP's arrow points at (flight paths, boats, the tram, your hearthstone, running) and follows it as RestedXP moves on. Steward's own guide waits meanwhile. Steward reads only that one spot from RestedXP.")
     addCheckbox(guidePage, "guideDungeons", "Include dungeons",
@@ -369,6 +371,8 @@ function S:InitOptions()
         "A mage who knows a Teleport spell keeps Runes of Teleportation, and one who knows a Portal spell keeps Runes of Portals, when the merchant sells them.")
     local _, rkInit = addSlider(vendor, "runeKeep", "How many of each rune", "Buys up to this many.", 5, 20, 5, tostring)
     under(rkInit, rnInit, function() return rSet:GetValue() end)
+    addCheckbox(vendor, "profBuy", "Buy for your professions",
+        "With the profession guide on: buys the recipe, the rank book and the vendor materials for your current profession step when the merchant sells them (never more than 60% of your money in one visit). A chat line lists what it bought.")
     addCheckbox(vendor, "bagsDeleteJunk", "Delete junk when your bags are full",
         "When your bags are full, Steward deletes your cheapest grey item, no asking, but only if it's worth it: when looting, only for a quest item or something that sells for more than that grey (then it loots it for you); when a quest hands you an item, always (then it takes the quest again). The game only lets an add-on delete during a key press or click, so it happens on your very next one (moving counts). A chat line says what went; each one is noted in your saved data.")
     addCheckbox(vendor, "vendorTrain", "Learn new spells at your class trainer",

@@ -713,12 +713,25 @@ end
 -- next key you press (moving, a spell) or click you make (an action button, the world, the loot window) does it.
 local armed -- { looting = bool, at = GetTime() }
 local keyCatcher
+local queued
 local function disarm()
     armed = nil
-    if keyCatcher then keyCatcher:Hide() end
+    if keyCatcher and not (queued and next(queued)) then keyCatcher:Hide() end
 end
+-- 1.1.0: other jobs that need a key press or click (learning a recipe from your bags): S:OnNextPress(key, fn)
+queued = {}
 local function fire(how)
-    if not armed or S.makingRoom then return end
+    if S.makingRoom then return end
+    if next(queued) then
+        local jobs = queued
+        queued = {}
+        for k, fn in pairs(jobs) do
+            local ok, err = pcall(fn, how)
+            if not ok then S:LogError("nextpress:" .. tostring(k), err) end
+        end
+        if not armed and keyCatcher then keyCatcher:Hide() end
+    end
+    if not armed then return end
     local a = armed
     disarm()
     if GetTime() - a.at > 60 then return end
@@ -750,6 +763,19 @@ local function hookHardware()
     end
 end
 S:On("PLAYER_LOGIN", hookHardware)
+-- show the key watcher (only once keys are confirmed to pass on to the game)
+local function watchKeys()
+    hookHardware()
+    if not keyCatcher then return end
+    if not InCombatLockdown() then pcall(keyCatcher.SetPropagateKeyboardInput, keyCatcher, true) end
+    local okP, passes = pcall(keyCatcher.GetPropagateKeyboardInput, keyCatcher)
+    if not keyCatcher.GetPropagateKeyboardInput or (okP and passes) then keyCatcher:Show() end
+end
+function S:OnNextPress(key, fn)
+    queued[key] = fn
+    watchKeys()
+end
+function S:CancelNextPress(key) queued[key] = nil end
 S:On("LOOT_CLOSED", function() if armed and armed.looting then disarm() end end)
 S:On("QUEST_FINISHED", function() if armed and not armed.looting then disarm() end end)
 
@@ -768,12 +794,7 @@ S:On("UI_ERROR_MESSAGE", function(_, message)
     if not planRoom(looting) then return end
     hookHardware()
     armed = { looting = looting and true or false, at = GetTime() }
-    if keyCatcher then
-        -- keys must still reach the game: show the watcher only once pass-through is confirmed
-        pcall(keyCatcher.SetPropagateKeyboardInput, keyCatcher, true)
-        local okP, passes = pcall(keyCatcher.GetPropagateKeyboardInput, keyCatcher)
-        if not keyCatcher.GetPropagateKeyboardInput or (okP and passes) then keyCatcher:Show() end
-    end
+    watchKeys()
 end)
 
 -- the delete, the loot (or the quest again), a chat line, and a line in StewardCharDB.junkLog

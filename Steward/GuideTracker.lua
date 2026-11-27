@@ -151,13 +151,22 @@ local function partyBlock(self)
     return true
 end
 
-local layout
+local layout, guideLayout
 function Mixin_:LayoutContents()
     local ok, err = pcall(layout, self)
     if not ok then S:LogError("tracker", err) end
 end
 
+-- the guide's blocks, then your professions' (1.1.0)
 function layout(self)
+    guideLayout(self)
+    if S.ProfessionBlocks then
+        local ok, err = pcall(S.ProfessionBlocks, S, self, addLine)
+        if not ok then S:LogError("professions", err) end
+    end
+end
+
+function guideLayout(self)
     G.distLine = nil
     S.trackerLaidOut = GetTime()
     S.trackerShownIndex = nil
@@ -177,14 +186,14 @@ function layout(self)
     if G.travelPending and not (G.travel and #G.travel > 0) then
         -- the trip is being worked out (the walks are being measured): no guessed legs meanwhile
         local block = self:GetBlock("travel")
-        block:SetHeader(G.stepGoto and G.stepGoto.rxp and "Travel to RestedXP's waypoint" or G.stepGoto and G.stepGoto.pin and "Travel to your map pin" or "Travel")
+        block:SetHeader(G.stepGoto and G.stepGoto.prof and ("Travel to " .. G.stepGoto.friendName) or G.stepGoto and G.stepGoto.rxp and "Travel to RestedXP's waypoint" or G.stepGoto and G.stepGoto.pin and "Travel to your map pin" or "Travel")
         block.stewardCurrent = false
         block:AddObjective("leg1", "Working out the way there...")
         if not self:LayoutBlock(block) then return end
     elseif G.travel and #G.travel > 0 then
         local block = self:GetBlock("travel")
         local mins = G.travel.total and math.max(1, math.floor(G.travel.total / 60 + 0.5))
-        local title = G.travel.training and "Train new abilities" or (G.stepGoto and G.stepGoto.rxp and "Travel to RestedXP's waypoint") or (G.stepGoto and G.stepGoto.pin and "Travel to your map pin") or "Travel"
+        local title = G.travel.training and "Train new abilities" or (G.stepGoto and G.stepGoto.prof and ("Travel to " .. G.stepGoto.friendName)) or (G.stepGoto and G.stepGoto.rxp and "Travel to RestedXP's waypoint") or (G.stepGoto and G.stepGoto.pin and "Travel to your map pin") or "Travel"
         block:SetHeader(title .. (mins and (" (about " .. mins .. " min)") or ""))
         block.stewardCurrent = false
         for i, leg in ipairs(G.travel) do
@@ -205,7 +214,7 @@ function layout(self)
     local ag = G.activeGoto
     if ag and ag.sideLabel and not ag.travel and not ag.friend and not (ag.pin and G.travelPending) then
         local block = self:GetBlock("detour")
-        block:SetHeader(ag.escort and "Escort" or ag.rxp and "RestedXP" or ag.pin and "Map pin" or "On the way")
+        block:SetHeader(ag.escort and "Escort" or ag.prof and "Profession" or ag.rxp and "RestedXP" or ag.pin and "Map pin" or "On the way")
         block.stewardCurrent = false
         block:AddObjective("d1", ag.sideLabel)
         if not self:LayoutBlock(block) then return end
@@ -277,6 +286,7 @@ function layout(self)
 end
 
 function Mixin_:OnBlockHeaderClick(block, mouseButton)
+    if block.stewardProf and S.ProfessionClick then S:ProfessionClick(block.stewardProf, mouseButton) return end
     if block.id == "party" then S:FollowMember(nil) return end
     if block.id == "grouppick" then S:PickGroupMember(block) return end
     if mouseButton == "RightButton" and block.id == "travel" and G.travel and G.travel.training then
@@ -290,6 +300,7 @@ function Mixin_:OnBlockHeaderClick(block, mouseButton)
 end
 
 function Mixin_:OnBlockHeaderEnter(block)
+    if block.stewardProf and S.ProfessionTooltip then S:ProfessionTooltip(block, block.stewardProf) return end
     if block.id == "grouppick" then
         GameTooltip:SetOwner(block, "ANCHOR_LEFT")
         GameTooltip:SetText("Steward: your group")

@@ -1027,6 +1027,7 @@ function S:UpdateWaypoint()
         end
     end
     if not pin then pin = self:RxpTarget() end   -- RestedXP's waypoint: it stays until RestedXP moves its arrow on
+    if not pin and self.ProfTarget then pin = self:ProfTarget() end   -- 1.1.0: a profession trip (a vendor, a trainer, a node loop)
     if pin then
         G.stepGoto = pin
         lastTarget = nil                           -- Steward's own pin goes back on once yours is gone

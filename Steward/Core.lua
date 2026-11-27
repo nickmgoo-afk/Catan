@@ -53,6 +53,8 @@ S.defaults = {
     guideDungeons = false, -- the guide's dungeon route (Skyborne mage: their chapters 40-92 with dungeons); off = solo route
     guideDynamic = true,   -- smart routing: do the guide's tasks in the order that walks the least
     guideArrow = true,     -- on-screen arrow pointing to the next waypoint
+    profGuide = true,      -- 1.1.0: your professions' next steps (Wowhead's Forever guides) in the tracker
+    profBuy = true,        -- 1.1.0: buy the recipe, rank book and vendor materials for your profession step at merchants
     rxpRoute = false,      -- plan the trip to RestedXP's waypoint (its arrow's spot) when RestedXP Guides is running
     mapStepSpots = true,   -- gold dots on the world map (0.90.0) and minimap (0.90.1) for the step's other spots still to do
     arrowStyle = "navigation", -- which of the game's arrows to use
